@@ -22,9 +22,7 @@
                 <p>输入验证码</p>
                 <input type="text" value="输入6位短信验证码" placeholder="输入6位短信验证码" id="password">
                 <input type="button" value="获取验证码" class="button">
-				<navigator url="../ind/ind">
-					<input type="submit" value="登录" class="sign_btn">
-				</navigator>
+				<input type="submit" value="登录" class="sign_btn" @click="goInd">
               </form>
               <div class="other">
                 <p>金 山 银 山 不 如 绿 水 青 山</p>
@@ -72,17 +70,26 @@ export default {
     table(index) {
       this.num = index;
     },
+	goInd() {
+		uni.switchTab({
+			url: '../ind/ind'
+		})
+	}
+  },
+  onShow() { // 登录界面显示时获取html元素添加类名，加背景图
+  	document.getElementsByTagName("html")[0].className="brg";
+  },onHide() { // 登录页隐藏时去掉类名
+  	document.getElementsByTagName("html")[0].className="";
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+	
   .hello{
     width: 100%;
     height: 100%;
-	background: url(../../static/background.jpg) no-repeat;
-	background-size: 100%;
   }
   .text{
     width: 100%;

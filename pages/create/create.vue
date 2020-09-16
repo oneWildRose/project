@@ -1,0 +1,257 @@
+<template> <!-- 创建项目 -->
+	<view>
+		<div class='goback' @click='goBack'>
+			<image src="../../static/fanhui.png" mode=""></image>
+		</div>
+		<div class='text'>
+			<p>创建项目</p>
+			<text>填写项目的完整信息</text>
+		</div>
+		<div class='step'> <!-- 步骤条 -->
+			<!-- 圆 -->
+			<div class='cir'>
+				<div>
+					<text>填写项目信息</text>
+				</div>
+				<div></div>
+				<div></div>
+			</div>
+			<!-- 线 -->
+			<div class=wire>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+		<div class="message">
+			<input type="text" value="企业名称" />
+			<input type="text" value="项目名称" />
+			
+			<div class='city'>
+				<text>项目地址</text>
+				
+				<div>
+					<div>
+						<regionPicker
+						   class='choose'
+						  :multiIndex_="provinceCityArea"
+						  @selecteRegion_="selecteProvinceCityArea"
+						  :column_="1"
+						/>
+					</div>
+					<div>
+						
+					</div>
+					<div>
+						
+					</div>
+					<!-- <regionPicker
+					  :multiIndex_="provinceCityArea"
+					  @selecteRegion_="selecteProvinceCityArea"
+					  :column_="1"
+					/> -->
+				</div>
+			</div>
+			
+			
+			
+			<input type="text" value='详细地址'>
+			<input type="text" value='负责人'>
+			<input type="text" value='项目进场时间'>
+		</div>
+		<navigator class="next" url='./create_sure'>
+			<button type="default">下一步</button>
+		</navigator>
+		<text class='resetting'>重置</text>
+	</view>
+</template>
+
+<script>
+	import regionPicker from "./commponents/region-picker.vue";
+	
+	export default {
+		components: {
+			regionPicker,
+		},
+		data() {
+			return {
+				province: [],
+				provinceCity: [],
+				provinceCityArea: [],
+				selections: [],
+				selections1: [],
+				selections2: ["14", "14002", "14002002"],
+			}
+		},
+		methods: {
+			goBack() {
+				uni.navigateBack({})
+			},
+			selecteProvince(value) {
+			  this.province = value;
+			},
+			selecteProvinceCity(value) {
+			  this.provinceCity = value;
+			},
+			selecteProvinceCityArea(value) {
+			  this.provinceCityArea = value;
+			},
+			selecteRegion(value) {
+			  this.selections = value;
+			},
+			selecteRegion1(value) {
+			  this.selections1 = value;
+			},
+			
+			selecteRegion2(value) {
+			  this.selections2 = value;
+			},
+		}
+	}
+</script>
+
+<style lang="less">
+	.container {
+	  padding: 20px;
+	  font-size: 14px;
+	  line-height: 24px;
+	}
+	
+	.goback{
+		width: 92%;
+		margin: 10px auto;
+		image{
+			width: 26px;
+			height: 26px;
+		}
+	}
+	.text{
+		width: 92%;
+		margin: 0 auto;
+		p{
+			font-weight: bold;
+		}
+		text{
+			font-size: 14px;
+			color: #8C8484;
+		}
+	}
+	.step{
+		width: 80%;
+		height: 40px;
+		// border: 1px solid red;
+		margin: 10px auto;
+		position: relative;
+		.cir{
+			width: 100%;
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: space-around;
+			div{
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				border: .5px solid #D9D9D9;	
+				background: white;
+				position: relative;
+				&:nth-of-type(1){
+					background: url(../../static/完成.svg) no-repeat;
+					background-size: 116%;
+					background-position: -2px -2px;
+					border: none;
+				}
+				text{
+					position: absolute;
+					left: -150%;
+					bottom: -100%;
+					width: 100px;
+					text-align: center;
+					font-size: 12px;
+				}
+			}
+		}
+		.wire{
+			width: 59.5%;
+			margin: -6.5% auto;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			div{
+				width: 43%;
+				border: 1px solid #D9D9D9;
+				&:nth-of-type(1){
+					width: 42%;
+				}
+			}
+		}
+	}
+	.message{
+		width: 80%;
+		height: 400px;
+		box-shadow: #D2D2D2 1px 2px 4px 2px;
+		border-radius: 6px;
+		background: white;
+		margin: 50px auto;
+		padding: 20px 10px;
+		input{
+			width: 80%;
+			height: 42px;
+			line-height: 42px;
+			text-align: left;
+			text-indent: 20px;
+			color: #86868A;
+			background: #F6F8FF;
+			margin: 20px auto;
+			border-radius: 20px;
+			font-size: 16px;
+		}
+		.city{
+			width: 86%;
+			height: 42px;
+			font-size: 16px;
+			line-height: 42px;
+			text-align: left;
+			text-indent: 16px;
+			margin: 16px auto;
+			// border: 1px solid red;
+			display: flex;
+			&>div{
+				width: 70%;
+				height: 100%;
+				// border: 1px solid red;
+				display: flex;
+				justify-content: space-around;
+				align-items: center;
+				&>div{
+					width: 56px;
+					height: 42px;
+					border: 1px solid blue;
+				}
+			}
+			.choose{
+				border: 1px solid red;
+				font-size: 12px;
+				height: 42px;
+			}
+		}
+	}
+	uni-button[type=default]{ /* .next 元素 */
+		width: 80%;
+		height: 42px;
+		text-align: center;
+		line-height: 42px;
+		background: #3F5DE3 !important;
+		border: none;
+		outline: none;
+		border-radius: 30px;
+		margin: 10px auto;
+		color: white;
+	}
+	.resetting{
+		display: block;
+		margin-top: 20px;
+		width: 100%;
+		text-align: center;
+		font-size: 14px;
+	}
+</style>

@@ -11,14 +11,48 @@
 		},{
 			"path": "pages/index/index",
 			"style": {}
+		},
+        {
+            "path" : "pages/personal/personal",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/create/create",
+            "style" : {}
+        }
+        ,{
+            "path" : "pages/project/project",
+            "style" : {}
+        },
+		{
+		    "path" : "pages/create/create_sure",
+		    "style" : {}
+		},
+		{
+		    "path" : "pages/create/success",
+		    "style" : {}
 		}
-	    
-        
     ],
 	"globalStyle": {
-		"navigationBarTextStyle": "",
+		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "",
 		"navigationBarBackgroundColor": "",
 		"backgroundColor": ""
+	},
+	"tabBar": { // 首页的 tab导航栏
+	    "color": "black",
+	    "selectedColor": "#3F5DE3",
+	    "backgroundColor": "white",
+	    "list": [{
+	        "pagePath": "pages/ind/ind",
+	        "iconPath": "static/首页.png",
+	        "selectedIconPath": "static/首页 (1).png",
+	        "text": "首页"
+	    }, {
+	        "pagePath": "pages/personal/personal",
+	        "iconPath": "static/我的.png",
+	        "selectedIconPath": "static/我的 (1).png",
+	        "text": "个人中心"
+	    }]
 	}
 }

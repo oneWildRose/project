@@ -1,4 +1,4 @@
-<template>
+<template> <!-- 首页 -->
 	<view>
 		<view class="head">
 			<view class="search">
@@ -11,19 +11,20 @@
 		</view>
 		<view class="bottom">
 			<view class="text">
-				<text>专注项目品质</text>
+				<view>专注项目品质</view>
 				<text>专家协作，指定优秀项目方案</text>
 			</view>
-			<uni-list>
-				<uni-list-item title="" note="">
-					<view class="">
-						
-					</view>
-				</uni-list-item>
-			</uni-list>
-		</view>
-		<view class="foot">
-			
+			<ul>
+				<li title="" note="" v-for='(item, index) in list' :key='index'>
+					<navigator :url='item.method'>
+						<img :src="item.img" alt="example">
+						<view class="">
+							<p>{{ item.title }}</p>
+							<p>{{ item.content }}</p>
+						</view>
+					</navigator>
+				</li>
+			</ul>
 		</view>
 	</view>
 </template>
@@ -34,16 +35,19 @@
 			return {
 				list: [
 					{
-						img: '',
+						img: '../../static/create.svg',
 						title: '创建项目',
-						content: '创建项目，填写项目完整信息，专家协作制定项目方案'
+						content: '创建项目，填写项目完整信息，专家协作制定项目方案',
+						method: '../create/create'
 					},
 					{
-						img: '',
+						img: '../../static/guanli.svg',
 						title: '项目管理',
-						content: '查看所有项目并可以对项目进行编辑，记录了项目上的实时数据'
+						content: '查看所有项目并可以对项目进行编辑，记录了项目上的实时数据',
+						method: '../project/project'
 					}
-				]
+				],
+				num: 0,
 			}
 		},
 		methods: {
@@ -88,6 +92,7 @@
 			}
 		}
 	}
+	
 	.middle{
 		width: 96%;
 		margin: 10px auto;
@@ -98,4 +103,57 @@
 			border-radius: 10px;
 		}
 	}
+	
+	.bottom{
+		width: 100%;
+		margin-top: 20px;
+		.text{
+			width: 90%;
+			margin: 0 auto;
+			text-align: left;
+			view{
+				font-weight: bold;
+			}
+			text{
+				font-size: 15px;
+				color: #8C8C8C;
+			}
+		}
+		ul{
+			li{
+				width: 90%;
+				height: 100px;
+				margin: 14px auto;
+				// border: 1px solid blue;
+				background: white;
+				box-shadow: #D2D2D2 1px 2px 6px 2px;
+				border-radius: 10px;
+				display: block;
+				position: relative;
+				img{
+					width: 38px;
+					height: 38px;
+					// border: 1px solid red;
+					padding: 30px;
+				}
+				view{
+					width: 60%;
+					// border: 1px solid red;
+					position: absolute;
+					left: 30%;
+					top: 16%;
+					p:nth-of-type(1){
+						font-weight: bold;
+						font-size: 16px;
+						margin-bottom: 10px;
+					}
+					p:nth-of-type(2){
+						color: #8c8c8c;
+						font-size: 12px;
+					}
+				}
+			}
+		}
+	}
+	
 </style>
