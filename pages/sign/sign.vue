@@ -2,6 +2,7 @@
   <div class="hello">
     <!-- 界面上方文字 -->
     <div class="text">
+	  <p class='kong'></p>
       <p class="one">轩然</p>
       <p class="two">Xuan Ran</p>
       <p class="three">认真做绿化 踏实做品质</p>
@@ -12,40 +13,63 @@
         <div>
           <div class="kong"></div>
           <div class="top">
-            <span v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">{{ item }}</span>
+            <span v-show='num != 2' v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">{{ item }}</span>
+			<span class='modification active' v-if='num==2' >修改密码</span>
           </div>
           <ul class="conent">
             <li class="sign_in" v-show="num == 0">
               <form action="" method="post">
                 <p>输入手机号码</p>
-                <input type="text" value="输入手机号码\帐号\邮箱" placeholder="输入手机号码\帐号\邮箱" id="accounts" style="height:25px;width:200px;font-size: 10px;">
+                <input type="text" placeholder="输入手机号码" id="accounts" style="height:40px;width:100%;font-size: 10px;">
                 <p>输入验证码</p>
-                <input type="text" value="输入6位短信验证码" placeholder="输入6位短信验证码" id="password">
-                <input type="button" value="获取验证码" class="button">
-				<input type="submit" value="登录" class="sign_btn" @click="goInd">
+                <input type="text" placeholder="输入8-16位密码" id="password">
+                <p type="default" class="forget" @click='forget'>忘记密码？</p>
+				<button class="sign_btn" @click="goInd">登录</button>
               </form>
               <div class="other">
                 <p>金 山 银 山 不 如 绿 水 青 山</p>
                 <div></div>
                 <p>第三方登录</p>
-                <a href="javascript:;"><img src="../../static/weixin.png" alt=""></a>
-                <a href="javascript:;"><img src="../../static/weibo.png" alt=""></a>
-                <a href="javascript:;"><img src="../../static/dingding.png" alt=""></a>
+                <a href="javascript:;" style='margin-left: 24px;'>
+					<image :src="require('../../static/weixin.png')" mode=""></image>
+				</a>
+                <a href="javascript:;">
+					<image :src="require('../../static/weibo.png')" mode=""></image>
+				</a>
+                <a href="javascript:;">
+					<image :src="require('../../static/dingding.png')" mode=""></image>
+				</a>
               </div>
             </li>
             <li class="register" v-show="num == 1"> 
               <form action="" method="post">
-                <p>输入昵称</p>
-                <input type="text" value="输入昵称" style="height:25px;width:200px;font-size: 10px;">
                 <p>输入手机号码</p>
-                <input type="text" value="输入手机号码">
+                <input type="text" placeholder="输入手机号码">
 				<p>输入验证码</p>
-				<input type="text" value="输入6位短信验证码" id="password" style="width: 110px;">
-                <input type="button" value="获取验证码" class="re_code">
-                <input type="submit" value="立即注册" class="register_btn">
+				<input type="text" placeholder="输入6位短信验证码" id="password">
+				<button type="default" class="re_code">获取验证码</button>
+				<p>输入密码</p>
+				<input type="text" placeholder="输入8-16位密码" />
+				<p>再次输入密码</p>
+				<input type="text" placeholder="输入8-16位密码" />
+                <button class="register_btn">立即注册</button>
               </form>
             </li>
-          </ul>
+			<li class='xg register' v-show='num == 2'>
+				<form action="" method="post">
+				  <p>输入手机号码</p>
+				  <input type="text" placeholder="输入手机号码">
+					<p>输入验证码</p>
+					<input type="text" placeholder="输入6位短信验证码" id="password">
+					<button type="default" class="re_code">获取验证码</button>
+					<p>输入新密码</p>
+					<input type="text" placeholder="输入8-16位密码" />
+					<p>再次输入密码</p>
+					<input type="text" placeholder="输入8-16位密码" />
+				  <button @click="goSign" class="register_btn">确认修改</button>
+				</form>
+			</li>
+		  </ul>
         </div>
 
         
@@ -63,7 +87,7 @@ export default {
   data(){
     return {
       tabs: ['登录', '注册'],
-      num: 0,
+      num: 0, // 控制 '登录' '注册' '修改密码' 三个功能的显示隐藏
     }
   },
   methods: {
@@ -74,12 +98,18 @@ export default {
 		uni.switchTab({
 			url: '../ind/ind'
 		})
-	}
+	},
+	forget() {
+		this.num = 2
+	},
+	goSign() {
+		this.num = 0
+	},
   },
-  onShow() { // 登录界面显示时获取html元素添加类名，加背景图
-  	document.getElementsByTagName("html")[0].className="brg";
-  },onHide() { // 登录页隐藏时去掉类名
-  	document.getElementsByTagName("html")[0].className="";
+  onShow() {
+	  
+  },onHide() {
+	  
   }
 }
 </script>
@@ -87,16 +117,22 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 	
+	uni-page-body{
+		height: 100%;
+	}
   .hello{
     width: 100%;
-    height: 100%;
+    height: 100%; 
+	background: url(../../static/background.jpg) no-repeat;
+	background-size: 100%;
   }
   .text{
     width: 100%;
     /* border: 1px solid red; */
     text-align: left;
-    padding-left: 5%;
-    margin-top: 6%;
+    /* padding-left: 5%; */
+    /* margin-top: 6%; */
+	text-indent: 5%;
 	font-family: '微软雅黑';
   }
   .one{
@@ -134,6 +170,11 @@ export default {
     padding-bottom: 4px;
 	margin-bottom: 34px;
   }
+  .top .modification{
+	  position: absolute;
+	  left: 2px;
+	  bottom: 0;
+  }
   .kong{
     height: 26px;
   }
@@ -150,27 +191,24 @@ export default {
     padding-bottom: 5px;
   }
   .top span:nth-of-type(2){
-    padding-left: 8px;
-    padding-right: 10px;
+    padding-left: 10px;
+    padding-right: 11px;
+	position: absolute;
+	right: 30px;
+	top: 17%;
   }
   .top .active{
     color: #3F5DE3;
     border-bottom: 2.5px solid #3F5DE3;
   }
-  .top span:nth-of-type(2){
-    position: absolute;
-    right: 30px;
-    top: 18%;
-  }
   .conent .sign_in{
     padding-top: 10px;
-    padding-left: 6px;
     text-align: left;
   }
   .conent .sign_in #accounts{
 	  border: 1px solid #C3C3C3;
 	  padding: 4px;	  
-	  color: #C3C3C3;
+	  /* color: #C3C3C3; */
 	  border-radius: 8px;
   }
   .conent .sign_in p{
@@ -184,36 +222,30 @@ export default {
 	  margin-top: 0px;
   }
   .conent .sign_in #password{
-    width: 50%;
-    height:25px;
+    width: 100%;
+    height: 40px;
     font-size: 12px;	  
-	color: #C3C3C3;
+	/* color: #C3C3C3; */
     margin-right: 10px;
 	border: 1px solid #C3C3C3;
 	padding: 4px;
 	border-radius: 8px;
   }
-  .button{
-	width: 22%;
-    height: 25px;
-	position: absolute;
-	right: 18%;
-	top: 45.3%;
+  .conent .sign_in p.forget{
 	font-size: 12px;
-	text-align: center;
-    background:#3F5DE3;
-    color: white;
-    border-radius: 4px;
-    padding: 4px;
-    border: none;
+	text-align: right;
+    color: #C3C3C3;
+	margin-top: 10px;
+	margin-right: 0px;
   }
   .sign_btn{
     width: 60%;
     margin-left: -90px;
-    height: 50px;
+    height: 42px;
+	font-size: 18px;
     position: absolute;
     left: 50%;
-    bottom: -26px;
+    bottom: -22px;
     background: #3F5DE3;
     color: white;
     border-radius: 24px;
@@ -222,7 +254,7 @@ export default {
   }
   .other{
     width: 80%;
-    margin: 80px auto;
+    margin: 50px auto;
     text-align: center;
   }
   .other p:nth-of-type(1){
@@ -249,7 +281,7 @@ export default {
   .other a:nth-of-type(1){
     margin-left: 4px;
   }
-  .other img{
+  .other image{
     width: 100%;
     height: 100%;
   }
@@ -260,39 +292,31 @@ export default {
 	/* border: 1px solid red; */
 	text-align: left;
 	font-size: 14px;
-	font-weight: bold;
-	padding-left: 2px;
   }
   .register p{
 	  font-size: 13px;
 	  margin-top: 20px;
 	  margin-bottom: 4px;
 	  margin-left: 6px;
+	  font-weight: bold;
   }
-  .register div{
-    width: 90%;
-    height: 30px;
-    line-height: 30px;
-    margin-bottom: 10px;
-    position: relative;
-  }
-  .uni-input-placeholder.input-placeholder{
-	  display: none;
+  .register p:nth-of-type(1){
+	  padding-top: 10px;
   }
   .register input{
-    width: 84%;
-    height: 25px;    
-	line-height: 30px;
+    width: 100%;
+    height: 40px;    
+	line-height: 40px;
     border-radius: 12px;
     text-align: left;
     padding-left: 30px;
-    color: #C3C3C3;
+    /* color: #C3C3C3; */
     font-size: 12px;
 	border: 1px solid #C3C3C3;
 	padding: 4px;
 	border-radius: 8px;
   }
-  .register div img{
+  .register div image{
     width: 20px;
     height: 20px;
     position: absolute;
@@ -301,8 +325,8 @@ export default {
     margin-top: -10px;
   }
   .register #password{
-	  width: 40%;
-	  height:25px;
+	  width: 60%;
+	  height:40px;
 	  font-size: 12px;
 	  margin-right: 10px;
 	  border: 1px solid #C3C3C3;
@@ -310,15 +334,19 @@ export default {
 	  border-radius: 8px;
   }
   .register .re_code{
-    width: 74px;
-    height: 26px;
-	text-align: center;
-    border: none;
-    color: white;
-	background: #3F5DE3;
-    position: absolute;
-    right: 60px;
-    top: 59.8%;
+	  width: 24%;
+	  height: 39px;
+	  line-height: 40px;
+	  position: absolute;
+	  right: 11%;
+	  top: 47%;
+	  font-size: 12px;
+	  text-align: center;
+	  background:#3F5DE3;
+	  color: white;
+	  border-radius: 4px;
+	  padding: 0 4px;
+	  border: none;
   }
   .register .register_btn{	
 	width: 59.6%;
@@ -326,9 +354,9 @@ export default {
 	height: 42px;
 	position: absolute;
 	left: 50%;
+	bottom: -22px;
 	font-size: 18px;
 	font-weight: normal;
-	bottom: -26px;
 	background: #3F5DE3;
 	color: white;
 	border-radius: 24px;

@@ -239,7 +239,7 @@ export default {
   },
 };
 </script>
-<style>
+<style lang="less">
 .cu-form-group {
   width: 100%;
 }

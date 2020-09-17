@@ -25,14 +25,14 @@
 			</div>
 		</div>
 		<div class="message">
-			<input type="text" value="企业名称" />
-			<input type="text" value="项目名称" />
+			<input type="text" placeholder="企业名称" />
+			<input type="text" placeholder="项目名称" />
 			<div class='city'>
 				<text>项目地址</text>
 			</div>
-			<input type="text" value='详细地址'>
-			<input type="text" value='负责人'>
-			<input type="text" value='项目进场时间'>
+			<input type="text" placeholder='详细地址'>
+			<input type="text" placeholder='负责人'>
+			<input type="text" placeholder='项目进场时间'>
 		</div>
 		<navigator class="next" url='./success'>
 			<button type="default">提交</button>
@@ -99,13 +99,13 @@
 				background: white;
 				position: relative;
 				&:nth-of-type(1){
-					background: url(../../static/完成.svg) no-repeat;
+					background: url(../../static/wancheng.svg) no-repeat;
 					background-size: 116%;
 					background-position: -2px -2px;
 					border: none;
 				}
 				&:nth-of-type(2){
-					background: url(../../static/完成.svg) no-repeat;
+					background: url(../../static/wancheng.svg) no-repeat;
 					background-size: 116%;
 					background-position: -2px -2px;
 					border: none;

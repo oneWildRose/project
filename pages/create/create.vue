@@ -23,40 +23,26 @@
 			</div>
 		</div>
 		<div class="message">
-			<input type="text" value="企业名称" />
-			<input type="text" value="项目名称" />
+			<input type="text" placeholder="企业名称" />
+			<input type="text" placeholder="项目名称" />
 			
 			<div class='city'>
 				<text>项目地址</text>
-				
 				<div>
-					<div>
-						<regionPicker
-						   class='choose'
-						  :multiIndex_="provinceCityArea"
-						  @selecteRegion_="selecteProvinceCityArea"
-						  :column_="1"
-						/>
-					</div>
-					<div>
-						
-					</div>
-					<div>
-						
-					</div>
-					<!-- <regionPicker
+					<regionPicker
+					   class='choose'
 					  :multiIndex_="provinceCityArea"
 					  @selecteRegion_="selecteProvinceCityArea"
-					  :column_="1"
-					/> -->
+					  :column_="3"
+					/>
 				</div>
 			</div>
 			
 			
 			
-			<input type="text" value='详细地址'>
-			<input type="text" value='负责人'>
-			<input type="text" value='项目进场时间'>
+			<input type="text" placeholder='详细地址'>
+			<input type="text" placeholder='负责人'>
+			<input type="text" placeholder='项目进场时间'>
 		</div>
 		<navigator class="next" url='./create_sure'>
 			<button type="default">下一步</button>
@@ -110,6 +96,15 @@
 </script>
 
 <style lang="less">
+	.cu-form-group uni-picker{
+		overflow: visible !important;
+	}
+	.message .city>div>div{
+		overflow: hidden;
+	}
+	
+	
+	
 	.container {
 	  padding: 20px;
 	  font-size: 14px;
@@ -155,7 +150,7 @@
 				background: white;
 				position: relative;
 				&:nth-of-type(1){
-					background: url(../../static/完成.svg) no-repeat;
+					background: url(../../static/wancheng.svg) no-repeat;
 					background-size: 116%;
 					background-position: -2px -2px;
 					border: none;
@@ -194,7 +189,7 @@
 		margin: 50px auto;
 		padding: 20px 10px;
 		input{
-			width: 80%;
+			width: 90%;
 			height: 42px;
 			line-height: 42px;
 			text-align: left;
@@ -206,32 +201,30 @@
 			font-size: 16px;
 		}
 		.city{
-			width: 86%;
+			width: 90%;
 			height: 42px;
 			font-size: 16px;
 			line-height: 42px;
 			text-align: left;
-			text-indent: 16px;
 			margin: 16px auto;
 			// border: 1px solid red;
 			display: flex;
-			&>div{
-				width: 70%;
-				height: 100%;
-				// border: 1px solid red;
-				display: flex;
-				justify-content: space-around;
-				align-items: center;
-				&>div{
-					width: 56px;
-					height: 42px;
-					border: 1px solid blue;
-				}
+			justify-content: space-around;
+			align-items: center;
+			div{
+				width: 200px;
+				height: 42px;
+				background: #F6F8FF;
+				color: #86888E;
+				border-radius: 40px;
 			}
 			.choose{
-				border: 1px solid red;
-				font-size: 12px;
+				width: 200px;
 				height: 42px;
+				line-height: 42px;
+				margin-right: 0px;
+				margin-top: -5px;
+				background: black;
 			}
 		}
 	}

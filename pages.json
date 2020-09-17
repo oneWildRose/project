@@ -3,7 +3,9 @@
 		
 		{
 		    "path" : "pages/sign/sign",
-		    "style" : {}
+		    "style" : {
+				"navigationStyle":"custom" // 去除原生导航栏
+			}
 		},
 		{
 		    "path" : "pages/ind/ind",
@@ -32,26 +34,29 @@
 		    "path" : "pages/create/success",
 		    "style" : {}
 		}
+        ,{
+            "path" : "pages/details/details",
+            "style" : {}
+        }
     ],
 	"globalStyle": {
-		"navigationBarTextStyle": "white",
+		"navigationBarTextStyle": "",
 		"navigationBarTitleText": "",
 		"navigationBarBackgroundColor": "",
 		"backgroundColor": ""
 	},
 	"tabBar": { // 首页的 tab导航栏
-	    "color": "black",
+	    "color": "#000000",
 	    "selectedColor": "#3F5DE3",
-	    "backgroundColor": "white",
 	    "list": [{
 	        "pagePath": "pages/ind/ind",
-	        "iconPath": "static/首页.png",
-	        "selectedIconPath": "static/首页 (1).png",
+	        "iconPath": "static/shouye%20(2).png",
+	        "selectedIconPath": "static/shouye.png",
 	        "text": "首页"
 	    }, {
 	        "pagePath": "pages/personal/personal",
-	        "iconPath": "static/我的.png",
-	        "selectedIconPath": "static/我的 (1).png",
+	        "iconPath": "static/wode%20(2).png",
+	        "selectedIconPath": "static/wode.png",
 	        "text": "个人中心"
 	    }]
 	}

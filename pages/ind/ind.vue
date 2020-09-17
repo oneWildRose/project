@@ -2,12 +2,12 @@
 	<view>
 		<view class="head">
 			<view class="search">
-				<image src="../../static/fangdajing.png" mode=""></image>
+				<image :src="require('../../static/fangdajing.png')" mode=""></image>
 				<input type="text" value="搜索项目、苗木" />
 			</view>
 		</view>
 		<view class="middle">
-			<image src="../../static/02.jpg" mode=""></image>
+			<image :src="require('../../static/02.jpg')" mode=""></image>
 		</view>
 		<view class="bottom">
 			<view class="text">
@@ -15,12 +15,21 @@
 				<text>专家协作，指定优秀项目方案</text>
 			</view>
 			<ul>
-				<li title="" note="" v-for='(item, index) in list' :key='index'>
-					<navigator :url='item.method'>
-						<img :src="item.img" alt="example">
+				<li title="" note="">
+					<navigator url='../create/create'>
+						<image :src="require('../../static/create.svg')"></image>
 						<view class="">
-							<p>{{ item.title }}</p>
-							<p>{{ item.content }}</p>
+							<p>创建项目</p>
+							<p>创建项目，填写项目完整信息，专家协作制定项目方案</p>
+						</view>
+					</navigator>
+				</li>
+				<li title="" note="">
+					<navigator url='../project/project'>
+						<image :src="require('../../static/guanli.svg')"></image>
+						<view class="">
+							<p>项目管理</p>
+							<p>查看所有项目并可以对项目进行编辑，记录了项目上的实时数据</p>
 						</view>
 					</navigator>
 				</li>
@@ -33,21 +42,7 @@
 	export default {
 		data() {
 			return {
-				list: [
-					{
-						img: '../../static/create.svg',
-						title: '创建项目',
-						content: '创建项目，填写项目完整信息，专家协作制定项目方案',
-						method: '../create/create'
-					},
-					{
-						img: '../../static/guanli.svg',
-						title: '项目管理',
-						content: '查看所有项目并可以对项目进行编辑，记录了项目上的实时数据',
-						method: '../project/project'
-					}
-				],
-				num: 0,
+				
 			}
 		},
 		methods: {
@@ -113,9 +108,10 @@
 			text-align: left;
 			view{
 				font-weight: bold;
+				font-size: 16px;
 			}
 			text{
-				font-size: 15px;
+				font-size: 14px;
 				color: #8C8C8C;
 			}
 		}
@@ -130,11 +126,17 @@
 				border-radius: 10px;
 				display: block;
 				position: relative;
-				img{
+				navigator{
+					height: 100%;
+					position: relative;
+				}
+				image{
 					width: 38px;
 					height: 38px;
-					// border: 1px solid red;
-					padding: 30px;
+					position: absolute;
+					left: 10%;
+					top: 50%;
+					margin-top: -19px;
 				}
 				view{
 					width: 60%;

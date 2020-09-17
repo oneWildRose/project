@@ -27,7 +27,7 @@
 			</div>
 		</div>
 		<div class='success'>
-			<image src="../../static/成功(3).svg" mode=""></image>
+			<image src="../../static/success.svg" mode=""></image>
 			<p>项目创建成功</p>
 		</div>
 		<div class="next" @click='goTab'>
@@ -100,7 +100,7 @@
 				background: white;
 				position: relative;
 				
-					background: url(../../static/完成.svg) no-repeat;
+					background: url(../../static/wancheng.svg) no-repeat;
 					background-size: 116%;
 					background-position: -2px -2px;
 					border: none;
