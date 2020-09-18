@@ -13,14 +13,20 @@
         <div>
           <div class="kong"></div>
           <div class="top">
-            <span v-show='num != 2' v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">{{ item }}</span>
-			<span class='modification active' v-if='num==2' >修改密码</span>
+            <div v-show='num != 2' v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">
+				<text>{{ item }}</text>
+				<div :class="{ block:num == index }"></div>
+			</div>
+			<div class='modification active' v-if='num==2' >
+				<text>修改密码</text>
+				<div :class="{ block:num == 2 }"></div>
+			</div>
           </div>
           <ul class="conent">
             <li class="sign_in" v-show="num == 0">
               <form action="" method="post">
                 <p>输入手机号码</p>
-                <input type="text" placeholder="输入手机号码" id="accounts" style="height:40px;width:100%;font-size: 10px;">
+                <input type="text" placeholder="输入手机号码" id="accounts">
                 <p>输入验证码</p>
                 <input type="text" placeholder="输入8-16位密码" id="password">
                 <p type="default" class="forget" @click='forget'>忘记密码？</p>
@@ -46,8 +52,10 @@
                 <p>输入手机号码</p>
                 <input type="text" placeholder="输入手机号码">
 				<p>输入验证码</p>
-				<input type="text" placeholder="输入6位短信验证码" id="password">
-				<button type="default" class="re_code">获取验证码</button>
+				<div class='get'>
+					<input type="text" placeholder="输入6位短信验证码" id="password">
+					<button type="default" class="re_code">获取验证码</button>
+				</div>
 				<p>输入密码</p>
 				<input type="text" placeholder="输入8-16位密码" />
 				<p>再次输入密码</p>
@@ -60,8 +68,10 @@
 				  <p>输入手机号码</p>
 				  <input type="text" placeholder="输入手机号码">
 					<p>输入验证码</p>
-					<input type="text" placeholder="输入6位短信验证码" id="password">
-					<button type="default" class="re_code">获取验证码</button>
+					<div class='get'>
+						<input type="text" placeholder="输入6位短信验证码" id="password">
+						<button type="default" class="re_code">获取验证码</button>
+					</div>
 					<p>输入新密码</p>
 					<input type="text" placeholder="输入8-16位密码" />
 					<p>再次输入密码</p>
@@ -93,6 +103,7 @@ export default {
   methods: {
     table(index) {
       this.num = index;
+	  console.log(this.num)
     },
 	goInd() {
 		uni.switchTab({
@@ -115,16 +126,21 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style lang="less" scoped>
 	
-	uni-page-body{
+	/* uni-page-body{
 		height: 100%;
-	}
+	} */
   .hello{
     width: 100%;
     height: 100%; 
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
 	background: url(../../static/background.jpg) no-repeat;
-	background-size: 100%;
+	background-size: 100% 100%;
   }
   .text{
     width: 100%;
@@ -145,116 +161,141 @@ export default {
   }
 
   .main{
-    width: 300px;
-    height: 450px;
+    width: 600rpx;
+    height: 900rpx;
     /* border: 1px solid red; */
-    margin: 130px auto;
-    position: relative;
-    border-radius: 2px;
-    box-shadow: #D2D2D2 1px 2px 4px 2px;
+	position: absolute !important;
+	top: 50%;
+	left: 50%;
+	margin-top: -370rpx;
+	margin-left: -300rpx;
+    border-radius: 8px;
+    box-shadow: #adadad 1px 1px 10px 0px;
 	background-color: white;
+    position: relative;
   }
   .box{
     width: 80%;
     height: 60%;
-    /* border: 1px solid red; */
-    margin: 20px auto;
+    margin: 40rpx auto;
+  }
+  .kong{
+    height: 52rpx;
   }
   .top{
     width: 100%;
-    height: 30px;
+    height: 60rpx;
+	line-height: 60rpx;
     font-size: 16px;
     font-weight: bold;
     border-bottom: 2px solid #DCDCDC;
     position: relative;
-    padding-bottom: 4px;
-	margin-bottom: 34px;
+    padding-bottom: 8rpx;
+	margin-bottom: 40rpx;
+  }
+  .top>div{
+	  div{
+	  	width: 55px;
+	  	height: 3px;
+	  	background: #3F5DE3;
+	  	position: absolute;
+	  	left: -22rpx;
+	  	bottom: -1rpx;
+	  	display: none;
+	  }
   }
   .top .modification{
 	  position: absolute;
-	  left: 2px;
-	  bottom: 0;
+	  left: 2rpx;
+	  bottom: 0rpx;
+	  div{
+		  left: 0;
+		  bottom: 0rpx;
+		  width: 120rpx;
+	  }
   }
-  .kong{
-    height: 26px;
-  }
-  .top span{
-    padding-bottom: 6px;
-  }
-  .top span:nth-of-type(1){
+  .top>div:nth-of-type(1){
     position: absolute;
-    top: 18%;
-    left: 30px;
-    display: block;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
+    bottom: 0;
+    left: 60rpx;
   }
-  .top span:nth-of-type(2){
-    padding-left: 10px;
-    padding-right: 11px;
+  .top>div:nth-of-type(2){
+    padding-left: 20rpx;
+    padding-right: 22rpx;
 	position: absolute;
-	right: 30px;
-	top: 17%;
+	right: 60rpx;
+	top: 14%;
+	div{
+		left: -.5rpx;
+	}
+  }
+  .top .block{
+	  display: block;
   }
   .top .active{
     color: #3F5DE3;
-    border-bottom: 2.5px solid #3F5DE3;
   }
   .conent .sign_in{
-    padding-top: 10px;
+    padding-top: 20rpx;
     text-align: left;
   }
   .conent .sign_in #accounts{
 	  border: 1px solid #C3C3C3;
-	  padding: 4px;	  
-	  /* color: #C3C3C3; */
-	  border-radius: 8px;
+	  padding: 8rpx;
+	  border-radius: 16rpx;
+	  height: 60rpx;
+	  line-height: 60rpx;
+	  width: 100%;
+	  font-size: 15px;
   }
   .conent .sign_in p{
     font-weight: bold;
 	font-size: 13px;
-	margin-top: 20px;
-	margin-bottom: 4px;
-	margin-left: 6px;
+	margin-top: 40rpx;
+	margin-bottom: 8rpx;
+	margin-left: 12rpx;
   }
   .conent .sign_in p:nth-of-type(1){
-	  margin-top: 0px;
+	  margin-top: 0rpx;
   }
   .conent .sign_in #password{
     width: 100%;
-    height: 40px;
-    font-size: 12px;	  
-	/* color: #C3C3C3; */
-    margin-right: 10px;
+    height: 60rpx;	  
+	line-height: 60rpx;
+    margin-right: 20rpx;
 	border: 1px solid #C3C3C3;
-	padding: 4px;
-	border-radius: 8px;
+	padding: 8rpx;
+	border-radius: 16rpx;	  
+	font-size: 15px;
   }
   .conent .sign_in p.forget{
 	font-size: 12px;
 	text-align: right;
     color: #C3C3C3;
-	margin-top: 10px;
+	margin-top: 20rpx;
 	margin-right: 0px;
   }
   .sign_btn{
     width: 60%;
-    margin-left: -90px;
-    height: 42px;
+    height: 84rpx;
+	line-height: 84rpx;
 	font-size: 18px;
     position: absolute;
     left: 50%;
-    bottom: -22px;
+    bottom: -44rpx;
+    margin-left: -180rpx;
     background: #3F5DE3;
     color: white;
-    border-radius: 24px;
+    border-radius: 48rpx;
     border: none;
 	text-align: center;
   }
   .other{
-    width: 80%;
-    margin: 50px auto;
+    width: 560rpx;
+	position: absolute;
+	left: 50%;
+	bottom: 6%;
+	margin-left: -280rpx;
     text-align: center;
   }
   .other p:nth-of-type(1){
@@ -264,22 +305,24 @@ export default {
   }
   .other p:nth-of-type(2){
     font-size: 12px;
-    margin: 10px;
+	font-weight: 400;
+    margin: 20rpx;
     color: #999494;
   }
   .other>div{
-    width: 80%;
-    margin: 4px auto;
+    width: 50%;
+    margin: 16rpx auto;
     border: 1px solid #DCDCDC;
+	border-top: none;
   }
   .other a{
     display: inline-block;
-    width: 24px;
-    height: 24px;
-    margin-right: 24px;
+    width: 50rpx;
+    height: 50rpx;
+    margin-right: 48rpx;
   }
   .other a:nth-of-type(1){
-    margin-left: 4px;
+    margin-left: 8rpx;
   }
   .other image{
     width: 100%;
@@ -287,80 +330,83 @@ export default {
   }
   .register{
     width: 100%;
-    height: 230px;
-    margin: 10px auto;
+    height: 460rpx;
+    margin: 20rpx auto;
 	/* border: 1px solid red; */
 	text-align: left;
-	font-size: 14px;
+	font-size: 15px;
+	position: relative;
   }
   .register p{
 	  font-size: 13px;
-	  margin-top: 20px;
-	  margin-bottom: 4px;
-	  margin-left: 6px;
+	  margin-top: 40rpx;
+	  margin-bottom: 8rpx;
+	  margin-left: 12rpx;
 	  font-weight: bold;
   }
   .register p:nth-of-type(1){
-	  padding-top: 10px;
+	  padding-top: 20rpx;
   }
   .register input{
     width: 100%;
-    height: 40px;    
-	line-height: 40px;
-    border-radius: 12px;
+    height: 60rpx;    
+	line-height: 60rpx;
+    border-radius: 24rpx;
     text-align: left;
-    padding-left: 30px;
-    /* color: #C3C3C3; */
-    font-size: 12px;
+    padding-left: 60rpx;
+    font-size: 15px;
 	border: 1px solid #C3C3C3;
-	padding: 4px;
-	border-radius: 8px;
+	padding: 8rpx;
+	border-radius: 16rpx;
   }
   .register div image{
-    width: 20px;
-    height: 20px;
+    width: 40rpx;
+    height: 40rpx;
     position: absolute;
-    left: 8px;
+    left: 16rpx;
     top: 50%;
-    margin-top: -10px;
+    margin-top: -20rpx;
   }
   .register #password{
 	  width: 60%;
-	  height:40px;
-	  font-size: 12px;
-	  margin-right: 10px;
+	  height: 60rpx;
+	  line-height: 60rpx;
+	  font-size: 15px;
+	  margin-right: 30rpx;
 	  border: 1px solid #C3C3C3;
-	  padding: 4px;
-	  border-radius: 8px;
+	  padding: 8rpx;
+	  border-radius: 16rpx;
   }
   .register .re_code{
-	  width: 24%;
-	  height: 39px;
-	  line-height: 40px;
-	  position: absolute;
-	  right: 11%;
-	  top: 47%;
+	  width: 30%;
+	  height: 78rpx;
+	  line-height: 80rpx;
 	  font-size: 12px;
 	  text-align: center;
-	  background:#3F5DE3;
+	  background: #3F5DE3;
 	  color: white;
-	  border-radius: 4px;
-	  padding: 0 4px;
+	  border-radius: 8rpx;
+	  padding: 0 0rpx;
 	  border: none;
   }
   .register .register_btn{	
-	width: 59.6%;
-	margin-left: -90px;
-	height: 42px;
+	width: 75%;
+	margin-left: -180rpx;
+	height: 84rpx;
 	position: absolute;
 	left: 50%;
-	bottom: -22px;
+	bottom: -284rpx;
 	font-size: 18px;
 	font-weight: normal;
 	background: #3F5DE3;
 	color: white;
-	border-radius: 24px;
+	border-radius: 48rpx;
 	border: none;
 	text-align: center;
+  }
+  .get{
+	  display: flex;
+	  justify-content: space-between;
+	  align-items: center;
   }
 </style>

@@ -29,12 +29,16 @@
 			<div class='city'>
 				<text>项目地址</text>
 				<div>
-					<regionPicker
-					   class='choose'
-					  :multiIndex_="provinceCityArea"
-					  @selecteRegion_="selecteProvinceCityArea"
-					  :column_="3"
-					/>
+					<w-picker
+						 :visible.sync="visible"
+						 mode="region"
+						 :value="list.value"
+						 default-type="value"
+						 :hide-area="false"
+						 @confirm="onConfirm($event,'region')"
+						 @cancel="onCancel"
+						 ref="region" 
+					 ></w-picker>
 				</div>
 			</div>
 			
@@ -52,64 +56,32 @@
 </template>
 
 <script>
-	import regionPicker from "./commponents/region-picker.vue";
-	
+	import areaData from '../../area-data-min'
+	import wPicker from "@/components/w-picker/w-picker.vue";
 	export default {
 		components: {
-			regionPicker,
+			wPicker
 		},
 		data() {
 			return {
-				province: [],
-				provinceCity: [],
-				provinceCityArea: [],
-				selections: [],
-				selections1: [],
-				selections2: ["14", "14002", "14002002"],
+				list: areaData
 			}
+		},
+		onReady () {
+		  
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack({})
 			},
-			selecteProvince(value) {
-			  this.province = value;
-			},
-			selecteProvinceCity(value) {
-			  this.provinceCity = value;
-			},
-			selecteProvinceCityArea(value) {
-			  this.provinceCityArea = value;
-			},
-			selecteRegion(value) {
-			  this.selections = value;
-			},
-			selecteRegion1(value) {
-			  this.selections1 = value;
-			},
-			
-			selecteRegion2(value) {
-			  this.selections2 = value;
-			},
+			visible() {
+				return false;
+			}
 		}
 	}
 </script>
 
 <style lang="less">
-	.cu-form-group uni-picker{
-		overflow: visible !important;
-	}
-	.message .city>div>div{
-		overflow: hidden;
-	}
-	
-	
-	
-	.container {
-	  padding: 20px;
-	  font-size: 14px;
-	  line-height: 24px;
-	}
 	
 	.goback{
 		width: 92%;

@@ -9,34 +9,50 @@
 		},
 		{
 		    "path" : "pages/ind/ind",
-		    "style" : {}
+		    "style" : {
+				"navigationStyle":"custom"
+			}
 		},{
 			"path": "pages/index/index",
-			"style": {}
+			"style": {
+				"navigationStyle":"custom"
+			}
 		},
         {
             "path" : "pages/personal/personal",
-            "style" : {}
+            "style" : {
+				"navigationStyle":"custom"
+			}
         }
         ,{
             "path" : "pages/create/create",
-            "style" : {}
+            "style" : {
+				"navigationStyle":"custom"
+			}
         }
         ,{
             "path" : "pages/project/project",
-            "style" : {}
+            "style" : {
+				"navigationStyle":"custom"
+			}
         },
 		{
 		    "path" : "pages/create/create_sure",
-		    "style" : {}
+		    "style" : {
+				"navigationStyle":"custom"
+			}
 		},
 		{
 		    "path" : "pages/create/success",
-		    "style" : {}
+		    "style" : {
+				"navigationStyle":"custom"
+			}
 		}
         ,{
             "path" : "pages/details/details",
-            "style" : {}
+            "style" : {
+				"navigationStyle":"custom"
+			}
         }
     ],
 	"globalStyle": {

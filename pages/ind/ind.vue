@@ -3,11 +3,18 @@
 		<view class="head">
 			<view class="search">
 				<image :src="require('../../static/fangdajing.png')" mode=""></image>
-				<input type="text" value="搜索项目、苗木" />
+				<input type="text" placeholder="搜索项目、苗木" />
 			</view>
 		</view>
-		<view class="middle">
-			<image :src="require('../../static/02.jpg')" mode=""></image>
+		<view class="middle"> <!-- 轮播 -->
+			<swiper :indicator-dots="true" :autoplay="true" :interval="3000" :duration="500" :circular='true'>
+				<swiper-item>
+					<image :src="require('../../static/02.jpg')" class="swiper-item"></image>
+				</swiper-item>
+				<swiper-item>
+					<image :src="require('../../static/02.jpg')" class="swiper-item"></image>
+				</swiper-item>
+			</swiper>
 		</view>
 		<view class="bottom">
 			<view class="text">
@@ -92,10 +99,14 @@
 		width: 96%;
 		margin: 10px auto;
 		height: 100px;
-		image{
+		swiper{
 			width: 100%;
 			height: 100%;
-			border-radius: 10px;
+			image{
+				width: 100%;
+				height: 100%;
+				border-radius: 10px;
+			}
 		}
 	}
 	
