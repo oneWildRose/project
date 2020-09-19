@@ -26,11 +26,11 @@
             <li class="sign_in" v-show="num == 0">
               <form action="" method="post">
                 <p>输入手机号码</p>
-                <input type="text" placeholder="输入手机号码" id="accounts">
-                <p>输入验证码</p>
-                <input type="text" placeholder="输入8-16位密码" id="password">
+                <input type="text" placeholder="输入手机号码" id="accounts" v-model='mobile'>
+                <p>输入密码</p>
+                <input type="password" placeholder="输入8-16位密码" id="password" v-model='password'>
                 <p type="default" class="forget" @click='forget'>忘记密码？</p>
-				<button class="sign_btn" @click="goInd">登录</button>
+				<button class="sign_btn" @click="login">登录</button>
               </form>
               <div class="other">
                 <p>金 山 银 山 不 如 绿 水 青 山</p>
@@ -50,32 +50,32 @@
             <li class="register" v-show="num == 1"> 
               <form action="" method="post">
                 <p>输入手机号码</p>
-                <input type="text" placeholder="输入手机号码">
+                <input type="text" placeholder="输入手机号码" v-model="mobile">
 				<p>输入验证码</p>
 				<div class='get'>
-					<input type="text" placeholder="输入6位短信验证码" id="password">
-					<button type="default" class="re_code">获取验证码</button>
+					<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
+					<button type="default" class="re_code" @click="getCode">获取验证码</button>
 				</div>
 				<p>输入密码</p>
-				<input type="text" placeholder="输入8-16位密码" />
+				<input type="password" placeholder="输入8-16位密码" v-model="password"/>
 				<p>再次输入密码</p>
-				<input type="text" placeholder="输入8-16位密码" />
-                <button class="register_btn">立即注册</button>
+				<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
+                <button class="register_btn" @click="register_success">立即注册</button>
               </form>
             </li>
 			<li class='xg register' v-show='num == 2'>
 				<form action="" method="post">
 				  <p>输入手机号码</p>
-				  <input type="text" placeholder="输入手机号码">
+				  <input type="text" placeholder="输入手机号码" v-model="mobile">
 					<p>输入验证码</p>
 					<div class='get'>
-						<input type="text" placeholder="输入6位短信验证码" id="password">
-						<button type="default" class="re_code">获取验证码</button>
+						<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
+						<button type="default" class="re_code" @click="getCode">获取验证码</button>
 					</div>
 					<p>输入新密码</p>
-					<input type="text" placeholder="输入8-16位密码" />
+					<input type="password" placeholder="输入8-16位密码" v-model="password"/>
 					<p>再次输入密码</p>
-					<input type="text" placeholder="输入8-16位密码" />
+					<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
 				  <button @click="goSign" class="register_btn">确认修改</button>
 				</form>
 			</li>
@@ -98,29 +98,147 @@ export default {
     return {
       tabs: ['登录', '注册'],
       num: 0, // 控制 '登录' '注册' '修改密码' 三个功能的显示隐藏
+	  id: '', // 用户成功登录后的id标识
+	  username : '', // 用户名称（暂无用）
+	  mobile : '', // 手机号
+	  password : '', // 密码
+	  password2 : '', // 密码二次确认
+	  code_ : '', // input双向绑定的验证码，PS：成功发送验证码后返回的id会因为双向绑定自动出现在用户的输入框中
+	  code: this.code_, // 验证码本🐎
+	  code_id : '' ,// 成功发送验证码后的id
+	  res:''
     }
   },
   methods: {
     table(index) {
       this.num = index;
-	  console.log(this.num)
     },
-	goInd() {
-		uni.switchTab({
-			url: '../ind/ind'
+	getCode() { // 获取验证码
+		uni.request({
+			url: 'http://lvz.maike-docker.com/index.php/api/index/send_sms',
+			method: 'POST',
+			data: this.mobile,
+			success: (res) => {
+				console.log(res.data)
+				if(res.data.code == 1) {
+					this.code = res.data.code,
+					this.code_id = res.data.code_id
+				} else {
+					
+				}
+			}
 		})
 	},
-	forget() {
+	register_success() { // 注册
+		uni.request({
+			url: 'http://lvz.maike-docker.com/index.php/api/index/appuser',
+			method: 'POST',
+			data: {
+				mobile: this.mobile,
+				password: this.password,
+				password2: this.password2,
+				code: this.code,
+				code_id: this.code_id
+			},
+			success: (res) => {
+				console.log(res.data)
+				if(res.data.code == 1) {
+					uni.showToast({
+						title: '注册成功,登录中',
+						icon: 'loading',
+						duration: 1500,
+						success() { 
+							 setTimeout(function(){uni.switchTab({
+							 	url: '../ind/ind'
+							 })},1550);
+						}
+					})
+				} else {
+					uni.showModal({
+						content: res.data.msg
+					})
+				}
+			}
+		})
+	},
+	login() { // 登录
+		uni.request({
+			url: 'http://lvz.maike-docker.com/index.php/api/index/login',
+			method: 'POST',
+			data: {
+				mobile: this.mobile,
+				password: this.password
+			},
+			success: (res) => {
+				console.log(res.data)
+				if(res.data.code == 1) {
+					// 用户id
+					this.id = res.data.uid
+					// 将用户信息存入缓存
+					uni.setStorage({
+						key: 'userinfo',
+						data: res.data,
+						success: function () {
+							console.log(res.data)
+						}
+					})
+					// 跳转至首页
+					uni.switchTab({
+						url: '../ind/ind'
+					})
+				} else {
+					uni.showModal({
+						content: res.data.msg
+					})
+				}
+			}
+		})
+	},
+	forget() { // 忘记密码
 		this.num = 2
 	},
-	goSign() {
-		this.num = 0
+	goSign() { // 修改密码
+		uni.request({
+			url: 'http://lvz.maike-docker.com/index.php/api/index/editPassword',
+			method: 'POST',
+			data: {
+				mobile: this.mobile,
+				code: this.code,
+				password: this.password,
+				password2: this.password2,
+				code_id: this.code_id
+			},
+			success: (res) => {
+				console.log(res.data)
+				if(res.data.code == 1) {
+					this.num = 0
+				} else {
+					uni.showModal({
+						content: res.data.msg
+					})
+				}
+			}
+		})
 	},
   },
-  onShow() {
-	  
-  },onHide() {
-	  
+  
+  
+  onShow() { // 页面加载就触发
+	var self = this
+	//从缓存中取出登陆信息
+	uni.getStorage({
+		key: 'userinfo',
+		success: function (res) {
+			self.res = res.data
+			if(res != '') {
+				uni.switchTab({
+					url: '../ind/ind'
+				})
+			} else {
+				
+			}
+		}
+	})
   }
 }
 </script>
@@ -128,9 +246,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
 	
-	/* uni-page-body{
-		height: 100%;
-	} */
+	uni-toast .uni-toast .uni-toast__content {
+		font-size: 15px !important;
+	}
   .hello{
     width: 100%;
     height: 100%; 

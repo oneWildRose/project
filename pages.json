@@ -54,9 +54,14 @@
 				"navigationStyle":"custom"
 			}
         }
+        ,{
+            "path" : "pages/specialist/specialist",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
     ],
 	"globalStyle": {
-		"navigationBarTextStyle": "",
 		"navigationBarTitleText": "",
 		"navigationBarBackgroundColor": "",
 		"backgroundColor": ""

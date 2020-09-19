@@ -1,4 +1,4 @@
-<template> <!-- 创建项目 -->
+<template> <!-- 创建项目（第三步提交） -->
 	<view>
 		<div class='goback' @click='goBack'>
 			<image src="../../static/fanhui.png" mode=""></image>

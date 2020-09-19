@@ -1,4 +1,4 @@
-<template> <!-- 创建项目 -->
+<template> <!-- 创建项目（第二步） -->
 	<view>
 		<div class='goback' @click='goBack'>
 			<image src="../../static/fanhui.png" mode=""></image>
@@ -25,14 +25,13 @@
 			</div>
 		</div>
 		<div class="message">
-			<input type="text" placeholder="企业名称" />
-			<input type="text" placeholder="项目名称" />
-			<div class='city'>
-				<text>项目地址</text>
-			</div>
-			<input type="text" placeholder='详细地址'>
-			<input type="text" placeholder='负责人'>
-			<input type="text" placeholder='项目进场时间'>
+			<p>项目平面图</p>
+			<upload-img
+				class="image"
+				bgsrc="../../static/zanwu.jpg"
+				@chooseimg="handleChooseImg" style="margin: 0 auto; width: 580rpx; height: 320rpx;">
+			</upload-img>
+			
 		</div>
 		<navigator class="next" url='./success'>
 			<button type="default">提交</button>
@@ -41,20 +40,26 @@
 </template>
 
 <script>
-	
+	import uploadImg from '../../components/amazarashi-uploadimg/uploadImg.vue'
 	export default {
 		components: {
-			
+			uploadImg
 		},
 		data() {
 			return {
-				
+				src: ''
 			}
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack({})
+			},
+			handleChooseImg(e){
+				console.log('imageSrc:',e);
 			}
+		},
+		onLoad() {
+			console.log(Uploader)
 		}
 	}
 </script>
@@ -138,44 +143,34 @@
 	}
 	.message{
 		width: 80%;
-		height: 400px;
+		height: 480rpx;
 		box-shadow: #D2D2D2 1px 2px 4px 2px;
 		border-radius: 6px;
 		background: white;
 		margin: 50px auto;
 		padding: 20px 10px;
-		input{
-			width: 80%;
-			height: 42px;
-			line-height: 42px;
-			text-align: left;
-			text-indent: 20px;
-			color: #86868A;
-			background: #F6F8FF;
-			margin: 20px auto;
-			border-radius: 20px;
-			font-size: 16px;
+		font-size: 18px;
+		color: #868686;
+		p{
+			height: 60rpx;
 		}
-		.city{
-			width: 86%;
-			height: 42px;
-			font-size: 16px;
-			line-height: 42px;
-			text-align: left;
-			text-indent: 16px;
-			margin: 16px auto;
+		.upload-img.image{
+			border: 2px solid #F7F7F7;
 		}
 	}
 	uni-button[type=default]{ /* .next 元素 */
 		width: 80%;
-		height: 42px;
+		height: 84rpx;
 		text-align: center;
-		line-height: 42px;
+		line-height: 84rpx;
 		background: #3F5DE3 !important;
 		border: none;
 		outline: none;
-		border-radius: 30px;
-		margin: 10px auto;
+		border-radius: 60rpx;
 		color: white;
+		position: absolute;
+		bottom: 130rpx;
+		left: 50%;
+		margin-left: -290rpx;
 	}
 </style>

@@ -40,6 +40,15 @@
 						</view>
 					</navigator>
 				</li>
+				<li title="" note="">
+					<navigator url='../specialist/specialist'>
+						<image :src="require('../../static/guanli.svg')"></image>
+						<view class="">
+							<p>专家方案</p>
+							<p>查看所有专家制定的项目方案，详细的记录了项目上各个点位的制作标准</p>
+						</view>
+					</navigator>
+				</li>
 			</ul>
 		</view>
 	</view>
@@ -61,20 +70,20 @@
 <style lang="less">
 	.head{
 		width: 100%;
-		height: 308px;
+		height: 578rpx;
 		background: url(../../static/01.jpg) no-repeat;
 		background-size: 100%;
 		background-position: 0;
 		// border: 1px solid red;
 		.search{
 			width: 90%;
-			height: 40px;
-			line-height: 40px;
+			height: 80rpx;
+			line-height: 80rpx;
 			margin: 0px auto;
 			position: relative;
 			image{
-				width: 24px;
-				height: 24px;
+				width: 48rpx;
+				height: 48rpx;
 				position: absolute;
 				top: 98%;
 				left: 4%;
@@ -85,34 +94,34 @@
 				height: 100%;
 				color: #C3C3C3;
 				background-color: white;
-				border-radius: 6px;
+				border-radius: 12rpx;
 				font-size: 14px;
 				text-align: center;
 				position: absolute;
 				left: 0;
-				top: 30px;
+				top: 60rpx;
 			}
 		}
 	}
 	
 	.middle{
 		width: 96%;
-		margin: 10px auto;
-		height: 100px;
+		margin: 20rpx auto;
+		height: 200rpx;
 		swiper{
 			width: 100%;
 			height: 100%;
 			image{
 				width: 100%;
 				height: 100%;
-				border-radius: 10px;
+				border-radius: 20rpx;
 			}
 		}
 	}
 	
 	.bottom{
 		width: 100%;
-		margin-top: 20px;
+		margin-top: 40rpx;
 		.text{
 			width: 90%;
 			margin: 0 auto;
@@ -129,12 +138,12 @@
 		ul{
 			li{
 				width: 90%;
-				height: 100px;
-				margin: 14px auto;
+				height: 200rpx;
+				margin: 28rpx auto;
 				// border: 1px solid blue;
 				background: white;
 				box-shadow: #D2D2D2 1px 2px 6px 2px;
-				border-radius: 10px;
+				border-radius: 20rpx;
 				display: block;
 				position: relative;
 				navigator{
@@ -142,12 +151,12 @@
 					position: relative;
 				}
 				image{
-					width: 38px;
-					height: 38px;
+					width: 76rpx;
+					height: 76rpx;
 					position: absolute;
 					left: 10%;
 					top: 50%;
-					margin-top: -19px;
+					margin-top: -38rpx;
 				}
 				view{
 					width: 60%;
@@ -158,7 +167,7 @@
 					p:nth-of-type(1){
 						font-weight: bold;
 						font-size: 16px;
-						margin-bottom: 10px;
+						margin-bottom: 20rpx;
 					}
 					p:nth-of-type(2){
 						color: #8c8c8c;
