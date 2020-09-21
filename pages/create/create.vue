@@ -29,31 +29,37 @@
 			<div class='city'>
 				<text>项目地址</text>
 				<div class="city_tab">
-					<view class="uni-form-item uni-column" @click="showMulLinkageThreePicker">
-						<view class="plaOlder diqu">{{pickerText}}</view>
-						<image :src="require('../../static/xuanze.svg')" mode="" style="width: 40rpx;height: 40rpx;"></image>
-					</view>
-					<mpvue-picker :themeColor="themeColor" ref="mpvuePicker" :mode="mode" :deepLength="deepLength" :pickerValueDefault="pickerValueDefault"
-					 @onConfirm="onConfirm" @="" :pickerValueArray="pickerValueArray"></mpvue-picker>
-					<mpvue-city-picker :themeColor="themeColor" ref="mpvueCityPicker" :pickerValueDefault="cityPickerValueDefault" @=""
-					 @onConfirm="onConfirm"></mpvue-city-picker>
+					<picker @change="bindPickerChange" :value="index" :range="province"  :range-key="'shortname'">
+						<label class="">{{province[index].shortname}}</label>
+						<image :src="require('../../static/xuanze.svg')" mode=""></image>	
+					</picker>
+				</div>
+				<div class="city_tab">
+					<picker @change="bindPickerChange1" :value="index1" :range="city" :range-key="'shortname'">
+						<label class="">{{city[index1].shortname}}</label>
+					</picker>
+				</div>
+				<div class="city_tab">
+					<picker @change="bindPickerChange2" :value="index2" :range="area" :range-key="'shortname'">
+						<label class="">{{area[index2].shortname}}</label>
+					</picker>
 				</div>
 			</div>
 			
 			<input type="text" placeholder='详细地址' v-model="address">
 			<div class='green'> <!-- 绿化管理面积 -->
-				<input type="text" value="" placeholder="绿化管理面积" />
-				<lb-picker ref="picker" class="dw" :list="list" @confirm="wenzi" @click='dw_choose'>
-					<image :src="require('../../static/xuanze.svg')" mode="" style="width: 40rpx;height: 40rpx;"></image>
-					<view>{{ text }}</view>
-				</lb-picker>
+				<input type="text" value="" placeholder="绿化管理面积" v-model="acreage"/>
+				<picker @change="wenzi" class='dw' :value="index3" :range="list" :range-key="'label'">
+					<label class="" style="font-size: 24rpx;text-align: left;">{{list[index3].label}}</label>
+					<image :src="require('../../static/xuanze.svg')" mode=""></image>
+				</picker>
 			</div>
 			<input type="text" value="" placeholder="项目竣工时间" v-model="dtime"/>
 			<input type="text" value="" placeholder="项目交付时间" v-model="time"/>
 			<input type="text" placeholder='项目进场时间' v-model="ctime">
 			<input type="text" placeholder='负责人' v-model="user_name">
 		</div>
-		<navigator class="next" url='./create_sure'>
+		<navigator class="next" >
 			<button type="default" @click="next">下一步</button>
 		</navigator>
 		<text class='resetting'>重置</text>
@@ -61,29 +67,17 @@
 </template>
 
 <script>
-	 import LbPicker from '../../components/lb-picker'
-	import mpvuePicker from './mpvuePicker.vue';
-	import mpvueCityPicker from './mpvueCityPicker.vue';
-	import cityData from '../../city.data.js';
 	export default {
 		components: {
-			mpvuePicker,
-			mpvueCityPicker,
-			LbPicker
+			
 		},
 		data() {
 			return {
-				mulLinkageTwoPicker: cityData,
-				cityPickerValueDefault: [0, 0, 1],
-				themeColor: '#007AFF',
-				pickerText: '请选择项目地址',
-				mode: '',
-				deepLength: 1,
-				pickerValueDefault: [0],
-				pickerValueArray: [],
-				province1: '',
-				isdefault: 0,
-				moHidden:true,//默认
+				index: 0,
+				index1: 0,
+				index2: 0,
+				
+				index3: 0,
 				text: '亩',
 				list: [
 				  {
@@ -93,60 +87,130 @@
 				  {
 				    label: '㎡',
 				    value: '2'
+				  },
+				  {
+				    label: '公顷',
+				    value: '3'
 				  }
 				],
+				province: [], 
+				city: ['北京市'], 
+				area: ['房山区'], 
 				
+				province_: '',// 省
+				city_: '',// 市
+				area_: '',// 区\县
+				pid: 0, //省pid
+				pid1: 0,
 				pname: '', // 项目名称
 				enterprie_name: '', // 企业名称
-				province: '', // 省
-				city: '', // 市
-				area: '', // 区\县
-				address: '', //详细地址
+				address: '', // 详细地址
 				user_name: '', // 项目负责人
-				time: '', //交付时间
+				time: '', // 交付时间
 				ctime: '', // 进场时间
-				dtime: '', //竣工时间
-				auid: '' // app用户id
+				dtime: '', // 竣工时间
+				auid: '', // app用户id
+				acreage: '',// 绿化面积（数字）
+				measure: '',// 绿化面积 （单位）万平方
+				company: '',// 绿化面积 (单位) 亩\㎡
 			}
 		},
-		onReady () {
-		  
+		onShow () { 
+			uni.request({// 页面展示出来后 请求省级的数据
+				url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
+				method: 'POST',
+				data: {
+					pid: this.pid, // pid为0，请求省级的数据
+				},
+				success: (res) => {
+					this.province = res.data.data
+				}
+			}),
+			uni.getStorage({
+				key: 'userinfo',
+				success: (res) => {
+					console.log(res.data)
+				}
+			})
 		},
 		methods: {
+			bindPickerChange: function(e) { // 请求市级
+				this.index = e.target.value,
+				this.province_ = this.province[this.index].shortname // 把用户选择的选项存下来
+				this.pid = this.province[this.index].id,
+				uni.request({
+					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
+					method: 'POST',
+					data: {
+						pid: this.pid, // 省级数据请求过来之后，将id传入参数再次请求 市级
+					},
+					success: (res) => {
+						this.city = res.data.data
+					}
+				})
+			},
+			bindPickerChange1: function(e) { // 请求区级
+				this.index1 = e.target.value
+				this.city_ = this.city[this.index1].shortname
+				this.pid1 = this.city[this.index1].id
+				uni.request({
+					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
+					method: 'POST',
+					data: {
+						pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
+					},
+					success: (res) => {
+						this.area = res.data.data
+					}
+				})
+				
+			},
+			bindPickerChange2: function(e) {
+				this.index2 = e.target.value
+				this.area_ = this.area[this.index2].shortname
+			},
 			goBack() {
 				uni.navigateBack({})
 			},
 			visible() {
 				return false;
 			},
-			// 三级联动选择
-			showMulLinkageThreePicker() {
-				this.$refs.mpvueCityPicker.show()
-			},
-			onConfirm(e) {
-				console.log(e)
-				this.pickerText = e.label
-				this.province1 = e.label.split(' ')[0]
-			},
 			wenzi(e) {
-				console.log(e)
-				this.text = e.item.label
-			},
-			dw_choose() {
-				this.$refs.picker.show()
+				this.index3 = e.target.value
+				
 			},
 			next() { // 下一步按钮
+				console.log(this.province_, this.city_, this.area_)
 				uni.request({
 					url: 'http://lvz.maike-docker.com/index.php/api/index/addProject',
 					method: 'POST',
-					
+					data: {
+						pname: this.pname,
+						enterprie_name: this.enterprie_name,
+						province: this.province_,
+						city: this.city_,
+						area: this.area_,
+						address: this.address,
+						user_name: this.user_name,
+						time: this.time,
+						ctime: this.ctime,
+						dtime: this.dtime,
+						auid: this.auid, // app用户id
+						measure: this.measure
+					},
+					success: (res) => {
+						console.log(res.data)
+						uni.navigateTo({
+							url: './create_sure'
+						})
+					}
 				})
 			}
 		}
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 	
 	.uni-input {
 		width: 520rpx;
@@ -261,18 +325,23 @@
 			justify-content: space-around;
 			align-items: center;
 			.city_tab{
-				width: 400rpx;
+				width: 120rpx;
 				height: 84rpx;
 				align-items: center;
+				text-align: center;
+				text-indent: 10rpx;
+				padding-right: 20rpx;
 				background: #F6F8FF;
 				color: #86888E;
 				border-radius: 80rpx;
 				position: relative;
 				image{
+					width: 40rpx;
+					height: 40rpx;
 					position: absolute;
 					top: 50%;
 					margin-top: -20rpx;
-					right: 20rpx;
+					right: 10rpx;
 				}
 			}
 			.choose{
@@ -300,6 +369,8 @@
 				position: relative;
 				background: #F6F8FF;
 				image{
+					width: 40rpx;
+					height: 40rpx;
 					position: absolute;
 					right: 10rpx;
 					top: 50%;

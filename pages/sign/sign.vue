@@ -54,7 +54,8 @@
 				<p>输入验证码</p>
 				<div class='get'>
 					<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
-					<button type="default" class="re_code" @click="getCode">获取验证码</button>
+					<button type="default" class="re_code" @click="getCode(this)" v-show='isCode'>获取验证码</button>
+					<div v-show='!isCode' class='time'>{{ second }}</div>
 				</div>
 				<p>输入密码</p>
 				<input type="password" placeholder="输入8-16位密码" v-model="password"/>
@@ -70,7 +71,8 @@
 					<p>输入验证码</p>
 					<div class='get'>
 						<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
-						<button type="default" class="re_code" @click="getCode">获取验证码</button>
+						<button type="default" class="re_code" @click="getCode(this)" v-show='isCode'>获取验证码</button>
+						<div v-show='!isCode' class='time'>{{ second }}</div>
 					</div>
 					<p>输入新密码</p>
 					<input type="password" placeholder="输入8-16位密码" v-model="password"/>
@@ -106,14 +108,21 @@ export default {
 	  code_ : '', // input双向绑定的验证码，PS：成功发送验证码后返回的id会因为双向绑定自动出现在用户的输入框中
 	  code: this.code_, // 验证码本🐎
 	  code_id : '' ,// 成功发送验证码后的id
-	  res:''
+	  res:'',
+	  
+	  timer: null,
+	  second: 60,
+	  isCode: true,
     }
   },
   methods: {
     table(index) {
       this.num = index;
     },
-	getCode() { // 获取验证码
+	getCode(e) { // 获取验证码
+		// 倒计时
+		this.isCode = false
+		// 发送请求
 		uni.request({
 			url: 'http://lvz.maike-docker.com/index.php/api/index/send_sms',
 			method: 'POST',
@@ -121,15 +130,30 @@ export default {
 			success: (res) => {
 				console.log(res.data)
 				if(res.data.code == 1) {
-					this.code = res.data.code,
-					this.code_id = res.data.code_id
+					this.code = res.data.data.code,
+					this.code_id = res.data.data.code_id
+					this.timers()		
 				} else {
 					
 				}
 			}
 		})
 	},
+	timers() {
+		if (!this.timer) {
+			this.timer = setInterval(() => {
+				this.second--
+				if (this.second == 0) {
+					clearInterval(this.timer)
+					this.timer = null
+					this.isCode = true
+					this.second = 60
+				}
+			}, 1000)
+		}
+	},
 	register_success() { // 注册
+		console.log(this.code_id)
 		uni.request({
 			url: 'http://lvz.maike-docker.com/index.php/api/index/appuser',
 			method: 'POST',
@@ -248,6 +272,15 @@ export default {
 	
 	uni-toast .uni-toast .uni-toast__content {
 		font-size: 15px !important;
+	}
+	.time{
+		width: 30%;
+		height: 78rpx;
+		line-height: 78rpx;
+		background: #c7c7c7;
+		text-align: center;
+		border-radius: 16rpx;
+		color: #6d6d6d;
 	}
   .hello{
     width: 100%;

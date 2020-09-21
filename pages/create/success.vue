@@ -60,7 +60,7 @@
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 	.goback{
 		width: 92%;
 		margin: 10px auto;

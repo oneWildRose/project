@@ -67,7 +67,7 @@
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 	.head{
 		width: 100%;
 		height: 578rpx;

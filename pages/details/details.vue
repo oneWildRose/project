@@ -1,7 +1,7 @@
 <template> <!-- 项目信息 -->
 	<view class="hello">
-		<div class='goback' @click='goBack'>
-			<image :src="require('../../static/fanhui(1).png')" mode=""></image>
+		<div class='goback'>
+			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
 			<p>融创项目一期</p>
 			<div>
 				<image :src="require('../../static/9-17icon/zuijinshijian.svg')" mode=""></image>
@@ -25,10 +25,50 @@
 					<image src="" mode=""></image>
 				</li>
 			</ul>
-			<div class='tree'> <!-- 苗木信息 -->
+			<div class='tree' v-show='num == 1'> <!-- 苗木信息 -->
 				<div class='search'>
 					<input type="search" value="" placeholder="搜索苗木" />
 					<image :src="require('../../static/search.svg')" mode=""></image>
+				</div>
+				<div class='kind'>
+					<ul>
+						<li @click='goTreeMsg'>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+						<li>
+							<image :src="require('../../static/shu.png')" mode=""></image>
+							<p>悬铃木</p>
+						</li>
+					</ul>
 				</div>
 			</div>
 		</div>
@@ -87,12 +127,17 @@
 			},
 			getUrl(url) {
 				return url;
+			},
+			goTreeMsg() {
+				uni.navigateTo({
+					url: '../tree_msg/tree_msg'
+				})
 			}
 		}
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 	.hello{
 		width: 100%;
 		height: 100%;
@@ -114,7 +159,7 @@
 			text-align: center;
 			position: relative;
 			color: white;
-			font-size: 18px;
+			font-size: 36rpx;
 			&>image{
 				width: 52rpx;
 				height: 52rpx;
@@ -127,7 +172,7 @@
 				position: absolute;
 				left: 40rpx;
 				top: 30%;
-				font-size: 17px;
+				font-size: 34rpx;
 				font-weight: 600;
 			}
 			div{
@@ -138,7 +183,7 @@
 				left: 40rpx;
 				top: 56%;
 				color: #d3d8e7;
-				font-size: 13px;
+				font-size: 26rpx;
 				display: flex;
 				align-items: center;
 				image{
@@ -196,7 +241,7 @@
 					height: 80rpx;
 					display: flex;
 					align-items: center;
-					font-size: 16px;
+					font-size: 32rpx;
 					font-weight: 500;
 					image{
 						width: 34rpx;
@@ -220,7 +265,63 @@
 			}
 			
 			.tree{
-				
+				width: 90%;
+				height: 800rpx;
+				margin: 0 auto;
+				.search{
+					width: 100%;
+					height: 80rpx;
+					position: relative;
+					input{
+						width: 100%;
+						height: 100%;
+						line-height: 80rpx;
+						border: 1px solid #E6E6E6;
+						border-radius: 20rpx;
+						text-align: center;
+					}
+					image{
+						width: 40rpx;
+						height: 40rpx;
+						position: absolute;
+						left: 20rpx;
+						top: 50%;
+						margin-top: -20rpx
+					}
+				}
+				.kind{
+					width: 100%;
+					height: 90%;
+					ul{
+						width: 100%;
+						height: 100%;
+						margin: 0;
+						padding: 0;
+						border: none;
+						display: flex;
+						flex-wrap: wrap;
+						justify-content: space-between;
+						li{
+							width: 184rpx;
+							height: 260rpx;
+							text-align: center;
+							display: flex;
+							flex-wrap: wrap;						
+							margin-top: 20rpx;
+							image{
+								width: 100%;
+								height: 200rpx;
+								margin: 0;
+								padding: 0;
+								border: 1px solid #b5b5b5;
+							}
+							p{
+								width: 100%;
+								text-align: center;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
