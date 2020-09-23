@@ -1,4 +1,4 @@
-<template>
+<template> <!-- 苗木信息 -->
 	<view class="hello">
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>

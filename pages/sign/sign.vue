@@ -115,6 +115,23 @@ export default {
 	  isCode: true,
     }
   },
+  onShow() { // 页面加载就触发
+  	var self = this
+  	//从缓存中取出登陆信息
+  	uni.getStorage({
+  		key: 'userinfo',
+  		success: function (res) {
+  			self.res = res.data
+  			if(res != '') {
+  				uni.switchTab({
+  					url: '../ind/ind'
+  				})
+  			} else {
+  				
+  			}
+  		}
+  	})
+  },
   methods: {
     table(index) {
       this.num = index;
@@ -244,25 +261,6 @@ export default {
 			}
 		})
 	},
-  },
-  
-  
-  onShow() { // 页面加载就触发
-	var self = this
-	//从缓存中取出登陆信息
-	uni.getStorage({
-		key: 'userinfo',
-		success: function (res) {
-			self.res = res.data
-			if(res != '') {
-				uni.switchTab({
-					url: '../ind/ind'
-				})
-			} else {
-				
-			}
-		}
-	})
   }
 }
 </script>

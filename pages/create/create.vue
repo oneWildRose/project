@@ -30,18 +30,23 @@
 				<text>项目地址</text>
 				<div class="city_tab">
 					<picker @change="bindPickerChange" :value="index" :range="province"  :range-key="'shortname'">
-						<label class="">{{province[index].shortname}}</label>
+						<label class='' v-if='bol'>请选择</label>
+						<label class="" v-if='bol_'>{{province[index].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>	
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange1" :value="index1" :range="city" :range-key="'shortname'">
-						<label class="">{{city[index1].shortname}}</label>
+						<label class='' v-if='bol1'>请选择</label>
+						<label class="" v-if='bol_1'>{{city[index1].shortname}}</label>
+						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange2" :value="index2" :range="area" :range-key="'shortname'">
-						<label class="">{{area[index2].shortname}}</label>
+						<label class='' v-if='bol2'>请选择</label>
+						<label class="" v-if='bol_2'>{{area[index2].shortname}}</label>
+						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
 			</div>
@@ -50,7 +55,8 @@
 			<div class='green'> <!-- 绿化管理面积 -->
 				<input type="text" value="" placeholder="绿化管理面积" v-model="acreage"/>
 				<picker @change="wenzi" class='dw' :value="index3" :range="list" :range-key="'label'">
-					<label class="" style="font-size: 24rpx;text-align: left;">{{list[index3].label}}</label>
+					<label class='' v-if='bol3' style="font-size: 24rpx;">请选择</label>
+					<label class="" style="font-size: 24rpx;text-align: left;" v-if="bol_3">{{list[index3].label}}</label>
 					<image :src="require('../../static/xuanze.svg')" mode=""></image>
 				</picker>
 			</div>
@@ -76,10 +82,18 @@
 				index: 0,
 				index1: 0,
 				index2: 0,
+				bol: true,
+				bol_:false,
+				bol1: true,
+				bol_1:false,
+				bol2: true,
+				bol_2:false, // 控制省市区数据的 索引 和 默认值:'请选择'字样的显示隐藏
 				
-				index3: 0,
-				text: '亩',
-				list: [
+				index3: 0, // 绿化面积单位数组索引
+				bol3: true,
+				bol_3:false,
+				text: '亩', // 默认单位
+				list: [ // 绿化面积单位数组
 				  {
 				    label: '亩',
 				    value: '1'
@@ -94,25 +108,29 @@
 				  }
 				],
 				province: [], 
-				city: ['北京市'], 
-				area: ['房山区'], 
+				city: ['请选择'], 
+				area: ['请选择'], 
 				
+				pid: 0, //省级pid
+				pid1: 0, // 市级pid
+				
+				pname: '', // 项目名称
+				enterprie_name: '', // 企业名称
 				province_: '',// 省
 				city_: '',// 市
 				area_: '',// 区\县
-				pid: 0, //省pid
-				pid1: 0,
-				pname: '', // 项目名称
-				enterprie_name: '', // 企业名称
 				address: '', // 详细地址
-				user_name: '', // 项目负责人
+				acreage: '',// 绿化面积（数字）
+				unit: '', // 单位
+				measure: '',// 绿化面积 （单位）公顷
+				company: '',// 绿化面积 (单位) 亩\㎡
+				dtime: '', // 竣工时间
 				time: '', // 交付时间
 				ctime: '', // 进场时间
-				dtime: '', // 竣工时间
+				user_name: '', // 项目负责人
 				auid: '', // app用户id
-				acreage: '',// 绿化面积（数字）
-				measure: '',// 绿化面积 （单位）万平方
-				company: '',// 绿化面积 (单位) 亩\㎡
+				
+				project_id: '' // 下一步按钮提交后返回的项目id
 			}
 		},
 		onShow () { 
@@ -126,18 +144,22 @@
 					this.province = res.data.data
 				}
 			}),
-			uni.getStorage({
+			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
-					console.log(res.data)
+					// console.log(res.data)
+					this.auid = res.data.data.id
 				}
 			})
 		},
 		methods: {
+			// 省市区
 			bindPickerChange: function(e) { // 请求市级
 				this.index = e.target.value,
 				this.province_ = this.province[this.index].shortname // 把用户选择的选项存下来
 				this.pid = this.province[this.index].id,
+				this.bol = false,
+				this.bol_ = true,
 				uni.request({
 					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
 					method: 'POST',
@@ -153,6 +175,8 @@
 				this.index1 = e.target.value
 				this.city_ = this.city[this.index1].shortname
 				this.pid1 = this.city[this.index1].id
+				this.bol1 = false,
+				this.bol_1 = true,
 				uni.request({
 					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
 					method: 'POST',
@@ -168,19 +192,26 @@
 			bindPickerChange2: function(e) {
 				this.index2 = e.target.value
 				this.area_ = this.area[this.index2].shortname
+				this.bol2 = false,
+				this.bol_2 = true
 			},
+			
 			goBack() {
 				uni.navigateBack({})
 			},
-			visible() {
-				return false;
-			},
 			wenzi(e) {
 				this.index3 = e.target.value
-				
+				this.unit = this.list[this.index3].label // 单位
+				this.bol3 = false,
+				this.bol_3 = true
 			},
 			next() { // 下一步按钮
-				console.log(this.province_, this.city_, this.area_)
+				if (this.unit === '公顷') {
+					this.measure = this.acreage
+				} else {
+					this.company = this.acreage
+				}
+				console.log(this.auid)
 				uni.request({
 					url: 'http://lvz.maike-docker.com/index.php/api/index/addProject',
 					method: 'POST',
@@ -195,14 +226,22 @@
 						time: this.time,
 						ctime: this.ctime,
 						dtime: this.dtime,
-						auid: this.auid, // app用户id
-						measure: this.measure
+						uid: this.auid, // app用户id
+						measure: this.measure,// 公顷
+						company: this.company // 亩/㎡
 					},
 					success: (res) => {
 						console.log(res.data)
-						uni.navigateTo({
-							url: './create_sure'
-						})
+						this.project_id = res.data.data.project_id
+						if(res.data.code == 1) {
+							uni.navigateTo({
+								url: './create_sure?project_id=' + this.project_id
+							})							
+						} else {
+							uni.showModal({
+								content: res.data.msg
+							})
+						}
 					}
 				})
 			}
@@ -333,7 +372,7 @@
 				padding-right: 20rpx;
 				background: #F6F8FF;
 				color: #86888E;
-				border-radius: 80rpx;
+				border-radius: 20rpx;
 				position: relative;
 				image{
 					width: 40rpx;
@@ -341,7 +380,7 @@
 					position: absolute;
 					top: 50%;
 					margin-top: -20rpx;
-					right: 10rpx;
+					right: -1rpx;
 				}
 			}
 			.choose{
@@ -360,7 +399,7 @@
 				width: 69%;
 			}
 			.dw{
-				width: 110rpx;
+				width: 120rpx;
 				font-size: 32rpx;
 				height: 84rpx;
 				line-height: 84rpx;
@@ -372,7 +411,7 @@
 					width: 40rpx;
 					height: 40rpx;
 					position: absolute;
-					right: 10rpx;
+					right: -1rpx;
 					top: 50%;
 					margin-top: -20rpx;
 				}

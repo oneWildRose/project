@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        
+    </head>
+	<style type="text/css">
+		#btn{
+			position: absolute;
+			left: 50%;
+			width: 90%;
+			margin-left: -45%;
+			height: 15%;
+			background: #EAEEFF;
+			border: 1px solid rgba(0,0,0,.2);
+			color: #4D4D4D;
+			border-radius: 10px;
+			font-size: 46px;
+		}
+	</style>
+    <body>
+		<button id="btn" type="button" class="mui-btn mui-btn-blue mui-btn-block">上传苗木信息文件(excel表)</button>
+    </body>
+</html>
+<!-- uni的 SDK -->
+<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js"></script>
+<script type="text/javascript">
+	document.addEventListener('plusready',function () {
+		// 在这里调用plus api
+		document.querySelector('#btn').addEventListener('click',function () {
+			var REQUESTCODE = 1;
+			var main = plus.android.runtimeMainActivity();
+			var Intent = plus.android.importClass('android.content.Intent');
+			var intent = new Intent(Intent.ACTION_GET_CONTENT);
+		
+			intent.setType("*/*");//设置类型，任意类型
+			//intent.setType("image/*");
+			//intent.setType("audio/*"); //选择音频
+			//intent.setType("video/*"); //选择视频 （mp4 3gp 是android支持的视频格式）
+		
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			main.startActivityForResult(intent,REQUESTCODE);
+		
+			main.onActivityResult = function(requestCode, resultCode, data) { 
+				if (REQUESTCODE == requestCode) {
+					var context = main;
+					plus.android.importClass(data);
+					// 获得文件路径
+					var fileData = data.getData();  
+					var path = plus.android.invoke(fileData, "getPath");
+					console.log("path:"+path);
+		
+					// 判断文件类型
+					var resolver = context.getContentResolver();
+					var fileType = plus.android.invoke(resolver, "getType",fileData);
+					console.log("fileType:"+fileType);
+					
+					function msg () {
+						// 将 path 传递到 upload_excel(应用webview的页面) 的函数
+						uni.postMessage({
+							data: {
+								path: path
+							}
+						})						
+					}
+					
+					if (window.UniAppJSBridge) {
+						msg();
+					} else {
+						document.addEventListener('UniAppJSBridgeReady', function () {
+							msg();
+						});
+					}
+					
+				}
+			}
+		})
+	},false);
+</script>

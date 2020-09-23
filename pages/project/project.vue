@@ -1,5 +1,6 @@
 <template> <!-- 项目管理 -->
 	<view>
+		<div class='blue'></div>
 		<div class='goback' @click='goBack'>
 			<image :src="require('../../static/fanhui(1).png')" mode=""></image>
 			<text>项目管理</text>
@@ -17,12 +18,12 @@
 				<li v-for='(item, index) in project_list' :key='index' @click='goDetails'>
 					<div class='up'>
 						<text></text>
-						<text>项目名称: {{ item.title }}</text>
+						<text>项目名称: {{ item.pname }}</text>
 						<image :src="require('../../static/more.svg')" mode=""></image>
 					</div>
 					<div class='down'>
 						<image :src="require('../../static/dingwei.svg')" mode=""></image>
-						<text>{{ item.address }}</text>
+						<text>{{ item.city + item.area + item.address }}</text>
 					</div>
 				</li>
 			</ul>
@@ -34,29 +35,50 @@
 	export default {
 		data() {
 			return {
-				project_list: [
-					{
-						title: '融创项目一期',
-						address: '天津市南开区体育中心凌宾路'
-					},
-					{
-						title: '万科项目一期',
-						address: '天津市东丽区津滨大道'
-					},
-					{
-						title: '恒大项目一期',
-						address: '天津市河西区黑牛城道'
-					}
-				]
+				id: '',
+				project_list: []
 			}
+		},
+		created() {
+			uni.getStorage({ // 从缓存中拿到用户的id
+				key: 'userinfo',
+				success: (res) => {
+					// console.log(res.data)
+					this.id = res.data.data.id
+				}
+			}),
+			uni.request({
+				url: 'http://lvz.maike-docker.com/index.php/api/index/Project_list',
+				method: 'POST',
+				data: {
+					uid: this.id
+				},
+				success: (res) => {
+					//console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
+					if (res.data.data == []) { // 如果是空的 就 弹框提示 返回首页
+						uni.showModal({
+							content: '请创建项目',
+							success: (res) => {
+								uni.navigateTo({
+									url: '../ind/ind'
+								})
+							}
+						})
+					} else { // 如果不为空，那么就渲染数据，展示项目信息列表
+						this.project_list = res.data.data
+						// console.log(this.project_list)
+					}
+				}
+			})
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack({})
 			},
 			goDetails() {
+				var list = JSON.stringify(this.project_list)
 				uni.navigateTo({
-					url: '../details/details'
+					url: '../details/details?project_list=' + list
 				})
 			}
 		}
@@ -64,6 +86,11 @@
 </script>
 
 <style lang="less" scoped>
+	.blue{
+		width: 100%;
+		height: 50rpx;		
+		background: #3F5DE3;
+	}
 	.goback{
 		padding-left: 20px;
 		padding-right: 20px;
@@ -113,11 +140,11 @@
 	}
 	.list{
 		width: 100%;
-		height: 100%;
+		height: 75%;
 		background: white;
 		border-radius: 20px;
 		position: absolute;
-		top: 130px;
+		top: 160px;
 		.title{
 			margin-top: 20px;
 			margin-left: 20px;

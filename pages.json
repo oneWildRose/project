@@ -66,6 +66,18 @@
 				"navigationStyle":"custom"
 			}
         }
+        ,{
+            "path" : "pages/upload_excel/upload_excel",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
+        ,{
+            "path" : "pages/single/single",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTitleText": "",

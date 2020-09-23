@@ -1,4 +1,4 @@
-<template> <!-- 创建项目（第二步） -->
+<template> <!-- 创建项目（第二步）上传平面图 -->
 	<view>
 		<div class='goback' @click='goBack'>
 			<image src="../../static/fanhui.png" mode=""></image>
@@ -14,7 +14,7 @@
 					
 				</div>
 				<div>
-					<text>确认信息</text>
+					<text>上传平面图</text>
 				</div>
 				<div></div>
 			</div>
@@ -26,40 +26,78 @@
 		</div>
 		<div class="message">
 			<p>项目平面图</p>
-			<upload-img
-				class="image"
-				bgsrc="../../static/zanwu.jpg"
-				@chooseimg="handleChooseImg" style="margin: 0 auto; width: 580rpx; height: 320rpx;">
-			</upload-img>
+			<div class='image'>
+				<image :src="this.src" mode="" @click='upload'></image>
+				<button @click='upload'>上传</button>
+			</div>
+			
 			
 		</div>
-		<navigator class="next" url='./success'>
-			<button type="default">提交</button>
+		<navigator class="next">
+			<button type="default" @click="sub">提交</button>
 		</navigator>
 	</view>
 </template>
 
 <script>
-	import uploadImg from '../../components/amazarashi-uploadimg/uploadImg.vue'
 	export default {
 		components: {
-			uploadImg
+			
 		},
 		data() {
 			return {
-				src: ''
+				src: '../../static/zanwu.jpg',
+				project_id: ''
 			}
+		},
+		onLoad(option) { // option 上个页面传递的参数
+			console.log(option.project_id)
+			this.project_id = option.project_id
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack({})
 			},
-			handleChooseImg(e){
-				console.log('imageSrc:',e);
+			upload() { // 上传项目平面图
+				uni.chooseImage({
+				    success: (chooseImageRes) => {
+				        const tempFilePaths = chooseImageRes.tempFilePaths;
+				        uni.uploadFile({
+				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
+				            filePath: tempFilePaths[0],
+				            formData: {
+				                'file': 'test'
+				            },
+				            success: (uploadFileRes) => {
+				                console.log(uploadFileRes.data);
+								this.src = uploadFileRes.data
+								
+				            }
+				        });
+				    }
+				});
+			},
+			sub() {
+				uni.request({
+					url: 'http://lvz.maike-docker.com/index.php/api/index/addProjectSubmit',
+					data: {
+						plan_url: this.src,
+						project_id: this.project_id
+					},
+					success: (res) => {
+						console.log(res)
+						if(res.data.code == 1) {
+							uni.navigateTo({
+								url: './success'
+							})
+						} else {
+							uni.showModal({
+								content: res.data.msg
+							})
+						}
+					}
+				})
 			}
-		},
-		onLoad() {
-			console.log(Uploader)
 		}
 	}
 </script>
@@ -153,9 +191,21 @@
 		color: #868686;
 		p{
 			height: 60rpx;
+			font-weight: bold;
 		}
-		.upload-img.image{
-			border: 2px solid #F7F7F7;
+		.image{
+			width: 100%;
+			image{
+				width: 100%;
+				height: 340rpx;
+				border: 2px solid #F7F7F7;
+			}
+			button{
+				width: 200rpx;
+				font-size: 30rpx;
+				color: white;
+				background: #3F5DE3;
+			}
 		}
 	}
 	uni-button[type=default]{ /* .next 元素 */

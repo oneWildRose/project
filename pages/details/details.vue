@@ -33,46 +33,72 @@
 				<div class='kind'>
 					<ul>
 						<li @click='goTreeMsg'>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
+							<div>
+								<image :src="require('../../static/shu3.svg')" mode=""></image>
+							</div>
+							<div>
+								<div>
+									<p>苗木名称：法桐</p>
+									<p>位置：一号楼与二号楼之间</p>
+								</div>
+								<image :src="require('../../static/jinru.svg')"></image>
+							</div>
 						</li>
 						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
+							<div>
+								<image :src="require('../../static/shu3.svg')" mode=""></image>
+							</div>
+							<div>
+								<div>
+									<p>苗木名称：合欢树</p>
+									<p>位置：环路与二号楼之间</p>
+								</div>
+								<image :src="require('../../static/jinru.svg')"></image>
+							</div>
 						</li>
 						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
+							<div>
+								<image :src="require('../../static/shu3.svg')" mode=""></image>
+							</div>
+							<div>
+								<div>
+									<p>苗木名称：法桐</p>
+									<p>位置：一号楼与二号楼之间</p>
+								</div>
+								<image :src="require('../../static/jinru.svg')"></image>
+							</div>
 						</li>
 						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
+							<div>
+								<image :src="require('../../static/shu3.svg')" mode=""></image><image :src="require('../../static/shu3.svg')" mode=""></image>
+							</div>
+							<div>
+								<div>
+									<p>苗木名称：合欢树</p>
+									<p>位置：环路与二号楼之间</p>
+								</div>
+								<image :src="require('../../static/jinru.svg')"></image>
+							</div>
 						</li>
 						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
-						</li>
-						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
-						</li>
-						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
-						</li>
-						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
-						</li>
-						<li>
-							<image :src="require('../../static/shu.png')" mode=""></image>
-							<p>悬铃木</p>
+							<div>
+								<image :src="require('../../static/shu3.svg')" mode=""></image>
+							</div>
+							<div>
+								<div>
+									<p>苗木名称：法桐</p>
+									<p>位置：一号楼与二号楼之间</p>
+								</div>
+								<image :src="require('../../static/jinru.svg')"></image>
+							</div>
 						</li>
 					</ul>
 				</div>
+				
+				<!-- 上传苗木按钮 -->
+				<button type="default" class='upload' @click="goUpload">上传苗木</button>
 			</div>
 		</div>
-		
 	</view>
 </template>
 
@@ -82,41 +108,47 @@
 			return {
 				tabs: ['基本信息', '苗木信息'],
 				num: 0,
-				msg: [
+				msg: '',
+				addmsg: [
 					{
 						brg_url: '../../static/9-17icon/project.svg',
-						text: '项目名称：融创项目一期'
+						text: '项目名称：'
 					},
 					{
 						brg_url: '../../static/9-17icon/gongsi.svg',
-						text: '企业名称：坚实物业服务有限公司'
+						text: '企业名称：'
 					},
 					{
 						brg_url: '../../static/9-17icon/ress.svg',
-						text: '项目地址：天津市南开区体育中心凌滨路'
+						text: '项目地址：'
 					},
 					{
 						brg_url: '../../static/9-17icon/mianji.svg',
-						text: '项目管理面积：10000亩'
+						text: '项目管理面积：'
 					},
 					{
 						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目竣工时间：2021-08-31'
+						text: '项目竣工时间：'
 					},
 					{
 						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目竣工时间：2021-08-31'
+						text: '项目竣工时间：'
 					},
 					{
 						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目进场时间：2020-09-01'
+						text: '项目进场时间：'
 					},
 					{
 						brg_url: '../../static/9-17icon/fuzeren.svg',
-						text: '负责人：张元'
+						text: '负责人：'
 					}
 				]
 			}
+		},
+		onLoad(option) {
+			this.msg = JSON.parse(option.project_list)
+			// this.msg.unshift(this.addmsg)
+			// console.log(this.msg)
 		},
 		methods: {
 			goBack() {
@@ -132,6 +164,11 @@
 				uni.navigateTo({
 					url: '../tree_msg/tree_msg'
 				})
+			},
+			goUpload() {
+				uni.navigateTo({
+					url: '../upload_excel/upload_excel'
+				})
 			}
 		}
 	}
@@ -140,7 +177,7 @@
 <style lang="less" scoped>
 	.hello{
 		width: 100%;
-		height: 100%;
+		height: 1200rpx;
 		background: url(../../static/9-17icon/bg2.jpg) no-repeat;
 		background-size: 100%;
 		position: absolute;
@@ -298,30 +335,68 @@
 						margin: 0;
 						padding: 0;
 						border: none;
-						display: flex;
-						flex-wrap: wrap;
-						justify-content: space-between;
 						li{
-							width: 184rpx;
-							height: 260rpx;
-							text-align: center;
+							width: 100%;
+							height: 132rpx;
+							text-align: left;
 							display: flex;
 							flex-wrap: wrap;						
 							margin-top: 20rpx;
-							image{
-								width: 100%;
-								height: 200rpx;
-								margin: 0;
-								padding: 0;
-								border: 1px solid #b5b5b5;
+							border-radius: 20rpx;
+							box-shadow: #adadad 2px 1px 4px 0px;
+							&>div:nth-of-type(1){
+								width: 120rpx;
+								height: 100%;
+								position: relative;
+								image{
+									width: 70rpx;
+									height: 70rpx;
+									position: absolute;
+									left: 50%;
+									margin-left: -35rpx;
+									top: 50%;
+									margin-top: -35rpx;
+								}
 							}
-							p{
-								width: 100%;
-								text-align: center;
+							&>div:nth-of-type(2){
+								height: 100%;
+								flex-grow:1;
+								position: relative;
+								div{
+									position: absolute;
+									top: 50%;
+									margin-top: -35rpx;
+								}
+								p:nth-of-type(1){
+									font-size: 32rpx;
+									font-weight: 500;
+									margin-bottom: 6rpx;
+								}
+								p:nth-of-type(2){
+									font-size: 26rpx;
+									color: #656D6B;
+								}
+								image{
+									position: absolute;
+									right: 20rpx;
+									top: 50%;
+									margin-top: -20rpx;
+								}
 							}
 						}
 					}
 				}
+			}
+			
+			.upload{
+				width: 70%;
+				position: absolute;
+				bottom: 40rpx;
+				left: 50%;
+				margin-left: -250rpx;
+				background-color: #3F5DE3;
+				color: white;
+				border-radius: 40rpx;
 			}
 		}
 	}
