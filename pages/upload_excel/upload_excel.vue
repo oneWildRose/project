@@ -26,8 +26,13 @@
 		},
 		data() {
 			return {
-				path: '' // 上传文件的路径
+				path: '', // 上传文件的路径
+				project_id: ''
 			}
+		},
+		onLoad(option) {
+			console.log(option)
+			this.project_id = option.project_id
 		},
 		mounted() {
 			var height= 0;//定义动态的高度变量，如高度为定值，可以直接写
@@ -69,7 +74,8 @@
 					url: 'http://lvz.maike-docker.com/index.php/lvhua/execl/import',
 					method: 'POST',
 					data: {
-						file: this.path
+						file: this.path,
+						project_id: this.project_id
 					},
 					success: (res) => {
 						console.log(res)

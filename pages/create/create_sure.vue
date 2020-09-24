@@ -65,9 +65,6 @@
 				        uni.uploadFile({
 				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
 				            filePath: tempFilePaths[0],
-				            formData: {
-				                'file': 'test'
-				            },
 				            success: (uploadFileRes) => {
 				                console.log(uploadFileRes.data);
 								this.src = uploadFileRes.data
@@ -78,25 +75,32 @@
 				});
 			},
 			sub() {
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/api/index/addProjectSubmit',
-					data: {
-						plan_url: this.src,
-						project_id: this.project_id
-					},
-					success: (res) => {
-						console.log(res)
-						if(res.data.code == 1) {
-							uni.navigateTo({
-								url: './success'
-							})
-						} else {
-							uni.showModal({
-								content: res.data.msg
-							})
+				console.log(this.src)
+				if(this.src == '../../static/zanwu.jpg') {
+					uni.showModal({
+						content: '请上传项目平面图'
+					})
+				} else {
+					uni.request({
+						url: 'http://lvz.maike-docker.com/index.php/api/index/addProjectSubmit',
+						data: {
+							plan_url: this.src,
+							project_id: this.project_id
+						},
+						success: (res) => {
+							console.log(res)
+							if(res.data.code == 1) {
+								uni.navigateTo({
+									url: './success'
+								})
+							} else {
+								uni.showModal({
+									content: res.data.msg
+								})
+							}
 						}
-					}
-				})
+					})
+				}
 			}
 		}
 	}

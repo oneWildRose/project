@@ -15,7 +15,7 @@
 				<text>项目列表</text>
 			</div>
 			<ul>
-				<li v-for='(item, index) in project_list' :key='index' @click='goDetails'>
+				<li v-for='(item, index) in project_list' :key='index' @click='goDetails(index)'>
 					<div class='up'>
 						<text></text>
 						<text>项目名称: {{ item.pname }}</text>
@@ -43,7 +43,7 @@
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
-					// console.log(res.data)
+					console.log(res.data)
 					this.id = res.data.data.id
 				}
 			}),
@@ -54,7 +54,7 @@
 					uid: this.id
 				},
 				success: (res) => {
-					//console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
+					console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
 					if (res.data.data == []) { // 如果是空的 就 弹框提示 返回首页
 						uni.showModal({
 							content: '请创建项目',
@@ -65,8 +65,9 @@
 							}
 						})
 					} else { // 如果不为空，那么就渲染数据，展示项目信息列表
+						console.log(res.data.data)
 						this.project_list = res.data.data
-						// console.log(this.project_list)
+						console.log(this.project_list)
 					}
 				}
 			})
@@ -75,10 +76,9 @@
 			goBack() {
 				uni.navigateBack({})
 			},
-			goDetails() {
-				var list = JSON.stringify(this.project_list)
+			goDetails(index) {
 				uni.navigateTo({
-					url: '../details/details?project_list=' + list
+					url: '../details/details?project=' + JSON.stringify(this.project_list[index])
 				})
 			}
 		}

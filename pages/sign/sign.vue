@@ -211,7 +211,7 @@ export default {
 				password: this.password
 			},
 			success: (res) => {
-				console.log(res.data)
+				// console.log(res.data)
 				if(res.data.code == 1) {
 					// 用户id
 					this.id = res.data.uid
@@ -220,7 +220,7 @@ export default {
 						key: 'userinfo',
 						data: res.data,
 						success: function () {
-							console.log(res.data)
+							// console.log(res.data)
 						}
 					})
 					// 跳转至首页

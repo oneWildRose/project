@@ -2,10 +2,10 @@
 	<view class="hello">
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
-			<p>融创项目一期</p>
+			<p>{{ msg.pname }}</p>
 			<div>
 				<image :src="require('../../static/9-17icon/zuijinshijian.svg')" mode=""></image>
-				<text>最近更新：2020-09-01</text>
+				<text>最近更新：{{ msg.update_time }}</text>
 			</div>
 		</div>
 		<div class='main'> <!-- Tab -->
@@ -16,13 +16,41 @@
 				</div>
 			</div>
 			<ul v-show="num == 0"> <!-- 基本信息 -->
-				<li v-for="(item, index) in msg" :key='index'>
-					<image :src="getUrl(item.brg_url)"></image>
-					<p>{{ item.text }}</p>
+				<li>
+					<image :src="require('../../static/9-17icon/project.svg')"></image>
+					<p>项目名称：{{ msg.pname }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/gongsi.svg')"></image>
+					<p>企业名称：{{ msg.enterprie_name }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/ress.svg')"></image>
+					<p>项目地址：{{ msg.province + msg.city + msg.area + msg.address }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/mianji.svg')"></image>
+					<p>项目管理面积：{{ acreage }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/intime.svg')"></image>
+					<p>项目竣工时间：{{ msg.dtime }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/intime.svg')"></image>
+					<p>项目交付时间：{{ msg.time }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/intime.svg')"></image>
+					<p>项目进场时间：{{ msg.ctime }}</p>
+				</li>
+				<li>
+					<image :src="require('../../static/9-17icon/fuzeren.svg')"></image>
+					<p>负责人：{{ msg.user_name }}</p>
 				</li>
 				<li>
 					<p>项目平面图</p>
-					<image src="" mode=""></image>
+					<image :src="msg.picurl" mode=""></image>
 				</li>
 			</ul>
 			<div class='tree' v-show='num == 1'> <!-- 苗木信息 -->
@@ -109,46 +137,29 @@
 				tabs: ['基本信息', '苗木信息'],
 				num: 0,
 				msg: '',
-				addmsg: [
-					{
-						brg_url: '../../static/9-17icon/project.svg',
-						text: '项目名称：'
-					},
-					{
-						brg_url: '../../static/9-17icon/gongsi.svg',
-						text: '企业名称：'
-					},
-					{
-						brg_url: '../../static/9-17icon/ress.svg',
-						text: '项目地址：'
-					},
-					{
-						brg_url: '../../static/9-17icon/mianji.svg',
-						text: '项目管理面积：'
-					},
-					{
-						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目竣工时间：'
-					},
-					{
-						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目竣工时间：'
-					},
-					{
-						brg_url: '../../static/9-17icon/intime.svg',
-						text: '项目进场时间：'
-					},
-					{
-						brg_url: '../../static/9-17icon/fuzeren.svg',
-						text: '负责人：'
-					}
-				]
+				project_id: '',
+				acreage: ''
 			}
 		},
 		onLoad(option) {
-			this.msg = JSON.parse(option.project_list)
-			// this.msg.unshift(this.addmsg)
-			// console.log(this.msg)
+			// console.log(JSON.parse(option.project)) // 项目信息
+			this.project_id = JSON.parse(option.project).id // 拿到项目id
+			uni.request({
+				url: 'http://lvz.maike-docker.com/index.php/api/index/Project_info',
+				method: 'POST',
+				data: {
+					project_id: this.project_id
+				},
+				success: (res) => {
+					this.msg = res.data.data
+					// console.log(this.msg)
+					if (this.msg.company == "") { // 如果company(亩/㎡)为空，那么就渲染measure(公顷)
+						this.acreage = this.msg.measure + '公顷'
+					} else {
+						this.acreage = this.msg.company + '亩/㎡'
+					}
+				}
+			})
 		},
 		methods: {
 			goBack() {
@@ -157,9 +168,6 @@
 			table(index) {
 				this.num = index
 			},
-			getUrl(url) {
-				return url;
-			},
 			goTreeMsg() {
 				uni.navigateTo({
 					url: '../tree_msg/tree_msg'
@@ -167,7 +175,7 @@
 			},
 			goUpload() {
 				uni.navigateTo({
-					url: '../upload_excel/upload_excel'
+					url: '../upload_excel/upload_excel?project_id=' + this.project_id
 				})
 			}
 		}

@@ -23,8 +23,8 @@
 			</div>
 		</div>
 		<div class="message">
-			<input type="text" placeholder="企业名称" v-model="pname"/>
-			<input type="text" placeholder="项目名称" v-model="enterprie_name"/>
+			<input type="text" placeholder="企业名称" v-model="enterprie_name"/>
+			<input type="text" placeholder="项目名称" v-model="pname"/>
 			
 			<div class='city'>
 				<text>项目地址</text>

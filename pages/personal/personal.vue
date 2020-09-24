@@ -1,7 +1,7 @@
 <template> <!-- 个人中心 -->
 	<view class="hello">
 		<div class='head'>
-			<div>
+			<div @click='goInformation'>
 				<div class="head_image">
 					<image :src="require('../../static/zhaopian.png')" mode=""></image>
 				</div>
@@ -38,11 +38,25 @@
 	export default {
 		data() {
 			return {
-				
+				id: ''
 			}
 		},
+		onShow() {
+			uni.getStorage({ // 从缓存中拿到用户的id
+				key: 'userinfo',
+				success: (res) => {
+					// console.log(res.data)
+					this.id = res.data.data.id
+				}
+			})
+		},
 		methods: {
-			exit() {
+			goInformation() { // 个人信息
+				uni.navigateTo({
+					url: '../information/information?uid=' + this.id
+				})
+			},
+			exit() { // 退出登录
 				uni.showModal({
 					content: '确定退出登录?',
 					success: (res) => {
@@ -51,7 +65,7 @@
 							uni.removeStorage({
 								key: 'userinfo'
 							})
-							uni.navigateTo({
+							uni.reLaunch({
 								url: '../sign/sign'
 							})
 						} else {

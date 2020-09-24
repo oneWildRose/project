@@ -78,6 +78,18 @@
 				"navigationStyle":"custom"
 			}
         }
+        ,{
+            "path" : "pages/information/information",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
+        ,{
+            "path" : "pages/modification/modification",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTitleText": "",
