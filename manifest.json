@@ -95,6 +95,11 @@
         "devServer" : {
             "https" : true,
             "port" : ""
+        },
+        "optimization" : {
+            "treeShaking" : {
+                "enable" : true
+            }
         }
     }
 }

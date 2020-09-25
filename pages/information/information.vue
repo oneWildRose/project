@@ -24,12 +24,15 @@
 				</li>
 				<li>
 					<p>性别</p>
-					<text>男</text>
+					<picker @change="sex" class='sex' :value="index" :range="list" :range-key="'label'">
+						<label class='' v-if='bol'>男</label>
+						<label class="" v-if="bol_">{{list[index].label}}</label>
+					</picker>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
-				<li>
+				<li @click="showPop">
 					<p>出生日期</p>
-					<text>2020-10-01</text>
+					
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 				<li>
@@ -48,27 +51,55 @@
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 			</ul>
+			<min-popup heightSize="500" v-show='show' @close='close' class='date'>
+			    <min-picker 
+			    :endTime="endTime"
+			    :startTime="startTimes"
+			    @cancel="cancel"
+			    @sure="sure"
+			    >
+			    </min-picker>
+			</min-popup>
 		</div>
 	</view>
 </template>
 
 <script>
 	export default {
+		components: {
+			
+		},
 		data() {
 			return {
-				msg_list: ''
+				msg_list: '',
+				xb: '',
+				index: 0,
+				bol: true,
+				bol_: false,
+				list: [
+				  {
+				    label: '男',
+				    value: '1'
+				  },
+				  {
+				    label: '女',
+				    value: '2'
+				  }
+				],
+				startTimes: [1960,1,1],
+				endTime: 2020,
+				show: false
 			}
 		},
-		onLoad: (option) => {
-			uni.request({
-				url: 'http://lvz.maike-docker.com/index.php/api/index/infoIndex',
-				method: 'POST',
-				data: {
-					uid: option.uid
-				},
-				success: function (res) {
-					// console.log(res.data)
-					this.msg_list = res.data.data
+		onShow: function () {
+			uni.getStorage({
+				key: 'userinfo',
+				success(res) {
+					this.$request('/api/index/infoIndex', {
+						uid: res.data.data.id
+					}).then(res => {
+						this.msg_list = msg.data.data
+					})
 				}
 			})
 		},
@@ -78,9 +109,27 @@
 			},
 			goModification() {
 				uni.navigateTo({
-					url: '../modification/modification',
+					url: '../modification/modification'
 				})
-			}
+			},
+			sex(e) {
+				this.index = e.target.value
+				this.xb = this.list[this.index].label // 单位
+				this.bol = false,
+				this.bol_ = true
+			},
+			showPop() { // picker显示
+				this.show = true
+			},
+			sure(e) { // 确认事件
+				console.log(e)
+			},
+			close() { // 关闭picker
+				this.show = false
+			},
+			cancel() { // 取消事件
+				this.close()
+			},
 		}
 	}
 </script>

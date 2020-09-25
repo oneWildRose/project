@@ -1,4 +1,4 @@
-<template>
+<template> <!-- 登录、注册、选择角色、修改密码 -->
   <div class="hello">
     <!-- 界面上方文字 -->
     <div class="text">
@@ -13,25 +13,27 @@
         <div>
           <div class="kong"></div>
           <div class="top">
-            <div v-show='num != 2' v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">
+            <div v-show='num != 2&&num != 3' v-for="(item, index) in tabs" :key="index" :class="{active:num == index}" @click="table(index)">
 				<text>{{ item }}</text>
 				<div :class="{ block:num == index }"></div>
 			</div>
-			<div class='modification active' v-if='num==2' >
+			<div class='modification active' v-show='num == 2' >
 				<text>修改密码</text>
 				<div :class="{ block:num == 2 }"></div>
 			</div>
+			<div class='choose_ active' v-show='num == 3' >
+				<text>选择角色</text>
+				<div :class="{ block:num == 3 }"></div>
+			</div>
           </div>
           <ul class="conent">
-            <li class="sign_in" v-show="num == 0">
-              <form action="" method="post">
+            <li class="sign_in" v-show="num == 0">  <!-- 登录 -->
                 <p>输入手机号码</p>
                 <input type="text" placeholder="输入手机号码" id="accounts" v-model='mobile'>
                 <p>输入密码</p>
                 <input type="password" placeholder="输入8-16位密码" id="password" v-model='password'>
                 <p type="default" class="forget" @click='forget'>忘记密码？</p>
 				<button class="sign_btn" @click="login">登录</button>
-              </form>
               <div class="other">
                 <p>金 山 银 山 不 如 绿 水 青 山</p>
                 <div></div>
@@ -47,8 +49,7 @@
 				</a>
               </div>
             </li>
-            <li class="register" v-show="num == 1"> 
-              <form action="" method="post">
+            <li class="register" v-show="num == 1">  <!-- 注册 -->
                 <p>输入手机号码</p>
                 <input type="text" placeholder="输入手机号码" v-model="mobile">
 				<p>输入验证码</p>
@@ -62,24 +63,25 @@
 				<p>再次输入密码</p>
 				<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
                 <button class="register_btn" @click="register_success">立即注册</button>
-              </form>
             </li>
-			<li class='xg register' v-show='num == 2'>
-				<form action="" method="post">
-				  <p>输入手机号码</p>
-				  <input type="text" placeholder="输入手机号码" v-model="mobile">
-					<p>输入验证码</p>
-					<div class='get'>
-						<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
-						<button type="default" class="re_code" @click="getCode(this)" v-show='isCode'>获取验证码</button>
-						<div v-show='!isCode' class='time'>{{ second }}</div>
-					</div>
-					<p>输入新密码</p>
-					<input type="password" placeholder="输入8-16位密码" v-model="password"/>
-					<p>再次输入密码</p>
-					<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
-				  <button @click="goSign" class="register_btn">确认修改</button>
-				</form>
+			<li class='xg register' v-show='num == 2'>   <!-- 修改密码 -->
+			  <p>输入手机号码</p>
+			  <input type="text" placeholder="输入手机号码" v-model="mobile">
+				<p>输入验证码</p>
+				<div class='get'>
+					<input type="text" placeholder="输入6位短信验证码" id="password" v-model="code_">
+					<button type="default" class="re_code" @click="getCode(this)" v-show='isCode'>获取验证码</button>
+					<div v-show='!isCode' class='time'>{{ second }}</div>
+				</div>
+				<p>输入新密码</p>
+				<input type="password" placeholder="输入8-16位密码" v-model="password"/>
+				<p>再次输入密码</p>
+				<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
+			  <button @click="goSign" class="register_btn">确认修改</button>
+			</li>
+			<li class='choose'  v-show='num == 3'>
+				<button v-for="(item, index) in js" :key='index' :class='{ brg: ind == index }' @click="table_(index)">{{ item }}</button>
+				<button type="default" class="ture" @click="goInd">确定</button>
 			</li>
 		  </ul>
         </div>
@@ -99,6 +101,8 @@ export default {
   data(){
     return {
       tabs: ['登录', '注册'],
+	  js: ['物业公司', '供应商', '专家'],
+	  ind: 0,
       num: 0, // 控制 '登录' '注册' '修改密码' 三个功能的显示隐藏
 	  id: '', // 用户成功登录后的id标识
 	  username : '', // 用户名称（暂无用）
@@ -136,23 +140,23 @@ export default {
     table(index) {
       this.num = index;
     },
+	table_(index) {
+	  this.ind = index;
+	},
 	getCode(e) { // 获取验证码
 		// 倒计时
 		this.isCode = false
 		// 发送请求
-		uni.request({
-			url: 'http://lvz.maike-docker.com/index.php/api/index/send_sms',
-			method: 'POST',
-			data: this.mobile,
-			success: (res) => {
-				console.log(res.data)
-				if(res.data.code == 1) {
-					this.code = res.data.data.code,
-					this.code_id = res.data.data.code_id
-					this.timers()		
-				} else {
-					
-				}
+		this.$request('/api/index/send_sms', {
+			mobile: this.mobile
+		}).then(res => {
+			console.log(res)
+			if(res.data.code == 1) {
+				this.code = res.data.data.code,
+				this.code_id = res.data.data.code_id
+				this.timers()		
+			} else {
+				
 			}
 		})
 	},
@@ -171,94 +175,81 @@ export default {
 	},
 	register_success() { // 注册
 		console.log(this.code_id)
-		uni.request({
-			url: 'http://lvz.maike-docker.com/index.php/api/index/appuser',
-			method: 'POST',
-			data: {
-				mobile: this.mobile,
-				password: this.password,
-				password2: this.password2,
-				code: this.code,
-				code_id: this.code_id
-			},
-			success: (res) => {
-				console.log(res.data)
-				if(res.data.code == 1) {
-					uni.showToast({
-						title: '注册成功,登录中',
-						icon: 'loading',
-						duration: 1500,
-						success() { 
-							 setTimeout(function(){uni.switchTab({
-							 	url: '../ind/ind'
-							 })},1550);
-						}
-					})
-				} else {
-					uni.showModal({
-						content: res.data.msg
-					})
-				}
+		this.$request('/api/index/appuser', {
+			mobile: this.mobile,
+			password: this.password,
+			password2: this.password2,
+			code: this.code,
+			code_id: this.code_id
+		}).then(res => {
+			console.log(res)
+			if(res.data.code == 1) {
+				this.num = 3
+				// uni.showToast({
+				// 	title: '注册成功,请稍等',
+				// 	icon: 'loading',
+				// 	duration: 1000,
+				// 	success() {
+				// 		this.num = 3
+				// 	}
+				// })
+			} else {
+				uni.showModal({
+					content: res.data.msg
+				})
 			}
 		})
 	},
 	login() { // 登录
-		uni.request({
-			url: 'http://lvz.maike-docker.com/index.php/api/index/login',
-			method: 'POST',
-			data: {
-				mobile: this.mobile,
-				password: this.password
-			},
-			success: (res) => {
-				// console.log(res.data)
-				if(res.data.code == 1) {
-					// 用户id
-					this.id = res.data.uid
-					// 将用户信息存入缓存
-					uni.setStorage({
-						key: 'userinfo',
-						data: res.data,
-						success: function () {
-							// console.log(res.data)
-						}
-					})
-					// 跳转至首页
-					uni.switchTab({
-						url: '../ind/ind'
-					})
-				} else {
-					uni.showModal({
-						content: res.data.msg
-					})
-				}
+		this.$request('/api/index/login', {
+			mobile: this.mobile,
+			password: this.password
+		}).then(res => {
+			console.log(res)
+			if(res.data.code == 1) {
+				// 用户id
+				this.id = res.data.id
+				// 将用户信息存入缓存
+				uni.setStorage({
+					key: 'userinfo',
+					data: res.data,
+					success: function () {
+						// console.log(res.data)
+					}
+				})
+				// 跳转至首页
+				uni.switchTab({
+					url: '../ind/ind'
+				})
+			} else {
+				uni.showModal({
+					content: res.data.msg
+				})
 			}
 		})
 	},
+	goInd() { // 选择角色后进入首页，并存储用户信息
+		//this.js[this.ind] //当前选择的角色
+	},
 	forget() { // 忘记密码
-		this.num = 2
+		this.num = 3
 	},
 	goSign() { // 修改密码
-		uni.request({
-			url: 'http://lvz.maike-docker.com/index.php/api/index/editPassword',
-			method: 'POST',
-			data: {
-				mobile: this.mobile,
-				code: this.code,
-				password: this.password,
-				password2: this.password2,
-				code_id: this.code_id
-			},
-			success: (res) => {
-				console.log(res.data)
-				if(res.data.code == 1) {
-					this.num = 0
-				} else {
-					uni.showModal({
-						content: res.data.msg
-					})
-				}
-			}
+		this.$request('/api/index/editPassword', {
+			mobile: this.mobile,
+			code: this.code,
+			password: this.password,
+			password2: this.password2,
+			code_id: this.code_id
+		}).then(res => {
+			console.log(res)
+			if(res.data.code == 1) {
+	 			this.num = 0
+	 		} else {
+	 			uni.showModal({
+	 				content: res.data.msg
+	 			})
+	 		}
 		})
 	},
   }
@@ -363,6 +354,16 @@ export default {
 		  width: 120rpx;
 	  }
   }
+  .top .choose_{
+	  position: absolute;
+	  left: 2rpx;
+	  bottom: 0rpx;
+	  div{
+		  left: 0;
+		  bottom: 0rpx;
+		  width: 120rpx;
+	  }
+  }
   .top>div:nth-of-type(1){
     position: absolute;
     bottom: 0;
@@ -438,6 +439,14 @@ export default {
     border-radius: 48rpx;
     border: none;
 	text-align: center;
+  }
+  .conent .choose{
+	  width: 90%;
+	  margin: 80rpx auto;
+	  height: auto;
+  }
+  .conent .choose button {
+	  margin-top: 40rpx;
   }
   .other{
     width: 560rpx;
@@ -557,5 +566,24 @@ export default {
 	  display: flex;
 	  justify-content: space-between;
 	  align-items: center;
+  }
+  .ture{
+	  width: 60%;
+	  margin-left: -180rpx;
+	  height: 84rpx;
+	  position: absolute;
+	  left: 50%;
+	  bottom: -42rpx;
+	  font-size: 18px;
+	  font-weight: normal;
+	  background: #3F5DE3;
+	  color: white;
+	  border-radius: 48rpx;
+	  border: none;
+	  text-align: center;
+  }
+  .brg{
+	  background: #3F5DE3;
+	  color: white;
   }
 </style>

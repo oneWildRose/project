@@ -7,7 +7,7 @@
 			<p @click='save'>保存</p>
 		</div>
 		<div class='xg'>
-			<input type="text" value="" placeholder="请输入新的昵称"/>
+			<input type="text" value="" placeholder="请输入新的昵称" v-model="name"/>
 			<text>支持汉字、数字、英文字母、下划线</text>
 		</div>
 	</view>
@@ -17,26 +17,31 @@
 	export default({
 		data() {
 			return {
-				id: ''
+				name: ''
 			}
-		},
-		onLoad(option) {
-			this.id = option.id
 		},
 		methods: {
 			goBack() {
 				uni.navigateBack({})
 			},
 			save() {
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/api/index/infoEdit',
-					method: 'POST',
-					data: {
-						username: '',
-						uid: ''
-					},
-					success: (res) => {
-						console.log(res)
+				var that = this
+				uni.getStorage({
+					key: "userinfo",
+					success(res) {
+						this.$request('/api/index/infoEdit', {
+							username: that.name,
+							uid: res.data.data.id
+						}).then(res => {
+							console.log(res)
+							if(res.data.code == 1 ) {
+								uni.navigateBack({})
+							} else {
+								uni.showModal({
+									content: res.data.msg
+								})
+							}
+						})
 					}
 				})
 			}

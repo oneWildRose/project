@@ -90,6 +90,10 @@
 				"navigationStyle":"custom"
 			}
         }
+        ,{
+            "path" : "pages/choose/choose",
+            "style" : {}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTitleText": "",

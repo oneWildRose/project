@@ -18,40 +18,60 @@
 			<ul v-show="num == 0"> <!-- 基本信息 -->
 				<li>
 					<image :src="require('../../static/9-17icon/project.svg')"></image>
-					<p>项目名称：{{ msg.pname }}</p>
+					<p>项目名称：
+						<input type="text" :value="msg.pname" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/gongsi.svg')"></image>
-					<p>企业名称：{{ msg.enterprie_name }}</p>
+					<p>企业名称：
+						<input type="text" :value="msg.enterprie_name" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/ress.svg')"></image>
-					<p>项目地址：{{ msg.province + msg.city + msg.area + msg.address }}</p>
+					<p>项目地址：
+						<input type="text" :value="msg.province + msg.city + msg.area + msg.address" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/mianji.svg')"></image>
-					<p>项目管理面积：{{ acreage }}</p>
+					<p>项目管理面积：
+						<input type="text" :value="acreage" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目竣工时间：{{ msg.dtime }}</p>
+					<p>项目竣工时间：
+						<input type="text" :value="msg.dtime" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目交付时间：{{ msg.time }}</p>
+					<p>项目交付时间：
+						<input type="text" :value="msg.time" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目进场时间：{{ msg.ctime }}</p>
+					<p>项目进场时间：
+						<input type="text" :value="msg.ctime" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/fuzeren.svg')"></image>
-					<p>负责人：{{ msg.user_name }}</p>
+					<p>负责人：
+						<input type="text" :value="msg.user_name" disabled class='readonly'/>
+					</p>
 				</li>
 				<li>
-					<p>项目平面图</p>
-					<image :src="msg.picurl" mode=""></image>
+					<p>项目平面图：</p>
+					<image :src="msg.plan_url" mode=""></image>
 				</li>
+				<div class='change' @click='change'>
+					<image src="" mode=""></image>
+					<text>修改信息</text>
+				</div>
 			</ul>
 			<div class='tree' v-show='num == 1'> <!-- 苗木信息 -->
 				<div class='search'>
@@ -126,6 +146,7 @@
 				<!-- 上传苗木按钮 -->
 				<button type="default" class='upload' @click="goUpload">上传苗木</button>
 			</div>
+			
 		</div>
 	</view>
 </template>
@@ -144,20 +165,14 @@
 		onLoad(option) {
 			// console.log(JSON.parse(option.project)) // 项目信息
 			this.project_id = JSON.parse(option.project).id // 拿到项目id
-			uni.request({
-				url: 'http://lvz.maike-docker.com/index.php/api/index/Project_info',
-				method: 'POST',
-				data: {
-					project_id: this.project_id
-				},
-				success: (res) => {
-					this.msg = res.data.data
-					// console.log(this.msg)
-					if (this.msg.company == "") { // 如果company(亩/㎡)为空，那么就渲染measure(公顷)
-						this.acreage = this.msg.measure + '公顷'
-					} else {
-						this.acreage = this.msg.company + '亩/㎡'
-					}
+			this.$request('/api/index/Project_info', {
+				project_id: this.project_id
+			}).then(res => {
+				this.msg = res.data.data
+				if (this.msg.company == "") { // 如果company(亩/㎡)为空，那么就渲染measure(公顷)
+					this.acreage = this.msg.measure + '公顷'
+				} else {
+					this.acreage = this.msg.company + '亩/㎡'
 				}
 			})
 		},
@@ -177,6 +192,11 @@
 				uni.navigateTo({
 					url: '../upload_excel/upload_excel?project_id=' + this.project_id
 				})
+			},
+			change() {
+				// document.getElementsByClassName('readonly').removeAttribute('disabled')
+				var read = document.getElementsByClassName('readonly')
+				console.log(read)
 			}
 		}
 	}
@@ -288,6 +308,10 @@
 					align-items: center;
 					font-size: 32rpx;
 					font-weight: 500;
+					p{
+						display: flex;
+						justify-content: space-around;
+					}
 					image{
 						width: 34rpx;
 						height: 34rpx;
@@ -298,13 +322,35 @@
 					&:nth-of-type(9){
 						display: block;
 						text-indent: 20rpx;
+						p{
+							display: block;
+						}
 						image{
 							width: 90%;
 							height: 300rpx;
 							margin: 20rpx auto;
-							border: 1px solid red;
 							display: block;
 						}
+					}
+				}
+				.change{
+					width: 20%;
+					height: 52rpx;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					position: absolute;
+					bottom: -20rpx;
+					left: 50%;
+					margin-left: -10%;
+					image{
+						width: 40rpx;
+						height: 40rpx;
+					}
+					text{
+						font-size: 26rpx;
+						color: #3F5DE3;
+						font-weight: 700;
 					}
 				}
 			}
@@ -406,6 +452,7 @@
 				color: white;
 				border-radius: 40rpx;
 			}
+		
 		}
 	}
 </style>

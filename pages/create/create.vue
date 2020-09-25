@@ -134,16 +134,11 @@
 			}
 		},
 		onShow () { 
-			uni.request({// 页面展示出来后 请求省级的数据
-				url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
-				method: 'POST',
-				data: {
-					pid: this.pid, // pid为0，请求省级的数据
-				},
-				success: (res) => {
-					this.province = res.data.data
-				}
-			}),
+			this.$request('/api/index/selectCity', {// 页面展示出来后 请求省级的数据
+				pid: this.pid, // pid为0，请求省级的数据
+			}).then(res => {
+				this.province = res.data.data
+			})
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
@@ -160,15 +155,10 @@
 				this.pid = this.province[this.index].id,
 				this.bol = false,
 				this.bol_ = true,
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
-					method: 'POST',
-					data: {
-						pid: this.pid, // 省级数据请求过来之后，将id传入参数再次请求 市级
-					},
-					success: (res) => {
-						this.city = res.data.data
-					}
+				this.$request('/api/index/selectCity', {
+					pid: this.pid, // 省级数据请求过来之后，将id传入参数再次请求 市级
+				}).then(res => {
+					this.city = res.data.data
 				})
 			},
 			bindPickerChange1: function(e) { // 请求区级
@@ -177,15 +167,10 @@
 				this.pid1 = this.city[this.index1].id
 				this.bol1 = false,
 				this.bol_1 = true,
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/api/index/selectCity',
-					method: 'POST',
-					data: {
-						pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
-					},
-					success: (res) => {
-						this.area = res.data.data
-					}
+				this.$request('/api/index/selectCity', {
+					pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
+				}).then(res => {
+					this.area = res.data.data
 				})
 				
 			},
@@ -211,37 +196,32 @@
 				} else {
 					this.company = this.acreage
 				}
-				console.log(this.auid)
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/api/index/addProject',
-					method: 'POST',
-					data: {
-						pname: this.pname,
-						enterprie_name: this.enterprie_name,
-						province: this.province_,
-						city: this.city_,
-						area: this.area_,
-						address: this.address,
-						user_name: this.user_name,
-						time: this.time,
-						ctime: this.ctime,
-						dtime: this.dtime,
-						uid: this.auid, // app用户id
-						measure: this.measure,// 公顷
-						company: this.company // 亩/㎡
-					},
-					success: (res) => {
-						console.log(res.data)
+				// console.log(this.auid)
+				this.$request('/api/index/addProject', {
+					pname: this.pname,
+					enterprie_name: this.enterprie_name,
+					province: this.province_,
+					city: this.city_,
+					area: this.area_,
+					address: this.address,
+					user_name: this.user_name,
+					time: this.time,
+					ctime: this.ctime,
+					dtime: this.dtime,
+					uid: this.auid, // app用户id
+					measure: this.measure,// 公顷
+					company: this.company // 亩/㎡
+				}).then(res => {
+					console.log(res.data)
+					if(res.data.code == 1) {
 						this.project_id = res.data.data.project_id
-						if(res.data.code == 1) {
-							uni.navigateTo({
-								url: './create_sure?project_id=' + this.project_id
-							})							
-						} else {
-							uni.showModal({
-								content: res.data.msg
-							})
-						}
+						uni.navigateTo({
+							url: './create_sure?project_id=' + this.project_id
+						})
+					} else {
+						uni.showModal({
+							content: res.data.msg
+						})
 					}
 				})
 			}

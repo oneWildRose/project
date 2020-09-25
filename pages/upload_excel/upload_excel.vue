@@ -7,7 +7,7 @@
 			</div>
 		</div>
 		<div class='main'>
-			<button type="default">下载模板</button>
+			<button type="default" @click="download">下载模板</button>
 			
 			<view class="btns">
 				 <web-view src="/hybrid/html/index.html" @message="message"></web-view>
@@ -59,8 +59,14 @@
 			goBack() {
 				uni.navigateBack({})
 			},
-			upload() {
-				
+			download() {
+				console.log(123)
+				// uni.request({
+				// 	url: 'http://lvz.maike-docker.com/public/upload/template.xlsx',
+				// 	success(res) {
+				// 		console.log(res)
+				// 	}
+				// })
 			},
 			goSingle() {
 				uni.navigateTo({
@@ -70,16 +76,11 @@
 			message(event) {
 				console.log(event.detail.data)
 				this.path = event.detail.data.path //用户上传的文件路径
-				uni.request({
-					url: 'http://lvz.maike-docker.com/index.php/lvhua/execl/import',
-					method: 'POST',
-					data: {
-						file: this.path,
-						project_id: this.project_id
-					},
-					success: (res) => {
-						console.log(res)
-					}
+				this.$request('/lvhua/execl/import', {
+					file: this.path,
+					project_id: this.project_id
+				}).then(res => {
+					console.log(res)
 				})
 			}
 		}

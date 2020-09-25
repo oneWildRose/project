@@ -53,6 +53,7 @@
 		onLoad(option) { // option 上个页面传递的参数
 			console.log(option.project_id)
 			this.project_id = option.project_id
+			console.log(this.project_id)
 		},
 		methods: {
 			goBack() {
@@ -60,44 +61,44 @@
 			},
 			upload() { // 上传项目平面图
 				uni.chooseImage({
+					count: 1, //最多选取一张图片
 				    success: (chooseImageRes) => {
 				        const tempFilePaths = chooseImageRes.tempFilePaths;
 				        uni.uploadFile({
 				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
 				            filePath: tempFilePaths[0],
+							name: 'file',
+							formData: {
+								'user': 'test'
+							},
 				            success: (uploadFileRes) => {
-				                console.log(uploadFileRes.data);
+				                // console.log(uploadFileRes.data);
 								this.src = uploadFileRes.data
-								
 				            }
 				        });
 				    }
 				});
 			},
 			sub() {
-				console.log(this.src)
+				console.log(this.src, this.project_id)
 				if(this.src == '../../static/zanwu.jpg') {
 					uni.showModal({
 						content: '请上传项目平面图'
 					})
 				} else {
-					uni.request({
-						url: 'http://lvz.maike-docker.com/index.php/api/index/addProjectSubmit',
-						data: {
-							plan_url: this.src,
-							project_id: this.project_id
-						},
-						success: (res) => {
-							console.log(res)
-							if(res.data.code == 1) {
-								uni.navigateTo({
-									url: './success'
-								})
-							} else {
-								uni.showModal({
-									content: res.data.msg
-								})
-							}
+					this.$request('/api/index/addProjectSubmit', {
+						plan_url: this.src,
+						project_id: this.project_id
+					}).then(res => {
+						console.log(res)
+						if(res.data.code == 1) {
+							uni.navigateTo({
+								url: './success'
+							})
+						} else {
+							uni.showModal({
+								content: res.data.msg
+							})
 						}
 					})
 				}
