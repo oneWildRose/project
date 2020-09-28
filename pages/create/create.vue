@@ -1,5 +1,6 @@
 <template> <!-- 创建项目（第一步） -->
 	<view>
+		<div class="kong"></div>
 		<div class='goback' @click='goBack'>
 			<image src="../../static/fanhui.png" mode=""></image>
 		</div>
@@ -60,25 +61,44 @@
 					<image :src="require('../../static/xuanze.svg')" mode=""></image>
 				</picker>
 			</div>
-			<input type="text" value="" placeholder="项目竣工时间" v-model="dtime"/>
-			<input type="text" value="" placeholder="项目交付时间" v-model="time"/>
-			<input type="text" placeholder='项目进场时间' v-model="ctime">
+			
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+				<!-- 项目竣工时间 dtime -->
+				<text v-if="time_bol">项目竣工时间</text>
+				<div class='time'>{{ dtime }}</div>
+			</gpp-date-picker>
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+				<!-- 项目交付时间 time -->
+				<text v-if="time_bol2">项目交付时间</text>
+				<div class='time'>{{ time }}</div>
+			</gpp-date-picker>
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+				<!-- 项目进场时间 ctime -->
+				<text v-if="time_bol3">项目进场时间</text>
+				<div class='time'>{{ ctime }}</div>
+			</gpp-date-picker>
+			
 			<input type="text" placeholder='负责人' v-model="user_name">
 		</div>
 		<navigator class="next" >
 			<button type="default" @click="next">下一步</button>
 		</navigator>
-		<text class='resetting'>重置</text>
+		<text class='resetting' @click="reset">重置</text>
 	</view>
 </template>
 
 <script>
+	import gppDatePicker from "@/components/gpp-datePicker/gpp-datePicker.vue"
 	export default {
 		components: {
-			
+			gppDatePicker
 		},
 		data() {
 			return {
+				time_bol: true,
+				time_bol2: true,
+				time_bol3: true, // 选择时间部分所需boolean
+				
 				index: 0,
 				index1: 0,
 				index2: 0,
@@ -92,7 +112,6 @@
 				index3: 0, // 绿化面积单位数组索引
 				bol3: true,
 				bol_3:false,
-				text: '亩', // 默认单位
 				list: [ // 绿化面积单位数组
 				  {
 				    label: '亩',
@@ -148,6 +167,37 @@
 			})
 		},
 		methods: {
+			onCancel(e){
+				console.log(e);
+			},
+			onConfirm(e){
+				this.dtime = e.dateValue;
+				this.time_bol = false
+			},
+			onConfirm2(e){
+				this.time = e.dateValue;
+				this.time_bol2 = false
+			},
+			onConfirm3(e){
+				this.ctime = e.dateValue;
+				this.time_bol3 = false
+			},
+			getTime() {
+				var data = new Date() // 日期对象
+				var year = data.getFullYear() // 年份
+				var month = data.getMonth() + 1 // 月份
+				var day = data.getDate() // 当天
+				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
+			},
+			endTime() {
+				var data = new Date() // 日期对象
+				var year = data.getFullYear() + 10 // 年份
+				var month = data.getMonth() + 1 // 月份
+				var day = data.getDate() // 当天
+				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
+			},
+			
+			
 			// 省市区
 			bindPickerChange: function(e) { // 请求市级
 				this.index = e.target.value,
@@ -182,7 +232,9 @@
 			},
 			
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			wenzi(e) {
 				this.index3 = e.target.value
@@ -224,13 +276,33 @@
 						})
 					}
 				})
+			},
+			reset() { // 重置按钮
+				this.pname = ''
+				this.enterprie_name = '', // 企业名称
+				this.province_ = '',// 省
+				this.city_ = '',// 市
+				this.area_ = '',// 区\县
+				this.address = '', // 详细地址
+				this.acreage = '',// 绿化面积（数字）
+				this.unit = '', // 单位
+				this.dtime = '', // 竣工时间
+				this.time = '', // 交付时间
+				this.ctime = '', // 进场时间
+				this.time_bol = true,
+				this.time_bol2 = true,
+				this.time_bol3 = true,
+				this.user_name = '' // 项目负责人
 			}
 		}
 	}
 </script>
 
 <style lang="less" scoped>
-	
+	.kong{
+		width: 100%;
+		height: 60rpx;
+	}
 	.uni-input {
 		width: 520rpx;
 		font-size: 28rpx;
@@ -331,7 +403,7 @@
 			background: #F6F8FF;
 			margin: 18rpx auto;
 			border-radius: 40rpx;
-			font-size: 16px;
+			font-size: 32rpx;
 		}
 		.city{
 			width: 90%;
@@ -376,7 +448,7 @@
 			display: flex;
 			align-items: center;
 			input{
-				width: 69%;
+				width: 66%;
 			}
 			.dw{
 				width: 120rpx;
@@ -396,6 +468,27 @@
 					margin-top: -20rpx;
 				}
 				
+			}
+		}
+		.timechoose{
+			width: 90%;
+			height: 84rpx;
+			line-height: 84rpx;
+			margin: 20rpx auto;
+			position: relative;
+			text-indent: 40rpx;
+			color: #86868A;
+			background: #F6F8FF;
+			font-size: 32rpx;
+			border-radius: 40rpx;
+			text{
+				position: absolute;
+				left: 0;
+				top: 0;
+			}
+			.time{
+				width: 90%;
+				height: 84rpx;
 			}
 		}
 	}

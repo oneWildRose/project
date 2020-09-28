@@ -86,21 +86,6 @@
     },
     "uniStatistics" : {
         "enable" : false
-    },
-    "h5" : {
-        "router" : {
-            "base" : "",
-            "mode" : "hash"
-        },
-        "devServer" : {
-            "https" : true,
-            "port" : ""
-        },
-        "optimization" : {
-            "treeShaking" : {
-                "enable" : true
-            }
-        }
     }
 }
 /* 模块配置 *//* 应用发布信息 *//* android打包配置 */

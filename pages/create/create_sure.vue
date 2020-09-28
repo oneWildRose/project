@@ -57,7 +57,9 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			upload() { // 上传项目平面图
 				uni.chooseImage({

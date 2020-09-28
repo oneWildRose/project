@@ -1,78 +1,72 @@
-
 <template> <!-- 个人信息 -->
 	<view>
 		<div class='kong'></div>
 		<div class='title'>
 			<image :src="require('../../static/fanhui(3).png')" @click="goBack"></image>
 			<text>个人信息</text>
-			<p>保存</p>
+			<p @click='save'>保存</p>
 		</div>
-		<div class='pic'>
-			<image src="../../static/shu.png" mode=""></image>
+		<div class='pic' @click='upload'>
+			<image :src="msg.file == null? src : msg.file" mode=""></image>
 			<p>修改头像</p>
 		</div>
 		<div class='msg'>
 			<ul>
 				<li @click="goModification">
 					<p>昵称</p>
-					<text>{{ msg_list.username }}</text>
+					<text>{{ msg.username == null? '昵称' : msg.username }}</text>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 				<li>
 					<p>手机号</p>
-					<text>{{ msg_list.mobile }}</text>
+					<text>{{ mobile }}</text>
 				</li>
 				<li>
 					<p>性别</p>
 					<picker @change="sex" class='sex' :value="index" :range="list" :range-key="'label'">
 						<label class='' v-if='bol'>男</label>
-						<label class="" v-if="bol_">{{list[index].label}}</label>
+						<label class="" v-if="bol_">{{ list[index].label }}</label>
 					</picker>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
-				<li @click="showPop">
+				<li>
 					<p>出生日期</p>
-					
+					<gpp-date-picker @onCancel="onCancel" @onConfirm="onConfirm" :startDate="startDate" :endDate="getTime()" :defaultValue="msg.birthday == null? getTime() : msg.birthday">
+						{{ msg.birthday == null? getTime() : msg.birthday }}
+					</gpp-date-picker>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
-				<li>
-					<p>职业</p>
-					<text>暂无</text>
-					<image :src="require('../../static/jinru.svg')"></image>
-				</li>
-				<li>
+				<li @click='goBusiness_pic'>
 					<p>营业执照</p>
-					<text>暂无</text>
+					<text>{{ business_pic }}</text>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 				<li>
 					<p>企业代码</p>
-					<text>暂无</text>
+					<!-- <text>{{ enterprise_code }}</text> -->
+					<input type="text" placeholder="请输入" v-model="enterprise_code" class="enterprise_code"/>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 			</ul>
-			<min-popup heightSize="500" v-show='show' @close='close' class='date'>
-			    <min-picker 
-			    :endTime="endTime"
-			    :startTime="startTimes"
-			    @cancel="cancel"
-			    @sure="sure"
-			    >
-			    </min-picker>
-			</min-popup>
 		</div>
 	</view>
 </template>
 
 <script>
+	import gppDatePicker from "@/components/gpp-datePicker/gpp-datePicker.vue"
 	export default {
 		components: {
-			
+			gppDatePicker
 		},
 		data() {
 			return {
-				msg_list: '',
-				xb: '',
+				src: '../../static/shu.png',// 默认头像
+				startDate: "1900-01-01", //日期选择器 初始日期
+				msg: '', // 用户信息列表
+				mobile: '',
+				xb: '', // 性别
+				business_pic: '暂无', // 营业执照
+				enterprise_code: '', // 企业代码
 				index: 0,
 				bol: true,
 				bol_: false,
@@ -85,50 +79,89 @@
 				    label: '女',
 				    value: '2'
 				  }
-				],
-				startTimes: [1960,1,1],
-				endTime: 2020,
-				show: false
+				]
 			}
 		},
-		onShow: function () {
+		onLoad(option) {
+			var that = this
 			uni.getStorage({
 				key: 'userinfo',
-				success(res) {
-					this.$request('/api/index/infoIndex', {
-						uid: res.data.data.id
+				success: function(res) {
+					// console.log(res.data.data.data.user_id)
+					that.$request('/api/index/infoIndex', {
+						uid: res.data.data.data.user_id
 					}).then(res => {
-						this.msg_list = msg.data.data
+						console.log(res)
+						that.msg = res.data.data
+						that.mobile = that.msg.mobile.substring(0, 3) + '****' + that.msg.mobile.substring(that.msg.mobile.length - 4)
 					})
 				}
 			})
+			console.log(opstion)
 		},
 		methods: {
+			getTime() {
+				var data = new Date() // 日期对象
+				var year = data.getFullYear() // 年份
+				var month = data.getMonth() + 1 // 月份
+				var day = data.getDate() // 当天
+				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
+			},
+			save() {
+				
+			},
+			upload() { // 上传头像
+				uni.chooseImage({
+					count: 1, //最多选取一张图片
+				    success: (chooseImageRes) => {
+				        const tempFilePaths = chooseImageRes.tempFilePaths;
+				        uni.uploadFile({
+				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
+				            filePath: tempFilePaths[0],
+							name: 'file',
+							formData: {
+								'user': 'test'
+							},
+				            success: (uploadFileRes) => {
+								this.src = uploadFileRes.data
+								console.log(this.src)
+								this.$request('/api/index/headEdit', {
+									file: this.src,
+									uid: this.msg.id
+								}).then(res => {
+									console.log(res)
+								})
+				            }
+				        });
+				    }
+				});
+			},
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			goModification() {
 				uni.navigateTo({
 					url: '../modification/modification'
 				})
 			},
+			goBusiness_pic() {
+				uni.navigateTo({
+					url: '../business_pic/business_pic'
+				})
+			},
 			sex(e) {
 				this.index = e.target.value
-				this.xb = this.list[this.index].label // 单位
+				this.xb = this.list[this.index].label
 				this.bol = false,
 				this.bol_ = true
 			},
-			showPop() { // picker显示
-				this.show = true
+			onCancel(e){// 日期选择器取消按钮
+				console.log(e);
 			},
-			sure(e) { // 确认事件
-				console.log(e)
-			},
-			close() { // 关闭picker
-				this.show = false
-			},
-			cancel() { // 取消事件
-				this.close()
+			onConfirm(e){// 确认按钮
+				this.msg.birthday = e.dateValue;
 			},
 		}
 	}
@@ -199,6 +232,13 @@
 					width: 30rpx;
 					height: 30rpx;
 					margin-left: 20rpx;
+				}
+				input{
+					width: 30%;
+					height: 60%;
+					font-size: 32rpx;
+					border: 1px solid #ECECEC;
+					text-align: center;
 				}
 			}
 		}

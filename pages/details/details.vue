@@ -18,58 +18,42 @@
 			<ul v-show="num == 0"> <!-- 基本信息 -->
 				<li>
 					<image :src="require('../../static/9-17icon/project.svg')"></image>
-					<p>项目名称：
-						<input type="text" :value="msg.pname" disabled class='readonly'/>
-					</p>
+					<p>项目名称：{{ msg.pname }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/gongsi.svg')"></image>
-					<p>企业名称：
-						<input type="text" :value="msg.enterprie_name" disabled class='readonly'/>
-					</p>
+					<p>企业名称：{{ msg.enterprie_name }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/ress.svg')"></image>
-					<p>项目地址：
-						<input type="text" :value="msg.province + msg.city + msg.area + msg.address" disabled class='readonly'/>
-					</p>
+					<p>项目地址：{{ msg.province + msg.city + msg.area + msg.address }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/mianji.svg')"></image>
-					<p>项目管理面积：
-						<input type="text" :value="acreage" disabled class='readonly'/>
-					</p>
+					<p>项目管理面积：{{ acreage }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目竣工时间：
-						<input type="text" :value="msg.dtime" disabled class='readonly'/>
-					</p>
+					<p>项目竣工时间：{{ msg.dtime }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目交付时间：
-						<input type="text" :value="msg.time" disabled class='readonly'/>
-					</p>
+					<p>项目交付时间：{{ msg.time }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目进场时间：
-						<input type="text" :value="msg.ctime" disabled class='readonly'/>
-					</p>
+					<p>项目进场时间：{{ msg.ctime }}</p>
 				</li>
 				<li>
 					<image :src="require('../../static/9-17icon/fuzeren.svg')"></image>
-					<p>负责人：
-						<input type="text" :value="msg.user_name" disabled class='readonly'/>
-					</p>
+					<p>负责人：{{ msg.user_name }}</p>
 				</li>
 				<li>
 					<p>项目平面图：</p>
 					<image :src="msg.plan_url" mode=""></image>
 				</li>
-				<div class='change' @click='change'>
-					<image src="" mode=""></image>
+				<div class='change' @click='goChange'>
+					<image :src="require('../../static/xiugai.svg')" mode=""></image>
 					<text>修改信息</text>
 				</div>
 			</ul>
@@ -163,7 +147,7 @@
 			}
 		},
 		onLoad(option) {
-			// console.log(JSON.parse(option.project)) // 项目信息
+			console.log(JSON.parse(option.project)) // 项目信息
 			this.project_id = JSON.parse(option.project).id // 拿到项目id
 			this.$request('/api/index/Project_info', {
 				project_id: this.project_id
@@ -178,7 +162,9 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			table(index) {
 				this.num = index
@@ -193,10 +179,10 @@
 					url: '../upload_excel/upload_excel?project_id=' + this.project_id
 				})
 			},
-			change() {
-				// document.getElementsByClassName('readonly').removeAttribute('disabled')
-				var read = document.getElementsByClassName('readonly')
-				console.log(read)
+			goChange() {
+				uni.navigateTo({
+					url: '../change/change?project_id=' + this.project_id
+				})
 			}
 		}
 	}

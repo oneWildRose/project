@@ -3,11 +3,11 @@
 		<div class='head'>
 			<div @click='goInformation'>
 				<div class="head_image">
-					<image :src="require('../../static/zhaopian.png')" mode=""></image>
+					<image :src="msg.file == null? src : msg.file" mode=""></image>
 				</div>
 				<div class='message'>
-					<p>昵称</p>
-					<p>138****6022</p>
+					<p>{{ msg.username == null? '昵称' : msg.username }}</p>
+					<p>{{ msg.mobile.substring(0, 3) }}****{{ msg.mobile.substring(msg.mobile.length - 4) }}</p>
 				</div>
 			</div>
 		</div>
@@ -38,15 +38,24 @@
 	export default {
 		data() {
 			return {
-				id: ''
+				src: '../../static/shu.png',// 默认头像
+				id: '',
+				msg: ''
 			}
 		},
 		onShow() {
+			var that = this
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
-					this.id = res.data.data.id
+					that.id = res.data.data.data.user_id
+					that.$request('/api/index/infoIndex', {
+						uid: that.id
+					}).then(res => {
+						// console.log(res)
+						that.msg = res.data.data
+					})
 				}
 			})
 		},
@@ -80,6 +89,7 @@
 
 <style lang="less" scoped>
 	.hello{
+		height: 100%;
 		.head{
 			width: 100%;
 			height: 400rpx;
@@ -119,7 +129,7 @@
 		}
 		.main{
 			width: 100%;
-			height: 1080rpx;
+			height: 880rpx;
 			position: absolute;
 			top: 350rpx;
 			border-radius: 40rpx;
@@ -128,7 +138,7 @@
 			background-color: white;
 			ul{
 				width: 90%;
-				height: 90%;
+				height: 100%;
 				margin: 50rpx auto;
 				li{
 					width: 100%;
@@ -157,8 +167,8 @@
 			border-radius: 80rpx;
 			background: #3F5DE3;
 			color: white;
-			position: absolute;
-			bottom: 40rpx;
+			position: fixed;
+			bottom: 50rpx;
 			left: 50%;
 			margin-left: -34.5%;
 		}

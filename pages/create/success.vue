@@ -49,7 +49,9 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			goTab() {
 				uni.switchTab({

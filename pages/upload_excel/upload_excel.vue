@@ -7,13 +7,13 @@
 			</div>
 		</div>
 		<div class='main'>
-			<button type="default" @click="download">下载模板</button>
 			
 			<view class="btns">
 				 <web-view src="/hybrid/html/index.html" @message="message"></web-view>
 			</view>
 			
 			<button type="default" @click="goSingle">上传单个苗木信息</button>
+			<button type="default" @click="download">下载模板</button>
 		</div>
 	</view>
 </template>
@@ -57,31 +57,63 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
-			download() {
-				console.log(123)
-				// uni.request({
-				// 	url: 'http://lvz.maike-docker.com/public/upload/template.xlsx',
-				// 	success(res) {
-				// 		console.log(res)
-				// 	}
-				// })
+			download() { // 下载模板
+				uni.downloadFile({
+				    url: 'http://lvz.maike-docker.com/public/upload/template.xlsx', // 模板链接
+				    success: (res) => {
+						console.log(res.tempFilePath)
+						var path = res.tempFilePath
+						if(res.statusCode==200){
+							//保存到本地
+							console.log(path)
+							uni.saveFile({
+								tempFilePath: path,
+								success:(res)=>{
+									console.log(res)
+									// 下载成功，打开文档
+									uni.openDocument({
+										filePath:res.savedFilePath,
+										success:(res)=>console.log('成功打开文档')
+									})
+								}
+							})
+						}
+				    }
+				});
 			},
 			goSingle() {
 				uni.navigateTo({
-					url: '../single/single'
+					url: '../single/single?project_id=' + this.project_id
 				})
 			},
 			message(event) {
-				console.log(event.detail.data)
-				this.path = event.detail.data.path //用户上传的文件路径
-				this.$request('/lvhua/execl/import', {
-					file: this.path,
-					project_id: this.project_id
-				}).then(res => {
-					console.log(res)
-				})
+				// console.log(event.detail.data)
+				this.path = event.detail.data[0].path //用户上传的文件路径
+				uni.uploadFile({
+					url: 'http://lvz.maike-docker.com/index.php/lvhua/Excel/import', //仅为示例，非真实的接口地址
+					filePath: this.path,
+					name: 'file',
+					formData: {
+						'user': 'test'
+					},
+					data: {
+						file: this.path,
+						project_id: this.project_id
+					},
+					success: (uploadFileRes) => {
+						console.log(uploadFileRes);
+					}
+				});
+				// this.$request('/lvhua/execl/import', {
+				// 	file: this.path,
+				// 	project_id: this.project_id
+				// }).then(res => {
+				// 	console.log(res)
+				// })
 			}
 		}
 	}

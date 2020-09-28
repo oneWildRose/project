@@ -113,15 +113,16 @@ export default {
 	  code: this.code_, // 验证码本🐎
 	  code_id : '' ,// 成功发送验证码后的id
 	  res:'',
+	  user_id: '', // 用户成功注册后的id
 	  
 	  timer: null,
 	  second: 60,
 	  isCode: true,
     }
   },
-  onShow() { // 页面加载就触发
+  onLoad() {
   	var self = this
-  	//从缓存中取出登陆信息
+	//从缓存中取出登陆信息
   	uni.getStorage({
   		key: 'userinfo',
   		success: function (res) {
@@ -144,21 +145,27 @@ export default {
 	  this.ind = index;
 	},
 	getCode(e) { // 获取验证码
-		// 倒计时
-		this.isCode = false
-		// 发送请求
-		this.$request('/api/index/send_sms', {
-			mobile: this.mobile
-		}).then(res => {
-			console.log(res)
-			if(res.data.code == 1) {
-				this.code = res.data.data.code,
-				this.code_id = res.data.data.code_id
-				this.timers()		
-			} else {
-				
-			}
-		})
+		if(!(/^1[3456789]\d{9}$/.test(this.mobile))){ // 正则判断手机号是否正确
+		    uni.showModal({
+		    	content: '请输入正确的手机号'
+		    })
+		}else{
+			// 倒计时
+			this.isCode = false
+			// 发送请求
+			this.$request('/api/index/send_sms', {
+				mobile: this.mobile
+			}).then(res => {
+				console.log(res)
+				if(res.data.code == 1) {
+					this.code = res.data.data.code,
+					this.code_id = res.data.data.code_id
+					this.timers()		
+				} else {
+					
+				}
+			})
+		}
 	},
 	timers() {
 		if (!this.timer) {
@@ -174,31 +181,42 @@ export default {
 		}
 	},
 	register_success() { // 注册
-		console.log(this.code_id)
-		this.$request('/api/index/appuser', {
-			mobile: this.mobile,
-			password: this.password,
-			password2: this.password2,
-			code: this.code,
-			code_id: this.code_id
-		}).then(res => {
-			console.log(res)
-			if(res.data.code == 1) {
-				this.num = 3
-				// uni.showToast({
-				// 	title: '注册成功,请稍等',
-				// 	icon: 'loading',
-				// 	duration: 1000,
-				// 	success() {
-				// 		this.num = 3
-				// 	}
-				// })
-			} else {
-				uni.showModal({
-					content: res.data.msg
-				})
-			}
-		})
+		// 判断密码是否符合规范 8-16位
+		if(!(/^.{6,}$/.test(this.password))) {
+			uni.showModal({
+				content: '请输入8-16位密码'
+			})
+		} else {
+			// console.log(this.code_id)
+			this.$request('/api/index/appuser', {
+				mobile: this.mobile,
+				password: this.password,
+				password2: this.password2,
+				code: this.code,
+				code_id: this.code_id
+			}).then(res => {
+				if(res.data.code == 1) {
+					console.log(res)
+					this.user_id = res.data.data.user_id
+					// 储存用户信息
+					uni.setStorage({
+						key: 'userinfo',
+						data: {
+							data: res.data, // 角色
+							id: this.user_id // 用户id
+						},
+						success: function () {
+							
+						}
+					})
+					this.num = 3
+				} else {
+					uni.showModal({
+						content: res.data.msg
+					})
+				}
+			})
+		}
 	},
 	login() { // 登录
 		this.$request('/api/index/login', {
@@ -229,7 +247,17 @@ export default {
 		})
 	},
 	goInd() { // 选择角色后进入首页，并存储用户信息
-		//this.js[this.ind] //当前选择的角色
+		//this.js[this.ind] //当前选择的角色 ，this.ind是索引
+		this.$request('/api/index/ztypeEdit', {
+			uid: this.user_id,
+			ztype: this.ind + 1 // 1代表物业公司，2代表供应商，3代表专家
+		}).then(res => {
+			console.log(res)
+			// 跳转至首页
+			uni.switchTab({
+				url: '../ind/ind'
+			})
+		})
 	},
 	forget() { // 忘记密码
 		this.num = 3
@@ -551,6 +579,7 @@ export default {
 	width: 75%;
 	margin-left: -180rpx;
 	height: 84rpx;
+	line-height: 84rpx;
 	position: absolute;
 	left: 50%;
 	bottom: -284rpx;

@@ -46,8 +46,10 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
-			}
+				uni.navigateBack({
+					delta: 1
+				})
+			},
 		}
 	}
 </script>
@@ -99,7 +101,7 @@
 	}
 	.main{
 		width: 100%;
-		height: 79%;
+		height: 81.7%;
 		background: white;
 		border-radius: 30rpx;
 		border-bottom-left-radius: 0;

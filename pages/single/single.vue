@@ -9,29 +9,32 @@
 		<div class='main'>
 			<div>
 				<p>项目名称</p>
-				<input type="text" value="融创项目一期" />
+				<input type="text" value="" v-model="pname"/>
 			</div>
 			<div>
 				<p>苗木名称</p>
-				<input type="text" value="" />
+				<input type="text" value="" v-model="name"/>
 			</div>
 			<div>
 				<p>苗木数量</p>
-				<input type="text" value="" />
-				<input type="text" value="" class='dw' />
+				<input type="text" value="" v-model="num"/>
+				<picker @change="sex" class='dw' :value="index" :range="list" :range-key="'label'">
+					<label class='' v-if='bol1' style="font-size: 34rpx;">单位<text style="font-size: 18rpx;">(请选择)</text></label>
+					<label class="" v-if="bol_1">{{list[index].label}}</label>
+				</picker>
 			</div>
 			<div>
 				<p>位置描述</p>
-				<input type="text" value="" />
+				<input type="text" value="" v-model="site"/>
 			</div>
 			<div>
 				<p>添加图片</p>
 				<div class='image'>
-					<image :src="this.src" mode="" @click='upload'></image>
+					<image :src="src" mode="" @click='upload'></image>
 					<text v-if="bol" @click='upload'>+</text>
 				</div>
 			</div>
-			<button class="btn">上传</button>
+			<button class="btn" @click="sub">上传</button>
 		</div>
 	</view>
 </template>
@@ -44,32 +47,85 @@
 		},
 		data() {
 			return {
+				bol: true,
+				index: 0,
+				bol1: true,
+				bol_1: false,
+				list: [
+				  {
+				    label: '颗',
+				    value: '1'
+				  },
+				  {
+				    label: '株',
+				    value: '1'
+				  }
+				],
+				
+				project_id: '',
+				pname: '',
+				name: '',
+				num: '',
+				unit: '',
+				site: '',
 				src: '',
-				bol: true
+				
 			}
+		},
+		onLoad(option) {
+			// console.log(option)
+			this.project_id = option.project_id
+			this.$request('/api/index/Project_info', {
+				project_id: this.project_id
+			}).then(res => {
+				// console.log(res)
+				this.pname = res.data.data.pname
+			})
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
+			},
+			sex(e) {
+				this.index = e.target.value
+				this.unit = this.list[this.index].label // 单位
+				this.bol1 = false,
+				this.bol_1 = true
 			},
 			upload() {
 				uni.chooseImage({
+					count: 1, //最多选取一张图片
 				    success: (chooseImageRes) => {
 				        const tempFilePaths = chooseImageRes.tempFilePaths;
 				        uni.uploadFile({
-				            url: '',
+				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
 				            filePath: tempFilePaths[0],
+							name: 'file',
 				            formData: {
 				                'file': 'test'
 				            },
 				            success: (uploadFileRes) => {
-				                console.log(uploadFileRes.data);
-								this.src = uploadFileRes.data
-								
+								this.src = uploadFileRes.data // 上传的图片路径
+								this.bol = false
 				            }
-				        });
+				        })
 				    }
 				});
+			},
+			sub() {
+				// console.log(this.name, this.project_id, this.num, this.unit, this.src, this.site)
+				this.$request('/api/index/addTree', {
+					name: this.name, // 苗木名称
+					project_id: this.project_id, // 项目id
+					num: this.num, // 数量
+					unit: this.unit, // 单位
+					files: this.src, // 图片路径
+					site: this.site, // 位置
+				}).then(res => {
+					console.log(res)
+				})
 			}
 		}
 	}
@@ -147,9 +203,12 @@
 			&:nth-of-type(3) {
 				input{
 					width: 44%;
+					margin-right: -30rpx;
 				}
 				.dw{
-					width: 20%;
+					width: 22.5%;
+					text-align: center;
+					border: 1px solid #D5D5D5;
 				}
 			}
 			&:nth-of-type(5) {
@@ -169,7 +228,7 @@
 					text{
 						font-size: 100rpx;
 						position: absolute;
-						left: 15%;
+						left: 17%;
 						top: 76%;
 						color: #BFBFBF;
 					}

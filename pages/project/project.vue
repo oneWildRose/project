@@ -67,7 +67,9 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			goDetails(index) {
 				uni.navigateTo({

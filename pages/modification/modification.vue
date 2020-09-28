@@ -22,20 +22,28 @@
 		},
 		methods: {
 			goBack() {
-				uni.navigateBack({})
+				uni.navigateBack({
+					delta: 1
+				})
 			},
 			save() {
 				var that = this
 				uni.getStorage({
 					key: "userinfo",
 					success(res) {
-						this.$request('/api/index/infoEdit', {
+						// console.log(res)
+						that.$request('/api/index/infoEdit', {
 							username: that.name,
-							uid: res.data.data.id
+							uid: res.data.data.data.user_id
 						}).then(res => {
 							console.log(res)
 							if(res.data.code == 1 ) {
-								uni.navigateBack({})
+								uni.navigateTo({
+									url: '../information/information',
+									success(res) {
+										console.log(res)
+									}
+								})
 							} else {
 								uni.showModal({
 									content: res.data.msg
