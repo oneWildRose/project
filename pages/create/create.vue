@@ -62,17 +62,17 @@
 				</picker>
 			</div>
 			
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目竣工时间 dtime -->
 				<text v-if="time_bol">项目竣工时间</text>
 				<div class='time'>{{ dtime }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目交付时间 time -->
 				<text v-if="time_bol2">项目交付时间</text>
 				<div class='time'>{{ time }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目进场时间 ctime -->
 				<text v-if="time_bol3">项目进场时间</text>
 				<div class='time'>{{ ctime }}</div>
@@ -191,7 +191,7 @@
 			},
 			endTime() {
 				var data = new Date() // 日期对象
-				var year = data.getFullYear() + 10 // 年份
+				var year = data.getFullYear() + 20 // 年份
 				var month = data.getMonth() + 1 // 月份
 				var day = data.getDate() // 当天
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
@@ -202,7 +202,8 @@
 			bindPickerChange: function(e) { // 请求市级
 				this.index = e.target.value,
 				this.province_ = this.province[this.index].shortname // 把用户选择的选项存下来
-				this.pid = this.province[this.index].id,
+				this.pid = this.province[this.index].id, 
+				console.log(this.pid), // 当前省级id
 				this.bol = false,
 				this.bol_ = true,
 				this.$request('/api/index/selectCity', {
@@ -214,7 +215,8 @@
 			bindPickerChange1: function(e) { // 请求区级
 				this.index1 = e.target.value
 				this.city_ = this.city[this.index1].shortname
-				this.pid1 = this.city[this.index1].id
+				this.pid1 = this.city[this.index1].id 
+				console.log(this.pid1), // 当前市级id
 				this.bol1 = false,
 				this.bol_1 = true,
 				this.$request('/api/index/selectCity', {
@@ -226,7 +228,8 @@
 			},
 			bindPickerChange2: function(e) {
 				this.index2 = e.target.value
-				this.area_ = this.area[this.index2].shortname
+				this.area_ = this.area[this.index2].shortname 
+				console.log(this.area[this.index2].id) // 当前区级id
 				this.bol2 = false,
 				this.bol_2 = true
 			},
@@ -252,9 +255,9 @@
 				this.$request('/api/index/addProject', {
 					pname: this.pname,
 					enterprie_name: this.enterprie_name,
-					province: this.province_,
-					city: this.city_,
-					area: this.area_,
+					province: this.pid,
+					city: this.pid1,
+					area: this.area[this.index2].id,
 					address: this.address,
 					user_name: this.user_name,
 					time: this.time,
@@ -331,7 +334,7 @@
 			font-weight: bold;
 		}
 		text{
-			font-size: 14px;
+			font-size: 28rpx;
 			color: #8C8484;
 		}
 	}
@@ -357,7 +360,7 @@
 				&:nth-of-type(1){
 					background: url(../../static/wancheng.svg) no-repeat;
 					background-size: 116%;
-					background-position: -4rpx -4rpx;
+					background-position: -5rpx -5rpx;
 					border: none;
 				}
 				text{
@@ -366,13 +369,13 @@
 					bottom: -100%;
 					width: 200rpx;
 					text-align: center;
-					font-size: 12px;
+					font-size: 24rpx;
 				}
 			}
 		}
 		.wire{
 			width: 59.5%;
-			margin: -6.5% auto;
+			margin: -7% auto;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
@@ -386,13 +389,13 @@
 		}
 	}
 	.message{
-		width: 80%;
+		width: 90%;
 		height: 992rpx;
 		box-shadow: #D2D2D2 1px 2px 4px 2px;
 		border-radius: 12rpx;
 		background: white;
 		margin: 52rpx auto;
-		padding: 20rpx 20rpx;
+		padding: 20rpx 0rpx;
 		input{
 			width: 90%;
 			height: 84rpx;
@@ -402,21 +405,32 @@
 			color: #86868A;
 			background: #F6F8FF;
 			margin: 18rpx auto;
-			border-radius: 40rpx;
+			border-radius: 10rpx;
 			font-size: 32rpx;
 		}
 		.city{
 			width: 90%;
 			height: 84rpx;
-			font-size: 16px;
+			font-size: 32rpx;
 			line-height: 84rpx;
 			text-align: left;
 			margin: 32rpx auto;
 			display: flex;
 			justify-content: space-around;
 			align-items: center;
+			&>text{
+				width: 34px;
+				height: 44px;
+				text-align: center;
+				line-height: normal;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: -webkit-box;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 2; // 行数
+			}
 			.city_tab{
-				width: 120rpx;
+				width: 140rpx;
 				height: 84rpx;
 				align-items: center;
 				text-align: center;
@@ -424,7 +438,7 @@
 				padding-right: 20rpx;
 				background: #F6F8FF;
 				color: #86888E;
-				border-radius: 20rpx;
+				border-radius: 10rpx;
 				position: relative;
 				image{
 					width: 40rpx;
@@ -448,7 +462,7 @@
 			display: flex;
 			align-items: center;
 			input{
-				width: 66%;
+				width: 68%;
 			}
 			.dw{
 				width: 120rpx;
@@ -480,7 +494,7 @@
 			color: #86868A;
 			background: #F6F8FF;
 			font-size: 32rpx;
-			border-radius: 40rpx;
+			border-radius: 10rpx;
 			text{
 				position: absolute;
 				left: 0;
@@ -509,6 +523,6 @@
 		margin-top: 40rpx;
 		width: 100%;
 		text-align: center;
-		font-size: 14px;
+		font-size: 28rpx;
 	}
 </style>

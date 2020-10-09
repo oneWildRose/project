@@ -31,17 +31,17 @@
 				uni.getStorage({
 					key: "userinfo",
 					success(res) {
-						// console.log(res)
+						console.log(res)
 						that.$request('/api/index/infoEdit', {
 							username: that.name,
-							uid: res.data.data.data.user_id
+							uid: res.data.data.id
 						}).then(res => {
 							console.log(res)
 							if(res.data.code == 1 ) {
-								uni.navigateTo({
+								uni.redirectTo({
 									url: '../information/information',
 									success(res) {
-										console.log(res)
+										// console.log(res)
 									}
 								})
 							} else {

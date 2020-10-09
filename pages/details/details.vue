@@ -50,7 +50,7 @@
 				</li>
 				<li>
 					<p>项目平面图：</p>
-					<image :src="msg.plan_url" mode=""></image>
+					<image :src="msg.plan_url == null? src : msg.plan_url" mode="" @click="preview"></image>
 				</li>
 				<div class='change' @click='goChange'>
 					<image :src="require('../../static/xiugai.svg')" mode=""></image>
@@ -143,21 +143,55 @@
 				num: 0,
 				msg: '',
 				project_id: '',
-				acreage: ''
+				acreage: '',
+				src: '../../static/zanwu.png'
 			}
 		},
 		onLoad(option) {
-			console.log(JSON.parse(option.project)) // 项目信息
+			// console.log(JSON.parse(option.project)) // 项目信息
 			this.project_id = JSON.parse(option.project).id // 拿到项目id
+		},
+		onShow() {
 			this.$request('/api/index/Project_info', {
 				project_id: this.project_id
 			}).then(res => {
 				this.msg = res.data.data
+				console.log(this.msg)
 				if (this.msg.company == "") { // 如果company(亩/㎡)为空，那么就渲染measure(公顷)
 					this.acreage = this.msg.measure + '公顷'
 				} else {
 					this.acreage = this.msg.company + '亩/㎡'
 				}
+				this.$request('/api/index/selectCity', {
+					pid: 0 //省
+				}).then(res => {
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.province) {
+							this.msg.province = res.data.data[i].shortname
+							// console.log(this.msg.province) // 省
+						}
+					}
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.msg.province
+				}).then(res => {
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.city) {
+							this.msg.city = res.data.data[i].shortname
+							// console.log(this.msg.city) // 市
+						}
+					}
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.msg.city
+				}).then(res => {
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.area) {
+							this.msg.area = res.data.data[i].shortname
+							// console.log(this.msg.area) // 区
+						}
+					}
+				})
 			})
 		},
 		methods: {
@@ -176,12 +210,18 @@
 			},
 			goUpload() {
 				uni.navigateTo({
-					url: '../upload_excel/upload_excel?project_id=' + this.project_id
+					// url: '../upload_excel/upload_excel?project_id=' + this.project_id
+					url: '../single/single?project_id=' + this.project_id
 				})
 			},
 			goChange() {
 				uni.navigateTo({
 					url: '../change/change?project_id=' + this.project_id
+				})
+			},
+			preview() {
+				uni.previewImage({
+					urls: [ this.msg.plan_url ]
 				})
 			}
 		}
@@ -249,7 +289,7 @@
 			width: 100%;
 			height: 100%;
 			background: white;
-			border-radius: 30rpx;
+			border-radius: 40rpx;
 			position: absolute;
 			top: 326rpx;
 			.active{

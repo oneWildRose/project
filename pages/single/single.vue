@@ -125,6 +125,10 @@
 					site: this.site, // 位置
 				}).then(res => {
 					console.log(res)
+					uni.showModal({
+						content: res.data.msg
+					})
+					this.goBack()
 				})
 			}
 		}
@@ -179,9 +183,9 @@
 	}
 	.main{
 		width: 100%;
-		height: 82%;
+		height: 81.8%;
 		background: white;
-		border-radius: 30rpx;
+		border-radius: 40rpx;
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 		position: absolute;

@@ -19,11 +19,12 @@
 	</style>
     <body>
 		<button id="btn" type="button" class="mui-btn mui-btn-blue mui-btn-block">上传苗木信息文件(excel表)</button>
+		
     </body>
 </html>
 <!-- uni的 SDK -->
 <script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js"></script>
-<script type="text/javascript">
+<script type="text/javascript">	
 	document.addEventListener('plusready',function () {
 		// 在这里调用plus api
 		document.querySelector('#btn').addEventListener('click',function () {
@@ -47,12 +48,12 @@
 					// 获得文件路径
 					var fileData = data.getData();  
 					var path = plus.android.invoke(fileData, "getPath");
-					console.log("path:"+path);
+					// console.log("path:"+path);
 		
 					// 判断文件类型
 					var resolver = context.getContentResolver();
 					var fileType = plus.android.invoke(resolver, "getType",fileData);
-					console.log("fileType:"+fileType);
+					// console.log("fileType:"+fileType);
 					
 					function msg () {
 						// 将 path 传递到 upload_excel(应用webview的页面) 的函数
@@ -60,7 +61,7 @@
 							data: {
 								path: path
 							}
-						})						
+						})
 					}
 					
 					if (window.UniAppJSBridge) {

@@ -6,8 +6,8 @@
 					<image :src="msg.file == null? src : msg.file" mode=""></image>
 				</div>
 				<div class='message'>
-					<p>{{ msg.username == null? '昵称' : msg.username }}</p>
-					<p>{{ msg.mobile.substring(0, 3) }}****{{ msg.mobile.substring(msg.mobile.length - 4) }}</p>
+					<p>{{ msg.username == null? '姓名' : msg.username }}</p>
+					<p>{{ mobile }}</p>
 				</div>
 			</div>
 		</div>
@@ -21,9 +21,9 @@
 				<li>
 					<image :src="require('../../static/wenti.svg')"></image>
 					<text>常见问题</text>
-					<image :src="require('../../static/jinru.svg')"></image>
+					<image :src="require('../../static/jinru.svg')" @click="goAbout"></image>
 				</li>
-				<li>
+				<li @click='goAbout'>
 					<image :src="require('../../static/guanyuwomen.svg')"></image>
 					<text>关于我们</text>
 					<image :src="require('../../static/jinru.svg')"></image>
@@ -40,7 +40,8 @@
 			return {
 				src: '../../static/shu.png',// 默认头像
 				id: '',
-				msg: ''
+				msg: '',
+				mobile: '***********'
 			}
 		},
 		onShow() {
@@ -49,17 +50,24 @@
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
-					that.id = res.data.data.data.user_id
+					that.id = res.data.data.id
 					that.$request('/api/index/infoIndex', {
 						uid: that.id
 					}).then(res => {
 						// console.log(res)
 						that.msg = res.data.data
+						that.mobile = that.msg.mobile.substring(0, 3) + '****' + that.msg.mobile.substring(that.msg.mobile.length - 4)
+						// console.log(this.msg)
 					})
 				}
 			})
 		},
 		methods: {
+			goAbout() {
+				uni.navigateTo({
+					url: '../about/about',
+				})
+			},
 			goInformation() { // 个人信息
 				uni.navigateTo({
 					url: '../information/information?uid=' + this.id
@@ -73,6 +81,9 @@
 						if (res.confirm == true) { // 为 ture时 即用户点了确定，跳到登录页 sign
 							uni.removeStorage({
 								key: 'userinfo'
+							})
+							uni.removeStorage({
+								key: 'business'
 							})
 							uni.reLaunch({
 								url: '../sign/sign'
@@ -129,7 +140,7 @@
 		}
 		.main{
 			width: 100%;
-			height: 880rpx;
+			height: auto;
 			position: absolute;
 			top: 350rpx;
 			border-radius: 40rpx;

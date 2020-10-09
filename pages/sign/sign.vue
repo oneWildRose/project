@@ -31,7 +31,7 @@
                 <p>输入手机号码</p>
                 <input type="text" placeholder="输入手机号码" id="accounts" v-model='mobile'>
                 <p>输入密码</p>
-                <input type="password" placeholder="输入8-16位密码" id="password" v-model='password'>
+                <input type="password" placeholder="输入6-16位密码" id="password" v-model='password'>
                 <p type="default" class="forget" @click='forget'>忘记密码？</p>
 				<button class="sign_btn" @click="login">登录</button>
               <div class="other">
@@ -59,9 +59,9 @@
 					<div v-show='!isCode' class='time'>{{ second }}</div>
 				</div>
 				<p>输入密码</p>
-				<input type="password" placeholder="输入8-16位密码" v-model="password"/>
+				<input type="password" placeholder="输入6-16位密码" v-model="password"/>
 				<p>再次输入密码</p>
-				<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
+				<input type="password" placeholder="输入6-16位密码" v-model="password2"/>
                 <button class="register_btn" @click="register_success">立即注册</button>
             </li>
 			<li class='xg register' v-show='num == 2'>   <!-- 修改密码 -->
@@ -74,9 +74,9 @@
 					<div v-show='!isCode' class='time'>{{ second }}</div>
 				</div>
 				<p>输入新密码</p>
-				<input type="password" placeholder="输入8-16位密码" v-model="password"/>
+				<input type="password" placeholder="输入6-16位密码" v-model="password"/>
 				<p>再次输入密码</p>
-				<input type="password" placeholder="输入8-16位密码" v-model="password2"/>
+				<input type="password" placeholder="输入6-16位密码" v-model="password2"/>
 			  <button @click="goSign" class="register_btn">确认修改</button>
 			</li>
 			<li class='choose'  v-show='num == 3'>
@@ -160,7 +160,7 @@ export default {
 				if(res.data.code == 1) {
 					this.code = res.data.data.code,
 					this.code_id = res.data.data.code_id
-					this.timers()		
+					this.timers()
 				} else {
 					
 				}
@@ -181,10 +181,10 @@ export default {
 		}
 	},
 	register_success() { // 注册
-		// 判断密码是否符合规范 8-16位
-		if(!(/^.{6,}$/.test(this.password))) {
+		// 判断密码是否符合规范 6-16位 ^([0-9]|[a-zA-Z]){6,16}$
+		if(!(/^([0-9]|[a-zA-Z]){6,16}$/.test(this.password))) {
 			uni.showModal({
-				content: '请输入8-16位密码'
+				content: '请输入6-16位密码'
 			})
 		} else {
 			// console.log(this.code_id)
@@ -260,7 +260,7 @@ export default {
 		})
 	},
 	forget() { // 忘记密码
-		this.num = 3
+		this.num = 2
 	},
 	goSign() { // 修改密码
 		this.$request('/api/index/editPassword', {

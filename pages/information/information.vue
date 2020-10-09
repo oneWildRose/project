@@ -13,8 +13,8 @@
 		<div class='msg'>
 			<ul>
 				<li @click="goModification">
-					<p>昵称</p>
-					<text>{{ msg.username == null? '昵称' : msg.username }}</text>
+					<p>姓名</p>
+					<text>{{ msg.username == null? '姓名' : msg.username }}</text>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 				<li>
@@ -23,8 +23,8 @@
 				</li>
 				<li>
 					<p>性别</p>
-					<picker @change="sex" class='sex' :value="index" :range="list" :range-key="'label'">
-						<label class='' v-if='bol'>男</label>
+					<picker @change="xb" class='sex' :value="index" :range="list" :range-key="'label'">
+						<label class='' v-if='bol'>{{ sex }}</label>
 						<label class="" v-if="bol_">{{ list[index].label }}</label>
 					</picker>
 					<image :src="require('../../static/jinru.svg')"></image>
@@ -43,7 +43,6 @@
 				</li>
 				<li>
 					<p>企业代码</p>
-					<!-- <text>{{ enterprise_code }}</text> -->
 					<input type="text" placeholder="请输入" v-model="enterprise_code" class="enterprise_code"/>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
@@ -60,12 +59,15 @@
 		},
 		data() {
 			return {
+				id: '',
 				src: '../../static/shu.png',// 默认头像
 				startDate: "1900-01-01", //日期选择器 初始日期
 				msg: '', // 用户信息列表
 				mobile: '',
-				xb: '', // 性别
-				business_pic: '暂无', // 营业执照
+				sex: '', // 性别
+				sex_num: 0,
+				birthday: '', // 出生日期
+				business_pic: '查看', // 营业执照
 				enterprise_code: '', // 企业代码
 				index: 0,
 				bol: true,
@@ -82,22 +84,28 @@
 				]
 			}
 		},
-		onLoad(option) {
+		beforeCreate() {
 			var that = this
 			uni.getStorage({
 				key: 'userinfo',
 				success: function(res) {
-					// console.log(res.data.data.data.user_id)
+					// console.log(res.data.data.id)
+					that.id = res.data.data.id
 					that.$request('/api/index/infoIndex', {
-						uid: res.data.data.data.user_id
+						uid: that.id
 					}).then(res => {
-						console.log(res)
+						// console.log(res)
 						that.msg = res.data.data
 						that.mobile = that.msg.mobile.substring(0, 3) + '****' + that.msg.mobile.substring(that.msg.mobile.length - 4)
+						if(that.msg.sex == 2) {
+							that.sex = '女'
+						} else {
+							that.sex = '男'
+						}
 					})
 				}
 			})
-			console.log(opstion)
+			
 		},
 		methods: {
 			getTime() {
@@ -108,7 +116,21 @@
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
 			},
 			save() {
-				
+				if(this.sex_num == 0) {
+					this.sex_num = 1
+				}
+				this.$request('/api/index/infoEdit', {
+					uid: this.id,
+					sex: this.sex_num,
+					birthday: this.msg.birthday
+				}).then(res => {
+					console.log(res)
+					if(res.data.code == 1) {
+						uni.showToast({
+							title: res.data.msg
+						})
+					}
+				})
 			},
 			upload() { // 上传头像
 				uni.chooseImage({
@@ -123,8 +145,9 @@
 								'user': 'test'
 							},
 				            success: (uploadFileRes) => {
+								this.msg.file = uploadFileRes.data
 								this.src = uploadFileRes.data
-								console.log(this.src)
+								// console.log(this.src)
 								this.$request('/api/index/headEdit', {
 									file: this.src,
 									uid: this.msg.id
@@ -142,7 +165,7 @@
 				})
 			},
 			goModification() {
-				uni.navigateTo({
+				uni.redirectTo({
 					url: '../modification/modification'
 				})
 			},
@@ -151,9 +174,10 @@
 					url: '../business_pic/business_pic'
 				})
 			},
-			sex(e) {
+			xb(e) {
 				this.index = e.target.value
-				this.xb = this.list[this.index].label
+				this.sex_num = this.index + 1 // 1男，2女
+				this.msg.sex = this.list[this.index].label
 				this.bol = false,
 				this.bol_ = true
 			},

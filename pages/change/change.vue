@@ -18,21 +18,21 @@
 				<text>项目地址</text>
 				<div class="city_tab">
 					<picker @change="bindPickerChange" :value="index" :range="province"  :range-key="'shortname'">
-						<label class='' v-if='bol'>请选择</label>
+						<label class='' v-if='bol'>{{ msg.province }}</label>
 						<label class="" v-if='bol_'>{{province[index].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>	
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange1" :value="index1" :range="city" :range-key="'shortname'">
-						<label class='' v-if='bol1'>请选择</label>
+						<label class='' v-if='bol1'>{{ msg.city }}</label>
 						<label class="" v-if='bol_1'>{{city[index1].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange2" :value="index2" :range="area" :range-key="'shortname'">
-						<label class='' v-if='bol2'>请选择</label>
+						<label class='' v-if='bol2'>{{ msg.area }}</label>
 						<label class="" v-if='bol_2'>{{area[index2].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
@@ -52,17 +52,17 @@
 					<image :src="require('../../static/xuanze.svg')" mode=""></image>
 				</picker>
 			</div>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目竣工时间 dtime -->
 				<text>竣工时间</text>
 				<div class='time'>{{ dtime }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目交付时间 time -->
 				<text>交付时间</text>
 				<div class='time'>{{ time }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="getTime()" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目进场时间 ctime -->
 				<text>进场时间</text>
 				<div class='time'>{{ ctime }}</div>
@@ -123,11 +123,12 @@
 				  }
 				],
 				province: [], 
-				city: ['请选择'], 
-				area: ['请选择'], 
+				city: '',
+				area: '',
 				
-				pid: 0, //省级pid
-				pid1: 0, // 市级pid
+				pid: '', //省级pid
+				pid1: '', // 市级pid
+				pid2: '',
 				
 				pname: '', // 项目名称
 				enterprie_name: '', // 企业名称
@@ -149,7 +150,11 @@
 				bol4: true,
 				plan_url: '',
 				
-				project_id: '' // 项目id
+				project_id: '',// 项目id
+				msg: '',
+				zanding_pro: '',
+				zanding_city: '',
+				zanding_area: ''
 			}
 		},
 		onLoad(option) {
@@ -157,6 +162,53 @@
 			this.$request('/api/index/project_edit', {
 				project_id: option.project_id
 			}).then(res => {
+				// console.log(res)
+				this.msg = res.data.data
+				console.log(this.msg)
+				this.zanding_pro = this.msg.province
+				this.zanding_city = this.msg.city
+				this.zanding_area = this.msg.area
+				// if(this.msg.company == '') {
+				// 	this.text = '公顷'
+				// } else {
+				// 	this.text = '亩'
+				// }
+				this.$request('/api/index/selectCity', {
+					pid: 0
+				}).then(res => {
+					console.log(res)
+					this.province = res.data.data
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.province) {
+							this.msg.province = res.data.data[i].shortname
+							// console.log(this.msg.province) // 省
+						}
+					}
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.msg.province
+				}).then(res => {
+					console.log(res)
+					this.city = res.data.data
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.city) {
+							this.msg.city = res.data.data[i].shortname
+							// console.log(this.msg.city) // 市
+						}
+					}
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.msg.city
+				}).then(res => {
+					console.log(res)
+					this.area = res.data.data
+					for(var i = 0; i <= res.data.data.length; i++) {
+						if (res.data.data[i].id == this.msg.area) {
+							this.msg.area = res.data.data[i].shortname
+							// console.log(this.msg.area) // 区
+						}
+					}
+				})
 				this.pname = res.data.data.pname
 				this.enterprie_name = res.data.data.enterprie_name
 				this.address = res.data.data.address
@@ -174,7 +226,7 @@
 		},
 		onShow() {
 			this.$request('/api/index/selectCity', {// 页面展示出来后 请求省级的数据
-				pid: this.pid, // pid为0，请求省级的数据
+				pid: 0, // pid为0，请求省级的数据
 			}).then(res => {
 				this.province = res.data.data
 			})
@@ -208,7 +260,7 @@
 			},
 			endTime() {
 				var data = new Date() // 日期对象
-				var year = data.getFullYear() + 10 // 年份
+				var year = data.getFullYear() + 20 // 年份
 				var month = data.getMonth() + 1 // 月份
 				var day = data.getDate() // 当天
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
@@ -279,21 +331,33 @@
 			save() {
 				if (this.unit === '公顷') {
 					this.measure = this.acreage
+					this.company = ''
 				} else {
 					this.company = this.acreage
+					this.measure = ''
 				}
 				if (this.src_ == '') {
 					this.plan_url = this.src
 				} else {
 					this.plan_url = this.src_
 				}
-				console.log(this.project_id)
+				if (this.pid == '') {
+					this.pid = this.zanding_pro
+				}
+				if (this.pid1 == '') {
+					this.pid1 = this.zanding_city
+				}
+				if (this.area_ == '') {
+					this.pid2 = this.zanding_area
+				} else {
+					this.pid2 = this.area[this.index2].id
+				}
 				this.$request('/api/index/Project_edit_submit', {
 					pname: this.pname,
 					enterprie_name: this.enterprie_name,
-					province: this.province_,
-					city: this.city_,
-					area: this.area_,
+					province: this.pid,
+					city: this.pid1,
+					area: this.pid2,
 					address: this.address,
 					ctime: this.ctime,
 					dtime: this.dtime,
@@ -306,6 +370,16 @@
 					plan_url: this.plan_url
 				}).then(res => {
 					console.log(res)
+					if(res.data.code == 1) {
+						uni.showModal({
+							content: res.data.msg
+						})
+						this.goBack()
+					} else {
+						uni.showModal({
+							content: res.data.msg
+						})
+					}
 				})
 			}
 		}

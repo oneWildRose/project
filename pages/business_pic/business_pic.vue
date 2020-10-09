@@ -4,6 +4,7 @@
 		<div class='goback'>
 			<image src="../../static/fanhui(3).png" mode="" @click="goBack"></image>
 			<text @click="save" v-show="btn_bol">保存</text>
+			<text @click="again" v-show="!btn_bol">重新上传</text>
 		</div>
 		<div class='main'>
 			<p>
@@ -13,7 +14,7 @@
 			</p>
 			<div class='image'>
 				<image :src="src" mode="" @click='upload'></image>
-				<text v-if="bol" @click='upload'>+</text>
+				<text v-if="bol" @click='upload'>{{ text }}</text>
 			</div>
 		</div>
 	</view>
@@ -25,18 +26,21 @@
 			return {
 				src: '',
 				bol: true,
-				btn_bol: true
+				btn_bol: true,
+				text: '(点击上传)'
 			}
 		},
-		onShow(){
+		beforeCreate(){
 			var that = this
 			uni.getStorage({
 				key: 'business',
 				success(res) {
 					// console.log(res)
 					that.src = res.data.src
-					that.bol = false
-					that.btn_bol = false
+					if(that.src !== '') {
+						that.bol = false
+						that.btn_bol = false
+					} else {}
 				}
 			})
 		},
@@ -46,6 +50,7 @@
 					uni.chooseImage({
 						count: 1, //最多选取一张图片
 					    success: (chooseImageRes) => {
+							this.text = '上传中...'
 					        const tempFilePaths = chooseImageRes.tempFilePaths;
 					        uni.uploadFile({
 					            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
@@ -57,6 +62,10 @@
 					            success: (uploadFileRes) => {
 									this.src = uploadFileRes.data // 上传的图片路径
 									this.bol = false
+									uni.showToast({
+									    title: '上传成功',
+									    duration: 1000
+									});
 					            }
 					        })
 					    }
@@ -68,8 +77,8 @@
 				}
 			},
 			goBack() {
-				uni.navigateTo({
-					url: '../information/information?statu=已上传'
+				uni.navigateBack({
+					delta: 1
 				})
 			},
 			save() {
@@ -80,7 +89,7 @@
 					})
 				} else {
 					uni.showModal({
-						content: '保存后无法修改,确认保存?',
+						content: '确认保存?',
 						success: function(res) {
 							if(res.confirm) { // 表示确定
 								that.btn_bol = false
@@ -99,6 +108,30 @@
 						}
 					})
 				}
+			},
+			again() {
+				var that = this
+				uni.showModal({
+					content: '确认重新上传?',
+					success(res) {
+						if(res.confirm) {
+							that.src ='',
+							uni.setStorage({
+								key: 'business',
+								data: {
+									src: that.src
+								},
+								success(res) {
+									console.log(res)
+								}
+							})
+							that.bol = true,
+							that.btn_bol = true							
+						} else {
+							return ;
+						}
+					}
+				})
 			}
 		}
 	}
@@ -139,17 +172,17 @@
 				background-color: #F2F3F7;
 			}
 			text{
-				width: 100rpx;
+				width: 150rpx;
 				height: 100rpx;
 				line-height: 100rpx;
 				text-align: center;
-				font-size: 100rpx;
+				font-size: 30rpx;
 				position: absolute;
 				left: 50%;
 				top: 50%;
 				margin-top: -50rpx;
-				margin-left: -50rpx;
-				color: #BFBFBF;
+				margin-left: -75rpx;
+				color: #878787;
 			}
 		}		
 	}

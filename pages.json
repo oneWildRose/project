@@ -102,6 +102,24 @@
 				"navigationStyle":"custom"
 			}
         }
+        ,{
+            "path" : "pages/about/about",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
+        ,{
+            "path" : "pages/point/point",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
+        ,{
+            "path" : "pages/plan/plan",
+            "style" : {
+				"navigationStyle":"custom"
+			}
+        }
     ],
 	"globalStyle": {
 		"navigationBarTitleText": "",

@@ -9,7 +9,12 @@
 		<div class='main'>
 			
 			<view class="btns">
-				 <web-view src="/hybrid/html/index.html" @message="message"></web-view>
+				<!-- <web-view src="/hybrid/html/index2.html" @message="message"></web-view> -->
+				<view class="content">
+					<button type="primary" @tap="openFile">打开文件选择器</button>
+					<view>文件路径为:{{ path }}</view>
+					<tki-file-manager ref="filemanager" @result="resultPath"></tki-file-manager>
+				</view>
 			</view>
 			
 			<button type="default" @click="goSingle">上传单个苗木信息</button>
@@ -17,11 +22,12 @@
 		</div>
 	</view>
 </template>
-
 <script>
+	import tkiFileManager from "@/components/tki-file-manager/tki-file-manager.vue"
 	
 	export default {
 		components:{
+			tkiFileManager,
 			
 		},
 		data() {
@@ -31,31 +37,37 @@
 			}
 		},
 		onLoad(option) {
-			console.log(option)
+			// console.log(option)
 			this.project_id = option.project_id
 		},
 		mounted() {
-			var height= 0;//定义动态的高度变量，如高度为定值，可以直接写
-			uni.getSystemInfo({
-				success: (sysinfo) => {
-				height = sysinfo.windowHeight-500;//自行修改，自己需要的高度
-				// console.log(height);
-			},
-			complete: () => {
+			// var height= 0;//定义动态的高度变量，如高度为定值，可以直接写
+			// uni.getSystemInfo({
+			// 	success: (sysinfo) => {
+			// 	height = sysinfo.windowHeight-500;//自行修改，自己需要的高度
+			// 	// console.log(height);
+			// },
+			// complete: () => {
 				
-			}
-			});
-			var currentWebview = this.$scope.$getAppWebview();//获取当前web-view
-			setTimeout(function() {
-				var wv = currentWebview.children()[0];
-				// console.log(wv);
-				wv.setStyle({//设置web-view距离顶部的距离以及自己的高度，单位为px
-					top: 300,
-					height: height,
-				})
-			}, 0);//如页面初始化调用需要写延迟
+			// }
+			// });
+			// var currentWebview = this.$scope.$getAppWebview();//获取当前web-view
+			// setTimeout(function() {
+			// 	var wv = currentWebview.children()[0];
+			// 	// console.log(wv);
+			// 	wv.setStyle({//设置web-view距离顶部的距离以及自己的高度，单位为px
+			// 		top: 300,
+			// 		height: height,
+			// 	})
+			// }, 0);//如页面初始化调用需要写延迟
 		},
 		methods: {
+			openFile(){
+				this.$refs.filemanager._openFile()
+			},
+			resultPath(e){
+				this.path = e
+			},
 			goBack() {
 				uni.navigateBack({
 					delta: 1
@@ -91,29 +103,8 @@
 				})
 			},
 			message(event) {
-				// console.log(event.detail.data)
-				this.path = event.detail.data[0].path //用户上传的文件路径
-				uni.uploadFile({
-					url: 'http://lvz.maike-docker.com/index.php/lvhua/Excel/import', //仅为示例，非真实的接口地址
-					filePath: this.path,
-					name: 'file',
-					formData: {
-						'user': 'test'
-					},
-					data: {
-						file: this.path,
-						project_id: this.project_id
-					},
-					success: (uploadFileRes) => {
-						console.log(uploadFileRes);
-					}
-				});
-				// this.$request('/lvhua/execl/import', {
-				// 	file: this.path,
-				// 	project_id: this.project_id
-				// }).then(res => {
-				// 	console.log(res)
-				// })
+				this.path = event.detail.data[0].file
+				console.log(this.path)
 			}
 		}
 	}
