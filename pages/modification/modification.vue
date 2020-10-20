@@ -28,30 +28,36 @@
 			},
 			save() {
 				var that = this
-				uni.getStorage({
-					key: "userinfo",
-					success(res) {
-						console.log(res)
-						that.$request('/api/index/infoEdit', {
-							username: that.name,
-							uid: res.data.data.id
-						}).then(res => {
+				if(that.name == '') {
+					uni.showModal({
+						content: '昵称不能为空'
+					})
+				} else {
+					uni.getStorage({
+						key: "userinfo",
+						success(res) {
 							console.log(res)
-							if(res.data.code == 1 ) {
-								uni.redirectTo({
-									url: '../information/information',
-									success(res) {
-										// console.log(res)
-									}
-								})
-							} else {
-								uni.showModal({
-									content: res.data.msg
-								})
-							}
-						})
-					}
-				})
+							that.$request('/api/index/infoEdit', {
+								username: that.name,
+								uid: res.data.data.user_id
+							}).then(res => {
+								console.log(res)
+								if(res.data.code == 1 ) {
+									uni.redirectTo({
+										url: '../information/information',
+										success(res) {
+											// console.log(res)
+										}
+									})
+								} else {
+									uni.showModal({
+										content: res.data.msg
+									})
+								}
+							})
+						}
+					})
+				}
 			}
 		}
 	})

@@ -1,35 +1,32 @@
 <template> <!-- 苗木信息 -->
 	<view class="hello">
+		<div class="status"></div>
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
 			<div>
-				<text>苗木信息</text>
+				<text>点位信息</text>
 			</div>
 		</div>
 		<div class='main'>
 			<ul>
 				<li>
-					<text>苗木名称</text>
-					<text>悬铃木</text>
+					<text>点位名称</text>
+					<text>北门正门口01</text>
 				</li>
 				<li>
-					<text>苗木数量</text>
-					<text>13颗</text>
+					<text>点位级别</text>
+					<text>一级点位</text>
 				</li>
 				<li>
-					<text>苗木分类</text>
-					<text>乔木</text>
+					<text>点位编号</text>
+					<text>20201015001</text>
 				</li>
 				<li>
-					<text>上传时间</text>
+					<text>最近更新</text>
 					<text>2020-09-08</text>
 				</li>
 				<li>
-					<text>位置描述</text>
-					<text>一号楼与二号楼之间</text>
-				</li>
-				<li>
-					<text>照片</text>
+					<text>点位照片</text>
 					<image :src="require('../../static/zhaopian.png')" mode=""></image>
 				</li>
 			</ul>

@@ -24,29 +24,29 @@
 			</div>
 		</div>
 		<div class="message">
-			<input type="text" placeholder="企业名称" v-model="enterprie_name"/>
+			<input type="text" placeholder="企业名称" placeholder-style="color:#86868A" v-model="enterprie_name"/>
 			<input type="text" placeholder="项目名称" v-model="pname"/>
 			
 			<div class='city'>
 				<text>项目地址</text>
 				<div class="city_tab">
 					<picker @change="bindPickerChange" :value="index" :range="province"  :range-key="'shortname'">
-						<label class='' v-if='bol'>请选择</label>
-						<label class="" v-if='bol_'>{{province[index].shortname}}</label>
+						<label v-if='bol' style='color:#86888E'>请选择</label>
+						<label v-if='bol_'>{{province[index].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>	
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange1" :value="index1" :range="city" :range-key="'shortname'">
-						<label class='' v-if='bol1'>请选择</label>
-						<label class="" v-if='bol_1'>{{city[index1].shortname}}</label>
+						<label v-if='bol1' style='color:#86888E'>请选择</label>
+						<label v-if='bol_1' :class="city[index1].shortname.length == 5? 'size' : ''">{{city[index1].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange2" :value="index2" :range="area" :range-key="'shortname'">
-						<label class='' v-if='bol2'>请选择</label>
-						<label class="" v-if='bol_2'>{{area[index2].shortname}}</label>
+						<label v-if='bol2' style='color:#86888E'>请选择</label>
+						<label v-if='bol_2' :class="area[index2].shortname.length == 5? 'size' : ''">{{area[index2].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
@@ -56,25 +56,25 @@
 			<div class='green'> <!-- 绿化管理面积 -->
 				<input type="text" value="" placeholder="绿化管理面积" v-model="acreage"/>
 				<picker @change="wenzi" class='dw' :value="index3" :range="list" :range-key="'label'">
-					<label class='' v-if='bol3' style="font-size: 24rpx;">请选择</label>
-					<label class="" style="font-size: 24rpx;text-align: left;" v-if="bol_3">{{list[index3].label}}</label>
+					<label class='' v-if='bol3' style="font-size: 28rpx;display:block;text-indent:6rpx;">请选择</label>
+					<label class="" style="font-size: 30rpx;display:block;text-indent:40rpx;" v-if="bol_3">{{list[index3].label}}</label>
 					<image :src="require('../../static/xuanze.svg')" mode=""></image>
 				</picker>
 			</div>
 			
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目竣工时间 dtime -->
-				<text v-if="time_bol">项目竣工时间</text>
+				<text v-if="time_bol" style='color:#86888E'>项目竣工时间</text>
 				<div class='time'>{{ dtime }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目交付时间 time -->
-				<text v-if="time_bol2">项目交付时间</text>
+				<text v-if="time_bol2" style='color:#86888E'>项目交付时间</text>
 				<div class='time'>{{ time }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="'2000-01-01'" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='timechoose' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目进场时间 ctime -->
-				<text v-if="time_bol3">项目进场时间</text>
+				<text v-if="time_bol3" style='color:#86888E'>项目进场时间</text>
 				<div class='time'>{{ ctime }}</div>
 			</gpp-date-picker>
 			
@@ -115,15 +115,11 @@
 				list: [ // 绿化面积单位数组
 				  {
 				    label: '亩',
-				    value: '1'
+				    value: '0'
 				  },
 				  {
 				    label: '㎡',
-				    value: '2'
-				  },
-				  {
-				    label: '公顷',
-				    value: '3'
+				    value: '1'
 				  }
 				],
 				province: [], 
@@ -135,14 +131,8 @@
 				
 				pname: '', // 项目名称
 				enterprie_name: '', // 企业名称
-				province_: '',// 省
-				city_: '',// 市
-				area_: '',// 区\县
 				address: '', // 详细地址
 				acreage: '',// 绿化面积（数字）
-				unit: '', // 单位
-				measure: '',// 绿化面积 （单位）公顷
-				company: '',// 绿化面积 (单位) 亩\㎡
 				dtime: '', // 竣工时间
 				time: '', // 交付时间
 				ctime: '', // 进场时间
@@ -158,11 +148,12 @@
 			}).then(res => {
 				this.province = res.data.data
 			})
+			var that = this
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
-					this.auid = res.data.data.id
+					that.auid = res.data.data.user_id
 				}
 			})
 		},
@@ -191,7 +182,7 @@
 			},
 			endTime() {
 				var data = new Date() // 日期对象
-				var year = data.getFullYear() + 20 // 年份
+				var year = data.getFullYear() + 30 // 年份
 				var month = data.getMonth() + 1 // 月份
 				var day = data.getDate() // 当天
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
@@ -201,9 +192,8 @@
 			// 省市区
 			bindPickerChange: function(e) { // 请求市级
 				this.index = e.target.value,
-				this.province_ = this.province[this.index].shortname // 把用户选择的选项存下来
 				this.pid = this.province[this.index].id, 
-				console.log(this.pid), // 当前省级id
+				// console.log(this.pid), // 当前省级id
 				this.bol = false,
 				this.bol_ = true,
 				this.$request('/api/index/selectCity', {
@@ -214,9 +204,8 @@
 			},
 			bindPickerChange1: function(e) { // 请求区级
 				this.index1 = e.target.value
-				this.city_ = this.city[this.index1].shortname
 				this.pid1 = this.city[this.index1].id 
-				console.log(this.pid1), // 当前市级id
+				// console.log(this.pid1), // 当前市级id
 				this.bol1 = false,
 				this.bol_1 = true,
 				this.$request('/api/index/selectCity', {
@@ -228,8 +217,7 @@
 			},
 			bindPickerChange2: function(e) {
 				this.index2 = e.target.value
-				this.area_ = this.area[this.index2].shortname 
-				console.log(this.area[this.index2].id) // 当前区级id
+				// console.log(this.area[this.index2].id) // 当前区级id
 				this.bol2 = false,
 				this.bol_2 = true
 			},
@@ -241,17 +229,12 @@
 			},
 			wenzi(e) {
 				this.index3 = e.target.value
-				this.unit = this.list[this.index3].label // 单位
+				// console.log(this.index3)
 				this.bol3 = false,
 				this.bol_3 = true
 			},
 			next() { // 下一步按钮
-				if (this.unit === '公顷') {
-					this.measure = this.acreage
-				} else {
-					this.company = this.acreage
-				}
-				// console.log(this.auid)
+				// console.log(this.acreage,  this.index3)
 				this.$request('/api/index/addProject', {
 					pname: this.pname,
 					enterprie_name: this.enterprie_name,
@@ -264,10 +247,10 @@
 					ctime: this.ctime,
 					dtime: this.dtime,
 					uid: this.auid, // app用户id
-					measure: this.measure,// 公顷
-					company: this.company // 亩/㎡
+					measure: this.acreage, // 绿化面积数字
+					company: this.index3 // 绿化面积单位 0代表亩  1代表平方米
 				}).then(res => {
-					console.log(res.data)
+					// console.log(res.data)
 					if(res.data.code == 1) {
 						this.project_id = res.data.data.project_id
 						uni.navigateTo({
@@ -283,12 +266,19 @@
 			reset() { // 重置按钮
 				this.pname = ''
 				this.enterprie_name = '', // 企业名称
-				this.province_ = '',// 省
-				this.city_ = '',// 市
-				this.area_ = '',// 区\县
 				this.address = '', // 详细地址
 				this.acreage = '',// 绿化面积（数字）
-				this.unit = '', // 单位
+				this.bol = true, 
+				this.bol_ = false,
+				this.pid = '', // 省
+				this.bol1 = true,
+				this.bol_1 = false,
+				this.pid1 = '', // 市
+				this.bol2 = true,
+				this.bol_2 = false,
+				this.area[this.index2].id = '', // 区
+				this.bol3 = true,
+				this.bol_3 = false, // 单位
 				this.dtime = '', // 竣工时间
 				this.time = '', // 交付时间
 				this.ctime = '', // 进场时间
@@ -318,6 +308,9 @@
 		color: rgba(117, 117, 117, 1);
 		font-size: 30rpx;
 		text-align: left;
+	}
+	.size{ // 所选市、区，如果字数超过4，那么就要修改它的字体大小，省级不存在这个问题
+		font-size: 24rpx;
 	}
 	.goback{
 		width: 92%;
@@ -402,7 +395,7 @@
 			line-height: 84rpx;
 			text-align: left;
 			text-indent: 40rpx;
-			color: #86868A;
+			// color: #86868A;
 			background: #F6F8FF;
 			margin: 18rpx auto;
 			border-radius: 10rpx;
@@ -437,7 +430,7 @@
 				text-indent: 10rpx;
 				padding-right: 20rpx;
 				background: #F6F8FF;
-				color: #86888E;
+				// color: #86888E;
 				border-radius: 10rpx;
 				position: relative;
 				image{
@@ -465,12 +458,12 @@
 				width: 68%;
 			}
 			.dw{
-				width: 120rpx;
+				width: 112rpx;
 				font-size: 32rpx;
 				height: 84rpx;
 				line-height: 84rpx;
 				text-indent: 20rpx;
-				margin-right: 28rpx;
+				margin-right: 38rpx;
 				position: relative;
 				background: #F6F8FF;
 				image{
@@ -491,7 +484,7 @@
 			margin: 20rpx auto;
 			position: relative;
 			text-indent: 40rpx;
-			color: #86868A;
+			// color: #86868A;
 			background: #F6F8FF;
 			font-size: 32rpx;
 			border-radius: 10rpx;

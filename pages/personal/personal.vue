@@ -41,28 +41,35 @@
 				src: '../../static/shu.png',// 默认头像
 				id: '',
 				msg: '',
-				mobile: '***********'
+				mobile: ''
 			}
 		},
-		onShow() {
+		onLoad() {
 			var that = this
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
-					that.id = res.data.data.id
+					that.id = res.data.data.user_id
+					// console.log(that.id)
 					that.$request('/api/index/infoIndex', {
 						uid: that.id
 					}).then(res => {
-						// console.log(res)
+						// console.log(res) 
 						that.msg = res.data.data
 						that.mobile = that.msg.mobile.substring(0, 3) + '****' + that.msg.mobile.substring(that.msg.mobile.length - 4)
-						// console.log(this.msg)
 					})
 				}
 			})
 		},
 		methods: {
+			changeTab(item) {
+				this.page = item.pagePath;
+　　　　　　　　　　// 这里使用reLaunch关闭所有的页面，打开新的栏目页面
+				uni.redirectTo({
+					url: this.page
+				});
+			},
 			goAbout() {
 				uni.navigateTo({
 					url: '../about/about',
@@ -77,7 +84,7 @@
 				uni.showModal({
 					content: '确定退出登录?',
 					success: (res) => {
-						console.log(res)
+						// console.log(res)
 						if (res.confirm == true) { // 为 ture时 即用户点了确定，跳到登录页 sign
 							uni.removeStorage({
 								key: 'userinfo'
@@ -99,6 +106,52 @@
 </script>
 
 <style lang="less" scoped>
+	uni-scroll-view, uni-swiper-item, uni-view {
+		flex-direction: unset;
+	}
+	uni-swiper-item, uni-view {
+		flex-direction: unset;
+	}
+	.uni-tabbar {
+		position: fixed;
+		bottom: 0;
+		z-index: 999;
+		width: 100%;
+		display: flex;
+		justify-content: space-around;
+		height: 98upx;
+		padding: 16upx 0;
+		box-sizing: border-box;
+		border-top: solid 1upx #ccc;
+		background-color: #fff;
+		box-shadow: 0px 0px 17upx 1upx rgba(206, 206, 206, 0.32);
+		.uni-tabbar__item {
+			display: block;
+			line-height: 24upx;
+			font-size: 20upx;
+			text-align: center;
+			image{
+				width: 40rpx;
+				height: 40rpx;
+			}
+		}
+		.uni-tabbar__icon {
+			height: 42upx;
+			line-height: 42upx;
+			text-align: center;
+		}
+		.icon {
+			display: inline-block;
+		}
+		.uni-tabbar__label {
+			line-height: 24upx;
+			font-size: 24upx;
+			color: #000000;
+			&.active {
+				color: #3F5DE3;
+			}
+		}
+	}
 	.hello{
 		height: 100%;
 		.head{

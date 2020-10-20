@@ -44,7 +44,6 @@
 				<li>
 					<p>企业代码</p>
 					<input type="text" placeholder="请输入" v-model="enterprise_code" class="enterprise_code"/>
-					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
 			</ul>
 		</div>
@@ -90,7 +89,7 @@
 				key: 'userinfo',
 				success: function(res) {
 					// console.log(res.data.data.id)
-					that.id = res.data.data.id
+					that.id = res.data.data.user_id
 					that.$request('/api/index/infoIndex', {
 						uid: that.id
 					}).then(res => {

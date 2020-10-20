@@ -4,7 +4,7 @@
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
 			<div>
-				<text>方案详情</text>
+				<text>{{ text }}</text>
 			</div>
 		</div>
 		<div class="main">
@@ -45,12 +45,17 @@
 					'3、乔木：无枯死、无枯枝、无明显病虫害，冠型饱满、内堂通透，无偏冠，无断枝；乔木下缘线高于人行门上缘线',
 					'4、灌木球：修剪及时无超长枝条，新生枝条≤12cm，无偏灌，无病虫枝叶，修剪后呈半圆形，绿篱交界分明，无枯死生长茂盛',
 					'5、绿篱：下方不露土，无水土流失，修剪整齐有序，同一品种高度一致，不同品种绿篱至少保留20cm以上的高差',
-				]
+				],
+				text: '方案详情'
 			}
 		},
 		onLoad(option) {
-			this.list = option.list
-			console.log(this.list)
+			console.log(option)
+			if(option.text) {
+				this.text = option.text
+			} else {
+				this.list = option.list
+			}
 		},
 		methods: {
 			goBack() {
@@ -64,13 +69,11 @@
 
 <style lang="less" scoped>
 	.hello{
-		width: 100%;
-		height: 100%;
 		background: url(../../static/brg.jpg) no-repeat;
 		background-size: 100%;
 		position: absolute;
 		top: 0;
-		bottom: 0;
+		// bottom: 0;
 		left: 0;
 		right: 0;
 		.kong{

@@ -40,16 +40,17 @@
 			}
 		},
 		created() {
+			var that = this
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
-					this.id = res.data.data.id
-					this.$request('/api/index/Project_list', {
-						uid: this.id
+					that.id = res.data.data.user_id
+					that.$request('/api/index/Project_list', {
+						uid: that.id
 					}).then(res => {
-						//console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
-						if (res.data.data == []) { // 如果是空的 就 弹框提示 返回首页
+						console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
+						if (res.data.data == '') { // 如果是空的 就 弹框提示 返回首页
 							uni.showModal({
 								content: '请创建项目',
 								success: (res) => {
@@ -59,30 +60,8 @@
 								}
 							})
 						} else { // 如果不为空，那么就渲染数据，展示项目信息列表
-							this.project_list = res.data.data
-							// console.log(this.project_list)
-							// this.$request('/api/index/selectCity', {
-							// 	pid: 0 // 0请求省
-							// }).then(res => {
-							// 	// console.log(res)
-							// 	for(var i = 0; i <= res.data.data.length; i++) {
-							// 		for(var j = i; j <= this.project_list.length; j++) {
-							// 			if(res.data.data[i].id == this.project_list[j].province) {
-							// 				this.project_list[j].province = res.data.data[i].shortname // 省
-							// 				this.$request('/api/index/selectCity', {
-							// 					pid: res.data.data[i].id
-							// 				}).then(res => {
-							// 					console.log(res)
-							// 					for(var c = 0; c <= res.data.data.length; c++) {
-							// 						for(var d = c; d <= this.project_list.length; d++) {
-														
-							// 						}
-							// 					}
-							// 				})
-							// 			}
-							// 		}
-							// 	}
-							// })
+							that.project_list = res.data.data
+							// console.log(that.project_list)
 						}
 					})
 				}

@@ -1,40 +1,35 @@
-<template> <!-- 上传单个苗木信息 -->
-	<view class="hello">
+<template> <!-- 添加点位信息 -->
+	<view class="hello">.
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
 			<div>
-				<text>上传项目苗木清单</text>
+				<text>添加点位信息</text>
 			</div>
 		</div>
 		<div class='main'>
 			<div>
 				<p>项目名称</p>
-				<input type="text" value="" v-model="pname"/>
+				<input type="text" value="" v-model="pname" disabled/>
 			</div>
 			<div>
-				<p>苗木名称</p>
+				<p>点位名称</p>
 				<input type="text" value="" v-model="name"/>
 			</div>
 			<div>
-				<p>苗木数量</p>
-				<input type="text" value="" v-model="num"/>
+				<p>点位级别</p>
 				<picker @change="sex" class='dw' :value="index" :range="list" :range-key="'label'">
-					<label class='' v-if='bol1' style="font-size: 34rpx;">单位<text style="font-size: 18rpx;">(请选择)</text></label>
+					<image src="../../static/xiala.svg" mode=""></image>
 					<label class="" v-if="bol_1">{{list[index].label}}</label>
 				</picker>
 			</div>
 			<div>
-				<p>位置描述</p>
-				<input type="text" value="" v-model="site"/>
-			</div>
-			<div>
-				<p>添加图片</p>
+				<p>点位图片</p>
 				<div class='image'>
 					<image :src="src" mode="" @click='upload'></image>
 					<text v-if="bol" @click='upload'>+</text>
 				</div>
 			</div>
-			<button class="btn" @click="sub">上传</button>
+			<button class="btn" @click="sub">提交</button>
 		</div>
 	</view>
 </template>
@@ -49,26 +44,27 @@
 			return {
 				bol: true,
 				index: 0,
-				bol1: true,
 				bol_1: false,
 				list: [
 				  {
-				    label: '颗',
+				    label: '一级点位',
 				    value: '1'
 				  },
 				  {
-				    label: '株',
-				    value: '1'
+				    label: '二级点位',
+				    value: '2'
+				  },
+				  {
+				    label: '三级点位',
+				    value: '3'
 				  }
 				],
 				
 				project_id: '',
-				pname: '',
-				name: '',
-				num: '',
-				unit: '',
-				site: '',
-				src: '',
+				pname: '', // 项目名称
+				name: '', // 点位名称
+				levellevel: '', // 点位级别
+				src: '', // 点位图片
 				
 			}
 		},
@@ -90,8 +86,7 @@
 			},
 			sex(e) {
 				this.index = e.target.value
-				this.unit = this.list[this.index].label // 单位
-				this.bol1 = false,
+				this.level = this.list[this.index].value // 点位级别  1代表一级，2代表二级，3代表三级
 				this.bol_1 = true
 			},
 			upload() {
@@ -115,21 +110,42 @@
 				});
 			},
 			sub() {
-				// console.log(this.name, this.project_id, this.num, this.unit, this.src, this.site)
-				this.$request('/api/index/addTree', {
-					name: this.name, // 苗木名称
-					project_id: this.project_id, // 项目id
-					num: this.num, // 数量
-					unit: this.unit, // 单位
-					files: this.src, // 图片路径
-					site: this.site, // 位置
-				}).then(res => {
-					console.log(res)
-					uni.showModal({
-						content: res.data.msg
+				// console.log(this.name, this.project_id, this.level, this.src)
+				if(this.name == '' || this.project_id == '' || this.level == '' || this.src == '') {
+					this.$showModal({
+						title: '提示',
+						concent: '请将信息填写完整',
+						cancelVal: '返回',
+						confirmVal: '确定',
+						cancelColor: '#A09D9D'
 					})
-					this.goBack()
-				})
+				} else {
+					this.$request('/api/index/addFile', {
+						project_id: this.project_id, // 项目id
+						name: this.name, // 点位名称
+						level: this.level, // 点位级别
+						url: this.src, // 点位图片
+					}).then(res => {
+						console.log(res)
+						this.$showModal({
+							title: '提示',
+							concent: res.data.msg,
+							cancelVal: '返回',
+							confirmVal: '继续添加',
+							cancelColor: '#A09D9D'
+						}).then(res=>{
+							// 继续添加, 如果继续添加后没有重新上传图片，则还是上次的图
+							this.name = ''
+							this.level = ''
+							this.bol_1 = false
+							console.log(this.level)
+							this.bol = true
+						}).catch(cancel=>{
+							// 返回
+							this.goBack()
+						})
+					})
+				}
 			}
 		}
 	}
@@ -174,8 +190,8 @@
 				position: absolute;
 				left: 40rpx;
 				top: 42%;
-				font-weight: 600;
-				font-size: 38rpx;
+				font-weight: 800;
+				font-size: 40rpx;
 				display: flex;
 				align-items: center;
 			}
@@ -203,25 +219,34 @@
 				height: 72rpx;
 				border: 1px solid #D5D5D5;				
 				text-indent: 20rpx;
+				margin-right: 20rpx;
+				margin-right: 20rpx;
 			}
 			&:nth-of-type(3) {
-				input{
-					width: 44%;
-					margin-right: -30rpx;
+				position: relative;
+				image{
+					width: 30rpx;
+					height: 30rpx;
+					position: absolute;
+					right: 40rpx;
+					top: 50%;
+					margin-top: -15rpx;
 				}
 				.dw{
-					width: 22.5%;
+					width: 70%;
 					text-align: center;
 					border: 1px solid #D5D5D5;
+					margin-right: 20rpx;
 				}
 			}
-			&:nth-of-type(5) {
+			&:nth-last-of-type(1) {
 				height: 230rpx;
 				p{
 					width: 41%;
 				}
 				.image{
 					width: 100%;
+					margin-right: 60rpx;
 					position: relative;					
 					image{
 						width: 44%;
@@ -233,8 +258,8 @@
 						font-size: 100rpx;
 						position: absolute;
 						left: 17%;
-						top: 76%;
-						color: #BFBFBF;
+						top: 26%;
+						color: #565656;
 					}
 				}
 			}
@@ -243,16 +268,16 @@
 			}
 		}
 		.btn{
-			width: 70%;
-			height: 80rpx;
-			line-height: 80rpx;
+			width: 600rpx;
+			height: 100rpx;
+			line-height: 100rpx;
 			background: #5C7CF4;
 			color: white;
-			border-radius: 40rpx;
-			position: absolute;
-			bottom: 60rpx;
+			border-radius: 60rpx;
+			position: fixed;
+			bottom: 300rpx;
 			left: 50%;
-			margin-left: -250rpx;
+			margin-left: -300rpx;
 		}
 	}
 </style>

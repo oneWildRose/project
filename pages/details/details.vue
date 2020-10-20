@@ -1,5 +1,6 @@
 <template> <!-- 项目信息 -->
 	<view class="hello">
+		<div class="status"></div>
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
 			<p>{{ msg.pname }}</p>
@@ -57,78 +58,49 @@
 					<text>修改信息</text>
 				</div>
 			</ul>
-			<div class='tree' v-show='num == 1'> <!-- 苗木信息 -->
+			<div class='tree' v-show='num == 1'> <!-- 点位信息 -->
 				<div class='search'>
-					<input type="search" value="" placeholder="搜索苗木" />
+					<input type="search" value="" placeholder="搜索点位" />
 					<image :src="require('../../static/search.svg')" mode=""></image>
 				</div>
 				<div class='kind'>
 					<ul>
 						<li @click='goTreeMsg'>
-							<div>
-								<image :src="require('../../static/shu3.svg')" mode=""></image>
-							</div>
+							<image :src="require('../../static/zhaopian.png')" mode=""></image>
 							<div>
 								<div>
-									<p>苗木名称：法桐</p>
-									<p>位置：一号楼与二号楼之间</p>
+									<text>点位名称：北门正门口01</text>
+									<text>点位级别：一级点位</text>
 								</div>
-								<image :src="require('../../static/jinru.svg')"></image>
 							</div>
+							<image :src="require('../../static/jinru.svg')"></image>
 						</li>
-						<li>
-							<div>
-								<image :src="require('../../static/shu3.svg')" mode=""></image>
-							</div>
+						<li @click='goTreeMsg'>
+							<image :src="require('../../static/zhaopian.png')" mode=""></image>
 							<div>
 								<div>
-									<p>苗木名称：合欢树</p>
-									<p>位置：环路与二号楼之间</p>
+									<text>点位名称：北门正门口01</text>
+									<text>点位级别：一级点位</text>
 								</div>
-								<image :src="require('../../static/jinru.svg')"></image>
 							</div>
+							<image :src="require('../../static/jinru.svg')"></image>
 						</li>
-						<li>
-							<div>
-								<image :src="require('../../static/shu3.svg')" mode=""></image>
-							</div>
+						<li @click='goTreeMsg'>
+							<image :src="require('../../static/zhaopian.png')" mode=""></image>
 							<div>
 								<div>
-									<p>苗木名称：法桐</p>
-									<p>位置：一号楼与二号楼之间</p>
+									<text>点位名称：北门正门口01</text>
+									<text>点位级别：一级点位</text>
 								</div>
-								<image :src="require('../../static/jinru.svg')"></image>
 							</div>
+							<image :src="require('../../static/jinru.svg')"></image>
 						</li>
-						<li>
-							<div>
-								<image :src="require('../../static/shu3.svg')" mode=""></image><image :src="require('../../static/shu3.svg')" mode=""></image>
-							</div>
-							<div>
-								<div>
-									<p>苗木名称：合欢树</p>
-									<p>位置：环路与二号楼之间</p>
-								</div>
-								<image :src="require('../../static/jinru.svg')"></image>
-							</div>
-						</li>
-						<li>
-							<div>
-								<image :src="require('../../static/shu3.svg')" mode=""></image>
-							</div>
-							<div>
-								<div>
-									<p>苗木名称：法桐</p>
-									<p>位置：一号楼与二号楼之间</p>
-								</div>
-								<image :src="require('../../static/jinru.svg')"></image>
-							</div>
-						</li>
+						<li style='width: 100%;height: 100rpx;box-shadow: none;'></li> <!-- 占位，防止下面的添加按钮覆盖li -->
 					</ul>
 				</div>
 				
 				<!-- 上传苗木按钮 -->
-				<button type="default" class='upload' @click="goUpload">上传苗木</button>
+				<button type="default" class='upload' @click="goUpload">添加点位</button>
 			</div>
 			
 		</div>
@@ -139,7 +111,7 @@
 	export default {
 		data() {
 			return {
-				tabs: ['基本信息', '苗木信息'],
+				tabs: ['基本信息', '点位信息'],
 				num: 0,
 				msg: '',
 				project_id: '',
@@ -151,16 +123,16 @@
 			// console.log(JSON.parse(option.project)) // 项目信息
 			this.project_id = JSON.parse(option.project).id // 拿到项目id
 		},
-		onShow() {
+		onReady() {
 			this.$request('/api/index/Project_info', {
 				project_id: this.project_id
 			}).then(res => {
 				this.msg = res.data.data
-				console.log(this.msg)
-				if (this.msg.company == "") { // 如果company(亩/㎡)为空，那么就渲染measure(公顷)
-					this.acreage = this.msg.measure + '公顷'
+				// console.log(this.msg)
+				if (this.msg.company == 0) { // 单位 0代表亩  1代表平方米
+					this.acreage = this.msg.measure + this.msg.unit
 				} else {
-					this.acreage = this.msg.company + '亩/㎡'
+					this.acreage = this.msg.measure + this.msg.unit
 				}
 				this.$request('/api/index/selectCity', {
 					pid: 0 //省
@@ -193,6 +165,9 @@
 					}
 				})
 			})
+		},
+		onShow() {
+			
 		},
 		methods: {
 			goBack() {
@@ -417,50 +392,34 @@
 						border: none;
 						li{
 							width: 100%;
-							height: 132rpx;
-							text-align: left;
+							height: 144rpx;
 							display: flex;
-							flex-wrap: wrap;						
+							justify-content: space-around;
+							align-items: center;
+							// flex-wrap: wrap;						
 							margin-top: 20rpx;
 							border-radius: 20rpx;
 							box-shadow: #adadad 2px 1px 4px 0px;
-							&>div:nth-of-type(1){
-								width: 120rpx;
-								height: 100%;
-								position: relative;
-								image{
-									width: 70rpx;
-									height: 70rpx;
-									position: absolute;
-									left: 50%;
-									margin-left: -35rpx;
-									top: 50%;
-									margin-top: -35rpx;
-								}
+							image:nth-of-type(1){
+								width: 112rpx;
+								height: 112rpx;
 							}
-							&>div:nth-of-type(2){
-								height: 100%;
-								flex-grow:1;
-								position: relative;
+							&>div{
+								height: 112rpx;
+								margin-left: -40rpx;
 								div{
-									position: absolute;
-									top: 50%;
-									margin-top: -35rpx;
-								}
-								p:nth-of-type(1){
-									font-size: 32rpx;
-									font-weight: 500;
-									margin-bottom: 6rpx;
-								}
-								p:nth-of-type(2){
-									font-size: 26rpx;
-									color: #656D6B;
-								}
-								image{
-									position: absolute;
-									right: 20rpx;
-									top: 50%;
-									margin-top: -20rpx;
+									display: flex;
+									flex-direction: column;
+									text-align: left;
+									text:nth-of-type(1){
+										font-size: 32rpx;
+										font-weight: 500;
+										margin-bottom: 16rpx;
+									}
+									text:nth-of-type(2){
+										font-size: 26rpx;
+										color: #656D6B;
+									}									
 								}
 							}
 						}
@@ -469,14 +428,15 @@
 			}
 			
 			.upload{
-				width: 70%;
-				position: absolute;
-				bottom: 40rpx;
-				left: 50%;
-				margin-left: -250rpx;
+				width: 100%;
+				height: 100rpx;
+				line-height: 100rpx;
+				position: fixed;
+				bottom: 0;
+				left: 0;
 				background-color: #3F5DE3;
 				color: white;
-				border-radius: 40rpx;
+				border-radius: 0;
 			}
 		
 		}

@@ -32,7 +32,9 @@
                 <input type="text" placeholder="输入手机号码" id="accounts" v-model='mobile'>
                 <p>输入密码</p>
                 <input type="password" placeholder="输入6-16位密码" id="password" v-model='password'>
-                <p type="default" class="forget" @click='forget'>忘记密码？</p>
+                <p type="default" class="forget">
+					<text @click='forget'>忘记密码？</text>
+				</p>
 				<button class="sign_btn" @click="login">登录</button>
               <div class="other">
                 <p>金 山 银 山 不 如 绿 水 青 山</p>
@@ -79,7 +81,7 @@
 				<input type="password" placeholder="输入6-16位密码" v-model="password2"/>
 			  <button @click="goSign" class="register_btn">确认修改</button>
 			</li>
-			<li class='choose'  v-show='num == 3'>
+			<li class='choose'  v-show='num == 3'>		<!-- 选择角色 -->
 				<button v-for="(item, index) in js" :key='index' :class='{ brg: ind == index }' @click="table_(index)">{{ item }}</button>
 				<button type="default" class="ture" @click="goInd">确定</button>
 			</li>
@@ -96,192 +98,299 @@
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  data(){
-    return {
-      tabs: ['登录', '注册'],
-	  js: ['物业公司', '供应商', '专家'],
-	  ind: 0,
-      num: 0, // 控制 '登录' '注册' '修改密码' 三个功能的显示隐藏
-	  id: '', // 用户成功登录后的id标识
-	  username : '', // 用户名称（暂无用）
-	  mobile : '', // 手机号
-	  password : '', // 密码
-	  password2 : '', // 密码二次确认
-	  code_ : '', // input双向绑定的验证码，PS：成功发送验证码后返回的id会因为双向绑定自动出现在用户的输入框中
-	  code: this.code_, // 验证码本🐎
-	  code_id : '' ,// 成功发送验证码后的id
-	  res:'',
-	  user_id: '', // 用户成功注册后的id
-	  
-	  timer: null,
-	  second: 60,
-	  isCode: true,
-    }
-  },
-  onLoad() {
-  	var self = this
-	//从缓存中取出登陆信息
-  	uni.getStorage({
-  		key: 'userinfo',
-  		success: function (res) {
-  			self.res = res.data
-  			if(res != '') {
-  				uni.switchTab({
-  					url: '../ind/ind'
-  				})
-  			} else {
-  				
-  			}
-  		}
-  	})
-  },
-  methods: {
-    table(index) {
-      this.num = index;
-    },
-	table_(index) {
-	  this.ind = index;
-	},
-	getCode(e) { // 获取验证码
-		if(!(/^1[3456789]\d{9}$/.test(this.mobile))){ // 正则判断手机号是否正确
-		    uni.showModal({
-		    	content: '请输入正确的手机号'
-		    })
-		}else{
-			// 倒计时
-			this.isCode = false
-			// 发送请求
-			this.$request('/api/index/send_sms', {
-				mobile: this.mobile
-			}).then(res => {
-				console.log(res)
-				if(res.data.code == 1) {
-					this.code = res.data.data.code,
-					this.code_id = res.data.data.code_id
-					this.timers()
+	export default {
+	  name: 'HelloWorld',
+	  data(){
+		return {
+		  tabs: ['登录', '注册'],
+		  js: ['物业公司', '供应商', '专家'],
+		  ind: 0,
+		  num: 0, // 控制 '登录' '注册' '修改密码' 三个功能的显示隐藏
+		  id: '', // 用户成功登录后的id标识
+		  username : '', // 用户名称（暂无用）
+		  mobile : '', // 手机号
+		  password : '', // 密码
+		  password2 : '', // 密码二次确认
+		  code_ : '', // input双向绑定的验证码，PS：成功发送验证码后返回的id会因为双向绑定自动出现在用户的输入框中
+		  code: this.code_, // 验证码本🐎
+		  code_id : '' ,// 成功发送验证码后的id
+		  res:'',
+		  user_id: '', // 用户成功注册后的id4
+		  timer: null,
+		  second: 60,
+		  isCode: true,
+		}
+	  },
+	  onShow() {
+		var that = this
+		//从缓存中取出登陆信息
+		uni.getStorage({
+			key: 'userinfo',
+			success: function (res) {
+				that.res = res.data
+				// console.log(that.res)
+				if (that.res.data.ztype == 3) { // 判断帐号角色，修改TabBar并switchTab跳转
+					uni.setTabBarItem({
+						index: 0,
+						text: '方案',
+						iconPath: '../../static/fangan.png',
+						selectedIconPath: '../../static/fangan(2).png',
+						pagePath: '/pages/ind_specialist/ind_specialist'
+					})
+					uni.switchTab({
+						url: '../ind_specialist/ind_specialist'
+					})
+				} else if (that.res.data.ztype == 2) {
+					uni.setTabBarItem({
+						index: 0,
+						text: '首页',
+						iconPath: '../../static/shouye(2).png',
+						selectedIconPath: '../../static/shouye.png',
+						pagePath: '/pages/ind_provider/ind_provider'
+					})
+					uni.switchTab({
+						url: '../ind_provider/ind_provider'
+					})
 				} else {
-					
+					uni.setTabBarItem({
+						index: 0,
+						text: '首页',
+						iconPath: '../../static/shouye(2).png',
+						selectedIconPath: '../../static/shouye.png',
+						pagePath: '/pages/ind/ind'
+					})
+					uni.switchTab({
+						url: '../ind/ind'
+					})
 				}
-			})
-		}
-	},
-	timers() {
-		if (!this.timer) {
-			this.timer = setInterval(() => {
-				this.second--
-				if (this.second == 0) {
-					clearInterval(this.timer)
-					this.timer = null
-					this.isCode = true
-					this.second = 60
-				}
-			}, 1000)
-		}
-	},
-	register_success() { // 注册
-		// 判断密码是否符合规范 6-16位 ^([0-9]|[a-zA-Z]){6,16}$
-		if(!(/^([0-9]|[a-zA-Z]){6,16}$/.test(this.password))) {
-			uni.showModal({
-				content: '请输入6-16位密码'
-			})
-		} else {
-			// console.log(this.code_id)
-			this.$request('/api/index/appuser', {
-				mobile: this.mobile,
-				password: this.password,
-				password2: this.password2,
-				code: this.code,
-				code_id: this.code_id
-			}).then(res => {
-				if(res.data.code == 1) {
+			}
+		})
+	  },
+	  methods: {
+		table(index) {
+		  this.num = index;
+		},
+		table_(index) {
+		  this.ind = index;
+		},
+		getCode(e) { // 获取验证码
+			if(!(/^1[3456789]\d{9}$/.test(this.mobile))){ // 正则判断手机号是否正确
+				uni.showModal({
+					content: '请输入正确的手机号'
+				})
+			}else{
+				// 倒计时
+				this.isCode = false
+				// 发送请求
+				this.$request('/api/index/send_sms', {
+					mobile: this.mobile
+				}).then(res => {
 					console.log(res)
-					this.user_id = res.data.data.user_id
-					// 储存用户信息
+					if(res.data.code == 1) {
+						this.code = res.data.data.code,
+						this.code_id = res.data.data.code_id
+						this.timers()
+					} else {
+						
+					}
+				})
+			}
+		},
+		timers() { // 倒计时函数
+			if (!this.timer) {
+				this.timer = setInterval(() => {
+					this.second--
+					if (this.second == 0) {
+						clearInterval(this.timer)
+						this.timer = null
+						this.isCode = true
+						this.second = 60
+					}
+				}, 1000)
+			}
+		},
+		register_success() { // 注册
+			// 判断密码是否符合规范 6-16位 ^([0-9]|[a-zA-Z]){6,16}$
+			if(!(/^([0-9]|[a-zA-Z]){6,16}$/.test(this.password))) {
+				uni.showModal({
+					content: '请输入6-16位密码'
+				})
+			} else {
+				// console.log(this.code_id)
+				this.$request('/api/index/appuser', {
+					mobile: this.mobile,
+					password: this.password,
+					password2: this.password2,
+					code: this.code,
+					code_id: this.code_id
+				}).then(res => {
+					if(res.data.code == 1) {
+						console.log(res)
+						this.user_id = res.data.data.user_id
+						console.log(this.user_id)
+						// 储存用户信息
+						uni.setStorage({
+							key: 'userinfo',
+							data: {
+								data: res.data.data, // 角色
+								// id: this.user_id // 用户id
+								id: 64 // 用户id
+							},
+							success: function (r) {
+								console.log(r)
+							}
+						})
+						this.num = 3
+					} else {
+						uni.showModal({
+							content: res.data.msg
+						})
+					}
+				})
+			}
+		},
+		login() { // 登录
+			this.$request('/api/index/login', {
+				mobile: this.mobile,
+				password: this.password
+			}).then(res => {
+				// console.log(res)
+				if(res.data.code == 1) {
+					console.log(res.data)
+					// 用户id
+					this.id = res.data.id
+					// 将用户信息存入缓存
 					uni.setStorage({
 						key: 'userinfo',
-						data: {
-							data: res.data, // 角色
-							id: this.user_id // 用户id
-						},
+						data: res.data,
 						success: function () {
-							
+							// console.log(res.data)
 						}
 					})
-					this.num = 3
+					//  判断帐号角色，修改TabBar并switchTab跳转
+					if (res.data.data.ztype == 3) { // 3专家
+						uni.setTabBarItem({
+							index: 0,
+							text: '方案',
+							iconPath: '../../static/fangan.png',
+							selectedIconPath: '../../static/fangan(2).png',
+							pagePath: '/pages/ind_specialist/ind_specialist'
+						})
+						uni.switchTab({
+							url: '../ind_specialist/ind_specialist'
+						})
+					} else if (res.data.data.ztype == 1) { // 2乙方
+uni.navigateTo({
+							url: '../fillInformation/fillInformation'
+						})
+						// uni.setTabBarItem({
+						// 	index: 0,
+						// 	text: '首页',
+						// 	iconPath: '../../static/shouye(2).png',
+						// 	selectedIconPath: '../../static/shouye.png',
+						// 	pagePath: '/pages/ind_provider/ind_provider',
+						// 	success(res){
+						// 		console.log(res)
+						// 	},
+						// 	fail(err) {
+						// 		console.log(err)
+						// 	}
+						// })
+						// uni.switchTab({
+						// 	url: '../ind_provider/ind_provider'
+						// })
+					} else {  // 1甲方
+						uni.setTabBarItem({
+							index: 0,
+							text: '首页',
+							iconPath: '../../static/shouye(2).png',
+							selectedIconPath: '../../static/shouye.png',
+							pagePath: '/pages/ind/ind'
+						})
+						uni.switchTab({
+							url: '../ind/ind'
+						})
+					}
 				} else {
 					uni.showModal({
 						content: res.data.msg
 					})
 				}
 			})
-		}
-	},
-	login() { // 登录
-		this.$request('/api/index/login', {
-			mobile: this.mobile,
-			password: this.password
-		}).then(res => {
-			console.log(res)
-			if(res.data.code == 1) {
-				// 用户id
-				this.id = res.data.id
-				// 将用户信息存入缓存
-				uni.setStorage({
-					key: 'userinfo',
-					data: res.data,
-					success: function () {
-						// console.log(res.data)
-					}
-				})
-				// 跳转至首页
-				uni.switchTab({
-					url: '../ind/ind'
-				})
-			} else {
-				uni.showModal({
-					content: res.data.msg
-				})
-			}
-		})
-	},
-	goInd() { // 选择角色后进入首页，并存储用户信息
-		//this.js[this.ind] //当前选择的角色 ，this.ind是索引
-		this.$request('/api/index/ztypeEdit', {
-			uid: this.user_id,
-			ztype: this.ind + 1 // 1代表物业公司，2代表供应商，3代表专家
-		}).then(res => {
-			console.log(res)
-			// 跳转至首页
-			uni.switchTab({
-				url: '../ind/ind'
+		},
+		goInd() { // 选择角色后进入首页
+			//this.js[this.ind] //当前选择的角色 ，this.ind是索引
+			this.$request('/api/index/ztypeEdit', {
+				uid: this.user_id,
+				ztype: this.ind + 1 // 1代表物业公司，2代表供应商，3代表专家
+			}).then(res => {
+				console.log(res)
+				if (res.data.code == 1) {
+					// 判断帐号角色，修改TabBar并switchTab跳转
+					if (this.ind + 1 == 3) { // 3专家
+						uni.setTabBarItem({
+							index: 0,
+							text: '方案',
+							iconPath: '../../static/fangan.png',
+							selectedIconPath: '../../static/fangan(2).png',
+							pagePath: '/pages/ind_specialist/ind_specialist'
+						})
+						uni.switchTab({
+							url: '../ind_specialist/ind_specialist'
+						})
+					} else if (this.ind + 1 == 2) { // 乙方
+						// 用户注册，选择乙方角色后需要先完善企业信息，所以不能直接跳到首页
+						uni.navigateTo({
+							url: '../fillInformation/fillInformation'
+						})
+						// uni.setTabBarItem({
+						// 	index: 0,
+						// 	text: '首页',
+						// 	iconPath: '../../static/shouye(2).png',
+						// 	selectedIconPath: '../../static/shouye.png',
+						// 	pagePath: '/pages/ind_provider/ind_provider'
+						// })
+						// uni.switchTab({
+						// 	url: '../ind_provider/ind_provider'
+						// })
+					} else { // 甲方
+						uni.setTabBarItem({
+							index: 0,
+							text: '首页',
+							iconPath: '../../static/shouye(2).png',
+							selectedIconPath: '../../static/shouye.png',
+							pagePath: '/pages/ind/ind'
+						})
+						uni.switchTab({
+							url: '../ind/ind'
+						})
+					}					
+				}
 			})
-		})
-	},
-	forget() { // 忘记密码
-		this.num = 2
-	},
-	goSign() { // 修改密码
-		this.$request('/api/index/editPassword', {
-			mobile: this.mobile,
-			code: this.code,
-			password: this.password,
-			password2: this.password2,
-			code_id: this.code_id
-		}).then(res => {
-			console.log(res)
-			if(res.data.code == 1) {
-	 			this.num = 0
-	 		} else {
-	 			uni.showModal({
-	 				content: res.data.msg
-	 			})
-	 		}
-		})
-	},
-  }
-}
+		},
+		forget() { // 忘记密码
+			this.num = 2
+		},
+		goSign() { // 修改密码
+			this.$request('/api/index/editPassword', {
+				mobile: this.mobile,
+				code: this.code,
+				password: this.password,
+				password2: this.password2,
+				code_id: this.code_id
+			}).then(res => {
+				console.log(res)
+				if(res.data.code == 1) {
+					this.num = 0
+				} else {
+					uni.showModal({
+						content: res.data.msg
+					})
+				}
+			})
+		},
+	  }
+	}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
