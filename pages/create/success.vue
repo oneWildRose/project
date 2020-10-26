@@ -44,8 +44,18 @@
 		},
 		data() {
 			return {
-				
+				ztype: '', // 用户角色
+				auid: '' // 用户id
 			}
+		},
+		onLoad(option) {
+			this.auid = option.auid
+			this.$request('/api/index/infoIndex', {
+				uid: this.auid
+			}).then(res => {
+				// console.log(res)
+				this.ztype = res.data.data.ztype
+			})
 		},
 		methods: {
 			goBack() {
@@ -54,9 +64,41 @@
 				})
 			},
 			goTab() {
-				uni.switchTab({
-					url: '../ind/ind'
-				})
+				if(this.ztype == 2) { // 2乙方
+					uni.setTabBarItem({
+						index: 0,
+						text: '首页',
+						iconPath: '../../static/shouye(2).png',
+						selectedIconPath: '../../static/shouye.png',
+						pagePath: '/pages/admin/admin',
+						fail(err) {
+							console.log(err)
+						}
+					})
+					uni.switchTab({
+						url: '../admin/admin',
+						fail(err) {
+							console.log(err)
+						}
+					})
+				} else if(this.ztype == 1) { // 1甲方
+					uni.setTabBarItem({
+						index: 0,
+						text: '首页',
+						iconPath: '../../static/shouye(2).png',
+						selectedIconPath: '../../static/shouye.png',
+						pagePath: '/pages/ind/ind',
+						fail(err) {
+							console.log(err)
+						}
+					})
+					uni.switchTab({
+						url: '../ind/ind',
+						fail(err) {
+							console.log(err)
+						}
+					})
+				}
 			}
 		}
 	}

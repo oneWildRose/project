@@ -112,16 +112,16 @@
 		  password : '', // 密码
 		  password2 : '', // 密码二次确认
 		  code_ : '', // input双向绑定的验证码，PS：成功发送验证码后返回的id会因为双向绑定自动出现在用户的输入框中
-		  code: this.code_, // 验证码本🐎
+		  code: this.code_, // 验证码本🐎， 注册、修改密码操作要传的参数
 		  code_id : '' ,// 成功发送验证码后的id
-		  res:'',
-		  user_id: '', // 用户成功注册后的id4
+		  res:'', // onLoad函数中有使用
+		  user_id: '', // 用户成功注册后的id
 		  timer: null,
 		  second: 60,
 		  isCode: true,
 		}
 	  },
-	  onShow() {
+	  onLoad() {
 		var that = this
 		//从缓存中取出登陆信息
 		uni.getStorage({
@@ -129,7 +129,8 @@
 			success: function (res) {
 				that.res = res.data
 				// console.log(that.res)
-				if (that.res.data.ztype == 3) { // 判断帐号角色，修改TabBar并switchTab跳转
+				// 判断帐号角色，修改TabBar并switchTab跳转
+				if (that.res.data.ztype == 3) { // 3专家
 					uni.setTabBarItem({
 						index: 0,
 						text: '方案',
@@ -140,18 +141,29 @@
 					uni.switchTab({
 						url: '../ind_specialist/ind_specialist'
 					})
-				} else if (that.res.data.ztype == 2) {
-					uni.setTabBarItem({
-						index: 0,
-						text: '首页',
-						iconPath: '../../static/shouye(2).png',
-						selectedIconPath: '../../static/shouye.png',
-						pagePath: '/pages/ind_provider/ind_provider'
+				} else if (that.res.data.ztype == 2) { // 2乙方
+					that.$request('/api/index/check_party_companyname', {
+						uid: that.res.data.user_id
+					}).then(res => {
+						// console.log(res)
+						if(res.data.data.perfect == 0) { // 未完善企业信息，前往完善信息页
+							uni.navigateTo({
+								url: '../fillInformation/fillInformation'
+							})
+						} else { // 已完善企业信息，直接前往首页
+							uni.setTabBarItem({
+								index: 0,
+								text: '首页',
+								iconPath: '../../static/shouye(2).png',
+								selectedIconPath: '../../static/shouye.png',
+								pagePath: '/pages/admin/admin',
+							})
+							uni.switchTab({
+								url: '../admin/admin'
+							})
+						}
 					})
-					uni.switchTab({
-						url: '../ind_provider/ind_provider'
-					})
-				} else {
+				} else  if (that.res.data.ztype == 1) { // 1甲方
 					uni.setTabBarItem({
 						index: 0,
 						text: '首页',
@@ -258,59 +270,61 @@
 				if(res.data.code == 1) {
 					console.log(res.data)
 					// 用户id
-					this.id = res.data.id
+					this.id = res.data.data.user_id
 					// 将用户信息存入缓存
+					var that = this
 					uni.setStorage({
 						key: 'userinfo',
 						data: res.data,
 						success: function () {
-							// console.log(res.data)
+							//  判断帐号角色，修改TabBar并switchTab跳转
+							if (res.data.data.ztype == 3) { // 3专家
+								uni.setTabBarItem({
+									index: 0,
+									text: '方案',
+									iconPath: '../../static/fangan.png',
+									selectedIconPath: '../../static/fangan(2).png',
+									pagePath: '/pages/ind_specialist/ind_specialist'
+								})
+								uni.switchTab({
+									url: '../ind_specialist/ind_specialist'
+								})
+							} else if (res.data.data.ztype == 2) { // 2乙方
+								that.$request('/api/index/check_party_companyname', {
+									uid: that.id
+								}).then(res => {
+									console.log(res)
+									if(res.data.data.perfect == 0) { // 未完善企业信息，前往完善信息页
+										uni.navigateTo({
+											url: '../fillInformation/fillInformation'
+										})
+									} else { // 已完善企业信息，直接前往首页
+										uni.setTabBarItem({
+											index: 0,
+											text: '首页',
+											iconPath: '../../static/shouye(2).png',
+											selectedIconPath: '../../static/shouye.png',
+											pagePath: '/pages/admin/admin'
+										})
+										uni.switchTab({
+											url: '../admin/admin'
+										})
+									}
+								})
+							} else if (res.data.data.ztype == 1) {  // 1甲方
+								uni.setTabBarItem({
+									index: 0,
+									text: '首页',
+									iconPath: '../../static/shouye(2).png',
+									selectedIconPath: '../../static/shouye.png',
+									pagePath: '/pages/ind/ind'
+								})
+								uni.switchTab({
+									url: '../ind/ind'
+								})
+							}
 						}
 					})
-					//  判断帐号角色，修改TabBar并switchTab跳转
-					if (res.data.data.ztype == 3) { // 3专家
-						uni.setTabBarItem({
-							index: 0,
-							text: '方案',
-							iconPath: '../../static/fangan.png',
-							selectedIconPath: '../../static/fangan(2).png',
-							pagePath: '/pages/ind_specialist/ind_specialist'
-						})
-						uni.switchTab({
-							url: '../ind_specialist/ind_specialist'
-						})
-					} else if (res.data.data.ztype == 1) { // 2乙方
-uni.navigateTo({
-							url: '../fillInformation/fillInformation'
-						})
-						// uni.setTabBarItem({
-						// 	index: 0,
-						// 	text: '首页',
-						// 	iconPath: '../../static/shouye(2).png',
-						// 	selectedIconPath: '../../static/shouye.png',
-						// 	pagePath: '/pages/ind_provider/ind_provider',
-						// 	success(res){
-						// 		console.log(res)
-						// 	},
-						// 	fail(err) {
-						// 		console.log(err)
-						// 	}
-						// })
-						// uni.switchTab({
-						// 	url: '../ind_provider/ind_provider'
-						// })
-					} else {  // 1甲方
-						uni.setTabBarItem({
-							index: 0,
-							text: '首页',
-							iconPath: '../../static/shouye(2).png',
-							selectedIconPath: '../../static/shouye.png',
-							pagePath: '/pages/ind/ind'
-						})
-						uni.switchTab({
-							url: '../ind/ind'
-						})
-					}
 				} else {
 					uni.showModal({
 						content: res.data.msg
@@ -339,21 +353,17 @@ uni.navigateTo({
 							url: '../ind_specialist/ind_specialist'
 						})
 					} else if (this.ind + 1 == 2) { // 乙方
-						// 用户注册，选择乙方角色后需要先完善企业信息，所以不能直接跳到首页
-						uni.navigateTo({
-							url: '../fillInformation/fillInformation'
+						this.$request('/api/index/check_party_companyname', {
+							uid: this.user_id
+						}).then(res => {
+							// console.log(res)
+							if(res.data.data.perfect == 0) { // 未完善企业信息，前往完善信息页
+								uni.navigateTo({
+									url: '../fillInformation/fillInformation'
+								})
+							}
 						})
-						// uni.setTabBarItem({
-						// 	index: 0,
-						// 	text: '首页',
-						// 	iconPath: '../../static/shouye(2).png',
-						// 	selectedIconPath: '../../static/shouye.png',
-						// 	pagePath: '/pages/ind_provider/ind_provider'
-						// })
-						// uni.switchTab({
-						// 	url: '../ind_provider/ind_provider'
-						// })
-					} else { // 甲方
+					} else if (this.ind + 1 == 1) { // 甲方
 						uni.setTabBarItem({
 							index: 0,
 							text: '首页',

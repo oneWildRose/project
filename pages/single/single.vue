@@ -25,7 +25,8 @@
 			<div>
 				<p>点位图片</p>
 				<div class='image'>
-					<image :src="src" mode="" @click='upload'></image>
+					<!-- 使用背景图不能使用src 。后续有继续添加操作，要清空路径值等，src会有缓存，虽然值是空的但是图片依然存在于界面-->
+					<image :style="{background:'url(' + src + ') no-repeat 0 0/100% 100%'}" mode="" @click='upload'></image>
 					<text v-if="bol" @click='upload'>+</text>
 				</div>
 			</div>
@@ -126,7 +127,7 @@
 						level: this.level, // 点位级别
 						url: this.src, // 点位图片
 					}).then(res => {
-						console.log(res)
+						// console.log(res)
 						this.$showModal({
 							title: '提示',
 							concent: res.data.msg,
@@ -134,11 +135,11 @@
 							confirmVal: '继续添加',
 							cancelColor: '#A09D9D'
 						}).then(res=>{
-							// 继续添加, 如果继续添加后没有重新上传图片，则还是上次的图
-							this.name = ''
-							this.level = ''
-							this.bol_1 = false
-							console.log(this.level)
+							// 继续添加
+							this.name = '' // 清空点位名称
+							this.level = '' // 清空点位级别
+							this.bol_1 = false 
+							this.src = '' // 清空点位图片
 							this.bol = true
 						}).catch(cancel=>{
 							// 返回
@@ -252,7 +253,6 @@
 						width: 44%;
 						height: 200rpx;
 						border: 2px solid #F7F7F7;
-						background-color: #F2F3F7;
 					}
 					text{
 						font-size: 100rpx;

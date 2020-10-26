@@ -65,32 +65,12 @@
 				</div>
 				<div class='kind'>
 					<ul>
-						<li @click='goTreeMsg'>
-							<image :src="require('../../static/zhaopian.png')" mode=""></image>
+						<li v-for="(item, index) in list" :key='index' @click='goTreeMsg(item.id)' >
+							<image :src="item.url" mode=""></image>
 							<div>
 								<div>
-									<text>点位名称：北门正门口01</text>
-									<text>点位级别：一级点位</text>
-								</div>
-							</div>
-							<image :src="require('../../static/jinru.svg')"></image>
-						</li>
-						<li @click='goTreeMsg'>
-							<image :src="require('../../static/zhaopian.png')" mode=""></image>
-							<div>
-								<div>
-									<text>点位名称：北门正门口01</text>
-									<text>点位级别：一级点位</text>
-								</div>
-							</div>
-							<image :src="require('../../static/jinru.svg')"></image>
-						</li>
-						<li @click='goTreeMsg'>
-							<image :src="require('../../static/zhaopian.png')" mode=""></image>
-							<div>
-								<div>
-									<text>点位名称：北门正门口01</text>
-									<text>点位级别：一级点位</text>
+									<text>点位名称：{{ item.name }}</text>
+									<text>点位级别：{{ item.levelname }}</text>
 								</div>
 							</div>
 							<image :src="require('../../static/jinru.svg')"></image>
@@ -99,7 +79,7 @@
 					</ul>
 				</div>
 				
-				<!-- 上传苗木按钮 -->
+				<!-- 添加点位按钮 -->
 				<button type="default" class='upload' @click="goUpload">添加点位</button>
 			</div>
 			
@@ -114,17 +94,17 @@
 				tabs: ['基本信息', '点位信息'],
 				num: 0,
 				msg: '',
-				project_id: '',
 				acreage: '',
-				src: '../../static/zanwu.png'
+				src: '../../static/zanwu.png',
+				list: '',
+				project_id: ''
 			}
 		},
 		onLoad(option) {
-			// console.log(JSON.parse(option.project)) // 项目信息
-			this.project_id = JSON.parse(option.project).id // 拿到项目id
+			this.project_id = option.project_id
 		},
-		onReady() {
-			this.$request('/api/index/Project_info', {
+		onShow() {
+			this.$request('/api/index/Project_info', { // 项目信息
 				project_id: this.project_id
 			}).then(res => {
 				this.msg = res.data.data
@@ -135,8 +115,10 @@
 					this.acreage = this.msg.measure + this.msg.unit
 				}
 				this.$request('/api/index/selectCity', {
-					pid: 0 //省
+					pid: 0
 				}).then(res => {
+					// console.log(res)
+					this.province = res.data.data
 					for(var i = 0; i <= res.data.data.length; i++) {
 						if (res.data.data[i].id == this.msg.province) {
 							this.msg.province = res.data.data[i].shortname
@@ -147,6 +129,8 @@
 				this.$request('/api/index/selectCity', {
 					pid: this.msg.province
 				}).then(res => {
+					// console.log(res)
+					this.city = res.data.data
 					for(var i = 0; i <= res.data.data.length; i++) {
 						if (res.data.data[i].id == this.msg.city) {
 							this.msg.city = res.data.data[i].shortname
@@ -157,6 +141,8 @@
 				this.$request('/api/index/selectCity', {
 					pid: this.msg.city
 				}).then(res => {
+					// console.log(res)
+					this.area = res.data.data
 					for(var i = 0; i <= res.data.data.length; i++) {
 						if (res.data.data[i].id == this.msg.area) {
 							this.msg.area = res.data.data[i].shortname
@@ -165,9 +151,12 @@
 					}
 				})
 			})
-		},
-		onShow() {
-			
+			this.$request('/api/index/filelist', { // 点位信息
+				project_id: this.project_id
+			}).then(res => {
+				// console.log(res)
+				this.list = res.data.data
+			})
 		},
 		methods: {
 			goBack() {
@@ -178,14 +167,13 @@
 			table(index) {
 				this.num = index
 			},
-			goTreeMsg() {
+			goTreeMsg(file_id) {
 				uni.navigateTo({
-					url: '../tree_msg/tree_msg'
+					url: '../tree_msg/tree_msg?file_id=' + file_id
 				})
 			},
 			goUpload() {
 				uni.navigateTo({
-					// url: '../upload_excel/upload_excel?project_id=' + this.project_id
 					url: '../single/single?project_id=' + this.project_id
 				})
 			},
@@ -321,6 +309,7 @@
 						margin-left: 10rpx;
 					}
 					&:nth-of-type(9){
+						height: auto;
 						display: block;
 						text-indent: 20rpx;
 						p{
@@ -335,15 +324,12 @@
 					}
 				}
 				.change{
-					width: 20%;
-					height: 52rpx;
+					width: 21%;
+					height: 50rpx;
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
-					position: absolute;
-					bottom: -20rpx;
-					left: 50%;
-					margin-left: -10%;
+					margin: 0rpx auto;
 					image{
 						width: 40rpx;
 						height: 40rpx;
@@ -395,8 +381,7 @@
 							height: 144rpx;
 							display: flex;
 							justify-content: space-around;
-							align-items: center;
-							// flex-wrap: wrap;						
+							align-items: center;				
 							margin-top: 20rpx;
 							border-radius: 20rpx;
 							box-shadow: #adadad 2px 1px 4px 0px;
@@ -404,9 +389,16 @@
 								width: 112rpx;
 								height: 112rpx;
 							}
+							image:nth-of-type(2){
+								width: 40rpx;
+								height: 40rpx;
+							}
 							&>div{
+								width: 460rpx;
 								height: 112rpx;
-								margin-left: -40rpx;
+								overflow: hidden;
+								text-overflow: ellipsis;
+								white-space: nowrap;
 								div{
 									display: flex;
 									flex-direction: column;

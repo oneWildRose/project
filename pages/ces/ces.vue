@@ -48,7 +48,7 @@
 				</li>
 			</ul>
 		</div>
-		<div class='btm' v-if='msg == 0? true : false'>
+		<div class='btm' v-if='msg == 0? false : true'>
 			<div>
 				<image :src="require('../../static/cuowu.svg')" mode=""></image>
 				<text>拒绝</text>
@@ -71,13 +71,11 @@
 				project_id: '',
 				acreage: '',
 				src: '../../static/zanwu.png',
-				status: 1,
 			}
 		},
 		onLoad(option) {
-			// console.log(JSON.parse(option.project)) // 项目信息
-			// this.project_id = JSON.parse(option.project).id // 拿到项目id
-			this.status = option.msg
+			console.log(option)
+			this.msg = option.msg
 		},
 		onShow() {
 			

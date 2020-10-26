@@ -28,6 +28,11 @@
 					<text>关于我们</text>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
+				<li @click='goProvider' v-if='ztype == 2'>
+					<image :src="require('../../static/guanyuwomen.svg')"></image>
+					<text style="font-weight: bold;">前往项目主管首页</text>
+					<image :src="require('../../static/jinru.svg')"></image>
+				</li>
 			</ul>
 		</div>
 		<button type="default" @click="exit">退出登录</button>
@@ -41,7 +46,8 @@
 				src: '../../static/shu.png',// 默认头像
 				id: '',
 				msg: '',
-				mobile: ''
+				mobile: '',
+				ztype: ''
 			}
 		},
 		onLoad() {
@@ -49,8 +55,9 @@
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
-					// console.log(res.data)
+					console.log(res.data)
 					that.id = res.data.data.user_id
+					that.ztype = res.data.data.ztype
 					// console.log(that.id)
 					that.$request('/api/index/infoIndex', {
 						uid: that.id
@@ -78,6 +85,15 @@
 			goInformation() { // 个人信息
 				uni.navigateTo({
 					url: '../information/information?uid=' + this.id
+				})
+			},
+			goProvider() {
+				uni.setTabBarItem({
+					index: 0,
+					pagePath: '/pages/ind_provider/ind_provider'
+				})
+				uni.switchTab({
+					url: '../ind_provider/ind_provider'
 				})
 			},
 			exit() { // 退出登录

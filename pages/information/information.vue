@@ -21,7 +21,27 @@
 					<p>手机号</p>
 					<text>{{ mobile }}</text>
 				</li>
-				<li>
+				<li v-if='msg.ztype == 2' @click='goEnterprise'>
+					<p>公司名称</p>
+					<text>{{ msg.enterprisename }}</text>
+					<image :src="require('../../static/jinru.svg')"></image>
+				</li>
+				<li v-if='msg.ztype == 2' @click='goEnterprise'>
+					<p>成立时间</p>
+					<text>{{ msg.established }}</text>
+					<image :src="require('../../static/jinru.svg')"></image>
+				</li>
+				<li v-if='msg.ztype == 2' @click='goEnterprise'>
+					<p>公司地址</p>
+					<text>{{ msg.province + msg.city + msg.area + msg.address }}</text>
+					<image :src="require('../../static/jinru.svg')"></image>
+				</li>
+				<li v-if='msg.ztype == 2' @click='goEnterprise'>
+					<p>项目数</p>
+					<text>{{ msg.projectnum }}</text>
+					<image :src="require('../../static/jinru.svg')"></image>
+				</li>
+				<li v-if='msg.ztype == 2? false : true'>
 					<p>性别</p>
 					<picker @change="xb" class='sex' :value="index" :range="list" :range-key="'label'">
 						<label class='' v-if='bol'>{{ sex }}</label>
@@ -29,7 +49,7 @@
 					</picker>
 					<image :src="require('../../static/jinru.svg')"></image>
 				</li>
-				<li>
+				<li v-if='msg.ztype == 2? false : true'>
 					<p>出生日期</p>
 					<gpp-date-picker @onCancel="onCancel" @onConfirm="onConfirm" :startDate="startDate" :endDate="getTime()" :defaultValue="msg.birthday == null? getTime() : msg.birthday">
 						{{ msg.birthday == null? getTime() : msg.birthday }}
@@ -80,7 +100,10 @@
 				    label: '女',
 				    value: '2'
 				  }
-				]
+				],
+				province: '',
+				city: '',
+				area: ''
 			}
 		},
 		beforeCreate() {
@@ -93,14 +116,50 @@
 					that.$request('/api/index/infoIndex', {
 						uid: that.id
 					}).then(res => {
-						// console.log(res)
 						that.msg = res.data.data
+						console.log(that.msg)
 						that.mobile = that.msg.mobile.substring(0, 3) + '****' + that.msg.mobile.substring(that.msg.mobile.length - 4)
 						if(that.msg.sex == 2) {
 							that.sex = '女'
 						} else {
 							that.sex = '男'
 						}
+						that.$request('/api/index/selectCity', {
+							pid: 0
+						}).then(res => {
+							// console.log(res)
+							that.province = res.data.data
+							for(var i = 0; i <= res.data.data.length; i++) {
+								if (res.data.data[i].id == that.msg.province) {
+									that.msg.province = res.data.data[i].shortname
+									// console.log(that.msg.province) // 省
+								}
+							}
+						})
+						that.$request('/api/index/selectCity', {
+							pid: that.msg.province
+						}).then(res => {
+							// console.log(res)
+							that.city = res.data.data
+							for(var i = 0; i <= res.data.data.length; i++) {
+								if (res.data.data[i].id == that.msg.city) {
+									that.msg.city = res.data.data[i].shortname
+									// console.log(that.msg.city) // 市
+								}
+							}
+						})
+						that.$request('/api/index/selectCity', {
+							pid: that.msg.city
+						}).then(res => {
+							// console.log(res)
+							that.area = res.data.data
+							for(var i = 0; i <= res.data.data.length; i++) {
+								if (res.data.data[i].id == that.msg.area) {
+									that.msg.area = res.data.data[i].shortname
+									// console.log(that.msg.area) // 区
+								}
+							}
+						})
 					})
 				}
 			})
@@ -113,6 +172,11 @@
 				var month = data.getMonth() + 1 // 月份
 				var day = data.getDate() // 当天
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
+			},
+			goEnterprise() {
+				uni.navigateTo({
+					url: './enterprise/enterprise'
+				})
 			},
 			save() {
 				if(this.sex_num == 0) {

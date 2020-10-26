@@ -280,6 +280,26 @@
             }
             
         }
+        ,{
+            "path" : "pages/information/enterprise/enterprise",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+            }
+            
+        }
+		,{
+		    "path" : "pages/information/enterprise/enterprise_change",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false,
+				"navigationStyle":"custom"
+		    }
+		    
+		}
     ],
 	"globalStyle": {
 		"navigationBarTitleText": "",

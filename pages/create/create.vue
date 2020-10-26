@@ -203,23 +203,27 @@
 				})
 			},
 			bindPickerChange1: function(e) { // 请求区级
-				this.index1 = e.target.value
-				this.pid1 = this.city[this.index1].id 
-				// console.log(this.pid1), // 当前市级id
-				this.bol1 = false,
-				this.bol_1 = true,
-				this.$request('/api/index/selectCity', {
-					pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
-				}).then(res => {
-					this.area = res.data.data
-				})
-				
+				if(this.city[0] !== '请选择'){ // 如果用户没有选择省级，直接点开市级并确定，那么就直接return，以防出现undefined
+					this.index1 = e.target.value
+					this.pid1 = this.city[this.index1].id 
+					// console.log(this.pid1), // 当前市级id
+					this.bol1 = false,
+					this.bol_1 = true,
+					this.$request('/api/index/selectCity', {
+						pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
+					}).then(res => {
+						this.area = res.data.data
+					})
+				} else { return }
 			},
 			bindPickerChange2: function(e) {
-				this.index2 = e.target.value
-				// console.log(this.area[this.index2].id) // 当前区级id
-				this.bol2 = false,
-				this.bol_2 = true
+				// console.log(this.area[0])
+				if(this.area[0] !== '请选择') { // 如果用户没有选择省级市级，直接点开区级并确定，那么就直接return，以防出现undefined
+					this.index2 = e.target.value
+					// console.log(this.area[this.index2].id) // 当前区级id
+					this.bol2 = false,
+					this.bol_2 = true
+				} else { return }
 			},
 			
 			goBack() {
@@ -254,7 +258,7 @@
 					if(res.data.code == 1) {
 						this.project_id = res.data.data.project_id
 						uni.navigateTo({
-							url: './create_sure?project_id=' + this.project_id
+							url: './create_sure?auid=' + this.auid + '&project_id=' + this.project_id
 						})
 					} else {
 						uni.showModal({

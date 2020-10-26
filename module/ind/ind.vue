@@ -1,13 +1,14 @@
 <template>  <!-- 首页组件。 甲方 和 乙方最高权限管理员使用 -->
 	<view>
 		<div> <!-- 物业公司（甲方） -->
-			<view class="head">
+			<view class="head" :style="{'background':background,'height':height}">
 				<view class="search">
 					<input type="text" placeholder="搜索项目、苗木" />
-					<slot name='lb'></slot>
+					<image :src="require('../../static/fangdajing.png')" mode=""></image>
 					<slot name='msg'></slot>
 				</view>
 			</view>
+			<div :style="{'height': '120rpx'}" v-if='bol'></div>
 			<view class="middle"> <!-- 轮播 -->
 				<swiper :indicator-dots="true" :autoplay="true" :interval="3000" :duration="500" :circular='true'>
 					<swiper-item>
@@ -19,7 +20,7 @@
 				</swiper>
 			</view>
 			<view class="bottom">
-				<view class="text">
+				<view class="text" v-if='!bol'>
 					<view>专注项目品质</view>
 					<text>专家协作，指定优秀项目方案</text>
 				</view>
@@ -63,6 +64,26 @@
 			return {
 				
 			};
+		},
+		props: {
+			height:{
+				type:String,
+				default(){
+					return "578rpx"
+				}
+			},
+			background: {
+				type:String,
+				default() {
+					return "url(../../static/01.jpg) no-repeat 0/100%"
+				}
+			},
+			bol: {
+				type:Boolean,
+				default() {
+					return false
+				}
+			}
 		}
 	}
 </script>
@@ -71,7 +92,6 @@
 	.head{
 		width: 100%;
 		height: 578rpx;
-		background: url(../../static/01.jpg) no-repeat;
 		background-size: 100%;
 		background-position: 0;
 		// border: 1px solid red;
@@ -108,6 +128,7 @@
 		width: 96%;
 		margin: 20rpx auto;
 		height: 200rpx;
+		border-radius: 20rpx;
 		swiper{
 			width: 100%;
 			height: 100%;
@@ -137,12 +158,12 @@
 		}
 		ul{
 			li{
-				width: 90%;
+				width: 96%;
 				height: 200rpx;
 				margin: 28rpx auto;
 				// border: 1px solid blue;
 				background: white;
-				box-shadow: #D2D2D2 1px 2px 6px 2px;
+				box-shadow: #D2D2D2 0px 0px 10px 0px;
 				border-radius: 20rpx;
 				display: block;
 				position: relative;

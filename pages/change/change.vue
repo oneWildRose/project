@@ -211,6 +211,14 @@
 				this.user_name = this.msg.user_name
 				this.src = this.msg.plan_url
 			})
+			var that = this
+			uni.getStorage({ // 从缓存中拿到用户的id
+				key: 'userinfo',
+				success: (res) => {
+					// console.log(res.data)
+					that.uid = res.data.data.user_id
+				}
+			})
 		},
 		methods: {
 			onCancel(e){
@@ -316,13 +324,6 @@
 				} else {
 					this.pid2 = this.area[this.index2].id
 				}
-				uni.getStorage({ // 从缓存中拿到用户的id
-					key: 'userinfo',
-					success: (res) => {
-						// console.log(res.data)
-						this.uid = res.data.data.id
-					}
-				})
 				this.$request('/api/index/Project_edit_submit', {
 					pname: this.pname,
 					enterprie_name: this.enterprie_name,

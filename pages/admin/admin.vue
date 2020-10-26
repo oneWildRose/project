@@ -1,22 +1,22 @@
 <template>
 	<view class="">
-		<ind>
+		<ind :background="background" :height="height" :bol="bol">
 			<template>
 				<view slot='msg' class="msg">
 					<div class='tit'>
-						<text>坚实华鼎物业服务有限公司</text>
+						<text @click="goEnterprise">{{ list.enterprisename }}</text>
 						<div>
 							<image :src="require('../../static/dingwei.svg')" mode=""></image>
-							<text>天津</text>
+							<text>{{ list.province }}</text>
 						</div>
 					</div>
 					<div class='main'>
 						<div>
-							<p>15</p>
+							<p>{{ getTime() }}</p>
 							<text>从业时间(年)</text>
 						</div>
 						<div>
-							<p>255</p>
+							<p>{{ list.projectnum }}</p>
 							<text>总服务项目数</text>
 						</div>
 					</div>
@@ -34,56 +34,122 @@
 		},
 		data() {
 			return {
-				
+				height: '292rpx', // .head 的高度
+				background: '#5E79F2' ,// 背景色
+				bol: true,
+				uid: '',
+				list: '',
 			}
 		},
+		onLoad() {
+			var that = this
+			uni.getStorage({
+				key: 'userinfo',
+				success(res) {
+					// console.log(res)
+					that.uid = res.data.data.user_id
+					that.$request('/api/index/infoIndex', {
+						uid: that.uid
+					}).then(res => {
+						// console.log(res)
+						that.list = res.data.data
+						that.$request('/api/index/selectCity', {
+							pid: 0 //省
+						}).then(res => {
+							for(var i = 0; i <= res.data.data.length; i++) {
+								if (res.data.data[i].id == that.list.province) {
+									that.list.province = res.data.data[i].shortname
+									// console.log(this.msg.province) // 省
+								}
+							}
+						})
+					})
+				}
+			})
+		},
 		methods: {
-			
+			getTime() {
+				var data = new Date() // 日期对象
+				var year = data.getFullYear() // 年份
+				if(this.list != '') {
+					// 当前年份 减去 用户填写的公司成立时间的前四位(即年份) 得出从业时间
+					return year - this.list.established.substring(0, 4)
+				} else {
+					return ;
+				}
+			},
+			goEnterprise() {
+				uni.navigateTo({
+					url: '../information/enterprise/enterprise'
+				})
+			}
 		}
 	}
 </script>
 
 <style lang="less" scoped>
 	.msg{
-		width: 90%;
-		margin: 40rpx auto;
+		width: 106%;
+		position: absolute;
+		left: -24rpx;
+		top: 160rpx;
+		color: white;
 		.tit{
 			width: 100%;
 			height: 80rpx;
-			border: 1px solid red;
 			display: flex;
 			justify-content: space-between;
 			&>text{
 				font-weight: bold;
 				font-size: 34rpx;
+				display: block;
+				width: 400rpx;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				margin-left: 10rpx;
 			}
 			div{
 				font-size: 28rpx;
+				margin-right: 10rpx;
 				image{
-					width: 40rpx;
-					height: 40rpx;
+					width: 30rpx;
+					height: 30rpx;
+					margin-right: 4rpx;
+					position: relative;
+					top: 4rpx;
 				}
 			}
 		}
 		.main{
 			width: 100%;
-			height: 180rpx;
+			height: 172rpx;
 			background: white;
-			border-radius: 20rpx;
+			border-radius: 10rpx;
 			display: flex;
 			align-items: center;
 			box-shadow: #adadad 0px 0px 4px 0px;
 			div{
 				width: 50%;
+				text-align: center;
 				height: 100%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
+				&:nth-of-type(1) {
+					p{
+						margin-left: -20rpx;
+					}
+				}
 				p{
-					font-size: 34rpx;
+					font-size: 50rpx;
+					color: black;
+					margin-top: 20rpx;
 				}
 				text{
 					color: #808080;
+					display: block;
+					margin-top: -20rpx;
 				}
 			}
 		}

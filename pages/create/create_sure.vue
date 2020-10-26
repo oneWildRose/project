@@ -30,8 +30,6 @@
 				<image :src="this.src" mode="" @click='upload'></image>
 				<button @click='upload'>上传</button>
 			</div>
-			
-			
 		</div>
 		<navigator class="next">
 			<button type="default" @click="sub">提交</button>
@@ -47,13 +45,14 @@
 		data() {
 			return {
 				src: '../../static/zanwu.jpg',
-				project_id: ''
+				project_id: '',
+				auid: ''
 			}
 		},
 		onLoad(option) { // option 上个页面传递的参数
-			console.log(option.project_id)
-			this.project_id = option.project_id
-			console.log(this.project_id)
+			// console.log(option.project_id)
+			this.project_id = option.project_id // 项目id
+			this.auid = option.auid // 用户id
 		},
 		methods: {
 			goBack() {
@@ -76,13 +75,14 @@
 				            success: (uploadFileRes) => {
 				                // console.log(uploadFileRes.data);
 								this.src = uploadFileRes.data
+								
 				            }
 				        });
 				    }
 				});
 			},
 			sub() {
-				console.log(this.src, this.project_id)
+				// console.log(this.src, this.project_id)
 				if(this.src == '../../static/zanwu.jpg') {
 					uni.showModal({
 						content: '请上传项目平面图'
@@ -95,7 +95,7 @@
 						console.log(res)
 						if(res.data.code == 1) {
 							uni.navigateTo({
-								url: './success'
+								url: './success?auid=' + this.auid
 							})
 						} else {
 							uni.showModal({

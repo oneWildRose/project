@@ -62,7 +62,7 @@
 					</div>
 				</div>
 				<ul>
-					<li @click='goInvite'>
+					<li @click='goInvite(1)'>
 						<div>
 							<div class='pname'>
 								<text>项目名称：融创项目一期</text>
@@ -110,9 +110,9 @@
 			more() {
 				
 			},
-			goInvite() {
+			goInvite(msg) {
 				uni.navigateTo({
-					url: '../ces/ces'
+					url: '../ces/ces?msg=' + msg
 				})
 			}
 		}

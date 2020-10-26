@@ -133,41 +133,51 @@
 				})
 			},
 			bindPickerChange1: function(e) { // 请求区级
-				this.index1 = e.target.value
-				this.pid1 = this.city[this.index1].id 
-				// console.log(this.pid1), // 当前市级id
-				this.bol1 = false,
-				this.bol_1 = true,
-				this.$request('/api/index/selectCity', {
-					pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
-				}).then(res => {
-					this.area = res.data.data
-				})
+				if(this.city[0] !== '请选择'){ // 如果用户没有选择'省级'，直接点开'市级'并确定，那么就直接return，以防出现undefined
+					this.index1 = e.target.value
+					this.pid1 = this.city[this.index1].id 
+					// console.log(this.pid1), // 当前市级id
+					this.bol1 = false,
+					this.bol_1 = true,
+					this.$request('/api/index/selectCity', {
+						pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
+					}).then(res => {
+						this.area = res.data.data
+					})
+				} else { return }
 			},
 			bindPickerChange2: function(e) {
-				this.index2 = e.target.value
-				// console.log(this.area[this.index2].id) // 当前区级id
-				this.bol2 = false,
-				this.bol_2 = true
+				if(this.area[0] !== '请选择') { // 如果用户没有选择'市级'，直接点开'区级'并确定，那么就直接return，以防出现undefined
+					this.index2 = e.target.value
+					// console.log(this.area[this.index2].id) // 当前区级id
+					this.bol2 = false,
+					this.bol_2 = true
+				} else { return }
 			},
 			save() {
-				// console.log(
-				// this.pname, 
-				// this.time, 
-				// this.province[this.index].shortname, 
-				// this.city[this.index1].shortname, 
-				// this.area[this.index2].shortname, 
-				// this.address, 
-				// this.sum)
-				uni.setTabBarItem({
-					index: 0,
-					text: '首页',
-					iconPath: '../../static/shouye(2).png',
-					selectedIconPath: '../../static/shouye.png',
-					pagePath: '/pages/admin/admin',
-				})
-				uni.switchTab({
-					url: '../admin/admin'
+				this.$request('/api/index/update_party_info', {
+					uid: this.auid,
+					enterprisename: this.pname, // 企业名称
+					province: this.pid, // 省id
+					city: this.pid1, // 市id
+					area: this.area[this.index2].id, // 区id
+					address: this.address, // 详细地址
+					projectnum: this.sum, // 项目数量
+					established: this.time // 公司成立时间
+				}).then(res => {
+					console.log(res)
+					if(res.data.code == 1) {
+						uni.setTabBarItem({
+							index: 0,
+							text: '首页',
+							iconPath: '../../static/shouye(2).png',
+							selectedIconPath: '../../static/shouye.png',
+							pagePath: '/pages/admin/admin',
+						})
+						uni.switchTab({
+							url: '../admin/admin'
+						})
+					}
 				})
 			}
 		}

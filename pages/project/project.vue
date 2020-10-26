@@ -36,32 +36,54 @@
 		data() {
 			return {
 				id: '',
+				ztype: '',
 				project_list: []
 			}
 		},
-		created() {
+		onLoad() {
 			var that = this
 			uni.getStorage({ // 从缓存中拿到用户的id
 				key: 'userinfo',
 				success: (res) => {
 					// console.log(res.data)
 					that.id = res.data.data.user_id
+					that.ztype = res.data.data.ztype
 					that.$request('/api/index/Project_list', {
 						uid: that.id
 					}).then(res => {
-						console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
-						if (res.data.data == '') { // 如果是空的 就 弹框提示 返回首页
+						//console.log(res.data.data) // 数组数据，如果没有创建项目，那就是空的
+						if (res.data.data !== '') { // 如果不为空，那么就渲染数据，展示项目信息列表
+							that.project_list = res.data.data
+							// console.log(that.project_list)
+						} else { // 如果是空的 就 弹框提示 返回首页
 							uni.showModal({
 								content: '请创建项目',
 								success: (res) => {
-									uni.switchTab({
-										url: '../ind/ind'
-									})
+									if(that.ztype == 2) { // 2乙方
+										uni.setTabBarItem({
+											index: 0,
+											text: '首页',
+											iconPath: '../../static/shouye(2).png',
+											selectedIconPath: '../../static/shouye.png',
+											pagePath: '/pages/admin/admin',
+										})
+										uni.switchTab({
+											url: '../admin/admin'
+										})
+									} else if(that.ztype == 1) { // 1甲方
+										uni.setTabBarItem({
+											index: 0,
+											text: '首页',
+											iconPath: '../../static/shouye(2).png',
+											selectedIconPath: '../../static/shouye.png',
+											pagePath: '/pages/ind/ind'
+										})
+										uni.switchTab({
+											url: '../ind/ind'
+										})
+									}
 								}
 							})
-						} else { // 如果不为空，那么就渲染数据，展示项目信息列表
-							that.project_list = res.data.data
-							// console.log(that.project_list)
 						}
 					})
 				}
@@ -75,7 +97,7 @@
 			},
 			goDetails(index) {
 				uni.navigateTo({
-					url: '../details/details?project=' + JSON.stringify(this.project_list[index])
+					url: '../details/details?project_id=' + this.project_list[index].id
 				})
 			}
 		}
