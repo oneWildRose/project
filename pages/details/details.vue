@@ -3,86 +3,57 @@
 		<div class="status"></div>
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
-			<p>{{ msg.pname }}</p>
+			<p>{{ project_id == ''? '暂无项目' : msg.pname }}</p>
 			<div>
 				<image :src="require('../../static/9-17icon/zuijinshijian.svg')" mode=""></image>
 				<text>最近更新：{{ msg.update_time }}</text>
 			</div>
 		</div>
-		<div class='main'> <!-- Tab -->
-			<div class="title">
-				<div v-show='num != 2' v-for="(item, index) in tabs" :key="index" :class="{active:num==index}" @click="table(index)">
-					<text>{{ item }}</text>
-					<div :class="{ block:num == index }"></div>
-				</div>
+		<div class='main'>
+			<div v-if="project_id == ''" 
+				style='color: #808080;width: 100%;text-align: center;margin-top: 20rpx;'>
+				请联系最高权限管理员在PC端后台创建项目
 			</div>
-			<ul v-show="num == 0"> <!-- 基本信息 -->
-				<li>
-					<image :src="require('../../static/9-17icon/project.svg')"></image>
-					<p>项目名称：{{ msg.pname }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/gongsi.svg')"></image>
-					<p>企业名称：{{ msg.enterprie_name }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/ress.svg')"></image>
-					<p>项目地址：{{ msg.province + msg.city + msg.area + msg.address }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/mianji.svg')"></image>
-					<p>项目管理面积：{{ acreage }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目竣工时间：{{ msg.dtime }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目交付时间：{{ msg.time }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/intime.svg')"></image>
-					<p>项目进场时间：{{ msg.ctime }}</p>
-				</li>
-				<li>
-					<image :src="require('../../static/9-17icon/fuzeren.svg')"></image>
-					<p>负责人：{{ msg.user_name }}</p>
-				</li>
-				<li>
-					<p>项目平面图：</p>
-					<image :src="msg.plan_url == null? src : msg.plan_url" mode="" @click="preview"></image>
-				</li>
-				<div class='change' @click='goChange'>
-					<image :src="require('../../static/xiugai.svg')" mode=""></image>
-					<text>修改信息</text>
+			<div class='msg' v-if="project_id == ''? false : true ">  <!-- 基本信息 -->
+				<div class='tit'>
+					<p>基本信息</p>
+					<div @click='goProjectmsg'>
+						<text>更多</text>
+						<image :src="require('../../static/jinru.svg')" mode=""></image>
+					</div>
 				</div>
-			</ul>
-			<div class='tree' v-show='num == 1'> <!-- 点位信息 -->
-				<div class='search'>
-					<input type="search" value="" placeholder="搜索点位" />
-					<image :src="require('../../static/search.svg')" mode=""></image>
-				</div>
-				<div class='kind'>
-					<ul>
-						<li v-for="(item, index) in list" :key='index' @click='goTreeMsg(item.id)' >
-							<image :src="item.url" mode=""></image>
-							<div>
-								<div>
-									<text>点位名称：{{ item.name }}</text>
-									<text>点位级别：{{ item.levelname }}</text>
-								</div>
-							</div>
-							<image :src="require('../../static/jinru.svg')"></image>
-						</li>
-						<li style='width: 100%;height: 100rpx;box-shadow: none;'></li> <!-- 占位，防止下面的添加按钮覆盖li -->
-					</ul>
-				</div>
-				
-				<!-- 添加点位按钮 -->
-				<button type="default" class='upload' @click="goUpload">添加点位</button>
+				<ul>
+					<li>
+						<image :src="require('../../static/9-17icon/project.svg')"></image>
+						<p>项目名称：{{ msg == ''? '...' : msg.pname }}</p>
+					</li>
+					<li>
+						<image :src="require('../../static/9-17icon/ress.svg')"></image>
+						<p class='address'>项目地址：{{ msg == ''? '...' : msg.provinceNmae + msg.cityeNmae + msg.areaNmae + msg.address }}</p>
+					</li>
+					<li>
+						<image :src="require('../../static/9-17icon/fuzeren.svg')"></image>
+						<p>负责人：{{ shenfen == null? '暂无':shenfen }}</p>
+					</li>
+					<li>
+						<image :src="require('../../static/9-17icon/intime.svg')"></image>
+						<p>项目竣工时间：{{ msg == ''? '...' : msg.dtime }}</p>
+					</li>
+				</ul>
 			</div>
-			
+			<div class='list' v-for="(item, index) in list" :key='index' v-if="project_id == ''? false : true "> <!-- 点位信息、专家方案、品质监控-->
+				<div class='tit'>
+					<div>
+						<image :src="item.src" mode=""></image>
+						<text>{{ item.title }}</text>
+					</div>
+					<div @click='item.gonext'>
+						<text>查看</text>
+						<image :src="require('../../static/jinru.svg')" mode=""></image>
+					</div>
+				</div>
+				<p>{{ item.content }}</p>
+			</div>
 		</div>
 	</view>
 </template>
@@ -91,71 +62,61 @@
 	export default {
 		data() {
 			return {
-				tabs: ['基本信息', '点位信息'],
-				num: 0,
+				isshenfen: '',
+				shenfen: '',
 				msg: '',
 				acreage: '',
-				src: '../../static/zanwu.png',
-				list: '',
-				project_id: ''
+				list: [
+					{
+						title: '点位信息',
+						src: '../../static/icon_point.svg',
+						content: '查看点位信息以及苗木信息',
+						gonext: this.goPointmsg
+					},
+					{
+						title: '专家方案',
+						src: '../../static/liebiao.svg',
+						content: '查看专家制作的方案/指定专家制作方案',
+						gonext: this.goPlan
+					}
+				],
+				project_id: '',
+				province_num: 0,
+				city_num: 0,
+				area_num: 0,
 			}
 		},
 		onLoad(option) {
 			this.project_id = option.project_id
+			this.id = option.id
+			// console.log(this.project_id)
 		},
 		onShow() {
-			this.$request('/api/index/Project_info', { // 项目信息
-				project_id: this.project_id
-			}).then(res => {
-				this.msg = res.data.data
-				// console.log(this.msg)
-				if (this.msg.company == 0) { // 单位 0代表亩  1代表平方米
-					this.acreage = this.msg.measure + this.msg.unit
-				} else {
-					this.acreage = this.msg.measure + this.msg.unit
-				}
-				this.$request('/api/index/selectCity', {
-					pid: 0
-				}).then(res => {
-					// console.log(res)
-					this.province = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.province) {
-							this.msg.province = res.data.data[i].shortname
-							// console.log(this.msg.province) // 省
-						}
-					}
-				})
-				this.$request('/api/index/selectCity', {
-					pid: this.msg.province
-				}).then(res => {
-					// console.log(res)
-					this.city = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.city) {
-							this.msg.city = res.data.data[i].shortname
-							// console.log(this.msg.city) // 市
-						}
-					}
-				})
-				this.$request('/api/index/selectCity', {
-					pid: this.msg.city
-				}).then(res => {
-					// console.log(res)
-					this.area = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.area) {
-							this.msg.area = res.data.data[i].shortname
-							// console.log(this.msg.area) // 区
-						}
-					}
-				})
-			})
-			this.$request('/api/index/filelist', { // 点位信息
+			var that = this
+			this.$request('/api/project/Project_info', { // 项目信息
 				project_id: this.project_id
 			}).then(res => {
 				// console.log(res)
-				this.list = res.data.data
+				this.msg = res.data.data
+				this.$request('/api/index/infoIndex', { // 取到身份
+					uid: this.id
+				}).then(res => {
+					this.isshenfen = res.data.data.isshenfen
+					if(this.isshenfen == 1 || this.isshenfen == 2) {// 甲方
+						this.shenfen = this.msg.jname
+					} else if(this.isshenfen == 3 || this.isshenfen == 4){// 乙方
+						this.shenfen = this.msg.yname
+					}
+					if(this.isshenfen != 4 && this.list.length == 2) {
+						let obj = {
+							title: '品质监控',
+							src: '../../static/pinzhi(1).svg',
+							content: '查看项目每天上传的照片',
+							gonext: this.goQuality
+						}
+						this.list.push(obj)
+					}
+				})
 			})
 		},
 		methods: {
@@ -164,27 +125,25 @@
 					delta: 1
 				})
 			},
-			table(index) {
-				this.num = index
-			},
-			goTreeMsg(file_id) {
+			goProjectmsg() { // 基本信息
 				uni.navigateTo({
-					url: '../tree_msg/tree_msg?file_id=' + file_id
+					url: './projectMsg/projectMsg?project_id=' + this.project_id + '&id=' + this.id
 				})
 			},
-			goUpload() {
+			goPointmsg() { // 点位信息
 				uni.navigateTo({
-					url: '../single/single?project_id=' + this.project_id
+					url: './pointMsg/pointMsg?project_id=' + this.project_id
 				})
 			},
-			goChange() {
+			goPlan() { // 专家方案
 				uni.navigateTo({
-					url: '../change/change?project_id=' + this.project_id
+					url: './plan/plan?project_id=' + this.project_id + '&id=' + this.id
 				})
 			},
-			preview() {
-				uni.previewImage({
-					urls: [ this.msg.plan_url ]
+			goQuality() { // 品质监控
+				uni.navigateTo({
+					// url: '../ind_provider/quality/quality?project_id=' + this.project_id
+					url: '../approvalQuality/approvalQuality?project_id=' + this.project_id + '&uid=' + this.id
 				})
 			}
 		}
@@ -194,20 +153,15 @@
 <style lang="less" scoped>
 	.hello{
 		width: 100%;
-		height: 1200rpx;
-		background: url(../../static/9-17icon/bg2.jpg) no-repeat;
-		background-size: 100%;
-		position: absolute;
+		position: fixed;
 		top: 0;
 		bottom: 0;
-		left: 0;
-		right: 0;
 		.goback{
-			padding-left: 40rpx;
-			padding-right: 40rpx;
-			background: transparent;
-			width: 90%;
-			height: 320rpx;
+			background: #5E79F2 url(../../static/9-17icon/bg2.jpg) no-repeat;
+			background-size: 100%;
+			background-position: 0 -60rpx;
+			width: 100%;
+			height: 260rpx;
 			line-height: 120rpx;
 			margin: 0px auto;
 			text-align: center;
@@ -215,27 +169,27 @@
 			color: white;
 			font-size: 36rpx;
 			&>image{
-				width: 52rpx;
-				height: 52rpx;
+				width: 50rpx;
+				height: 50rpx;
 				position: absolute;
 				left: 40rpx;
-				top: 50%;
+				top: 54%;
 				margin-top: -120rpx;
 			}
 			p{
 				position: absolute;
-				left: 40rpx;
+				left: 48rpx;
 				top: 30%;
-				font-size: 34rpx;
-				font-weight: 600;
+				font-size: 38rpx;
+				font-weight: bold;
 			}
 			div{
-				width: 400rpx;
+				width: auto;
 				height: 80rpx;
 				line-height: 80rpx;
 				position: absolute;
-				left: 40rpx;
-				top: 56%;
+				left: 48rpx;
+				top: 58%;
 				color: #d3d8e7;
 				font-size: 26rpx;
 				display: flex;
@@ -250,187 +204,116 @@
 		
 		.main{
 			width: 100%;
-			height: 100%;
+			max-height: 79.5%;
+			overflow-y: scroll;
 			background: white;
-			border-radius: 40rpx;
-			position: absolute;
-			top: 326rpx;
-			.active{
-				color: #3F5DE3;
+			&::-webkit-scrollbar {
+				display: none; //隐藏滚动条
 			}
-			
-			.title{
-				width: 90%;
-				margin: 0 auto;
-				height: 148rpx;
-				display: flex;
-				align-items: center;
-				font-size: 32rpx;
-				&>div{
-					width: 180rpx;
-					position: relative;
-					div{
-						width: 64rpx;
-						border: 1px solid #3F5DE3;
-						position: absolute;
-						bottom: -12rpx;
-						left: 50%;
-						margin-left: -60rpx;
-						display: none;
-						&.block{
-							display: block;
-						}
-					}
-				}
-			}
-			
-			ul{
-				width: 90%;
-				height: 1020rpx;
-				margin: 0 auto;
-				border: 1px solid #E8E8E8;
-				border-radius: 20rpx;
-				li{
+			.msg{
+				width: 94%;
+				margin: 40rpx auto;
+				border-radius: 8rpx;
+				height: 428rpx;
+				background: white;
+				box-shadow: #b3b3b3 0 0 6rpx 0;
+				.tit{
 					width: 100%;
-					height: 80rpx;
-					display: flex;
-					align-items: center;
-					font-size: 32rpx;
-					font-weight: 500;
-					p{
-						display: flex;
-						justify-content: space-around;
-					}
-					image{
-						width: 34rpx;
-						height: 34rpx;
-						vertical-align: center;
-						margin-right: 10rpx;
-						margin-left: 10rpx;
-					}
-					&:nth-of-type(9){
-						height: auto;
-						display: block;
-						text-indent: 20rpx;
-						p{
-							display: block;
-						}
-						image{
-							width: 90%;
-							height: 300rpx;
-							margin: 20rpx auto;
-							display: block;
-						}
-					}
-				}
-				.change{
-					width: 21%;
-					height: 50rpx;
+					height: 96rpx;
+					border-bottom: 1px solid #EFEFEF;
 					display: flex;
 					justify-content: space-between;
 					align-items: center;
-					margin: 0rpx auto;
-					image{
-						width: 40rpx;
-						height: 40rpx;
+					p{
+						font-weight: bold;
+						font-size: 33rpx;
+						text-indent: 40rpx;
 					}
-					text{
-						font-size: 26rpx;
-						color: #3F5DE3;
-						font-weight: 700;
-					}
-				}
-			}
-			
-			.tree{
-				width: 90%;
-				height: 800rpx;
-				margin: 0 auto;
-				.search{
-					width: 100%;
-					height: 80rpx;
-					position: relative;
-					input{
-						width: 100%;
-						height: 100%;
-						line-height: 80rpx;
-						border: 1px solid #E6E6E6;
-						border-radius: 20rpx;
-						text-align: center;
-					}
-					image{
-						width: 40rpx;
-						height: 40rpx;
-						position: absolute;
-						left: 20rpx;
-						top: 50%;
-						margin-top: -20rpx
+					&>div{
+						font-size: 30rpx;
+						display: flex;
+						align-items: center;
+						image{
+							width: 30rpx;
+							height: 30rpx;
+							margin-top: 4rpx;
+							margin-right: 20rpx;
+						}
 					}
 				}
-				.kind{
-					width: 100%;
-					height: 90%;
-					ul{
+				ul{
+					width: 94%;
+					height: auto;
+					margin: 0 auto;
+					li{
 						width: 100%;
-						height: 100%;
-						margin: 0;
-						padding: 0;
-						border: none;
-						li{
-							width: 100%;
-							height: 144rpx;
-							display: flex;
-							justify-content: space-around;
-							align-items: center;				
-							margin-top: 20rpx;
-							border-radius: 20rpx;
-							box-shadow: #adadad 2px 1px 4px 0px;
-							image:nth-of-type(1){
-								width: 112rpx;
-								height: 112rpx;
-							}
-							image:nth-of-type(2){
-								width: 40rpx;
-								height: 40rpx;
-							}
-							&>div{
-								width: 460rpx;
-								height: 112rpx;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								white-space: nowrap;
-								div{
-									display: flex;
-									flex-direction: column;
-									text-align: left;
-									text:nth-of-type(1){
-										font-size: 32rpx;
-										font-weight: 500;
-										margin-bottom: 16rpx;
-									}
-									text:nth-of-type(2){
-										font-size: 26rpx;
-										color: #656D6B;
-									}									
-								}
-							}
+						height: 80rpx;
+						display: flex;
+						align-items: center;
+						font-size: 32rpx;
+						font-weight: 500;
+						image{
+							width: 34rpx;
+							height: 34rpx;
+							vertical-align: center;
+							margin-right: 10rpx;
+							margin-left: 10rpx;
+						}
+						.address{
+							width: 88%;
+							overflow: hidden;
+							white-space: nowrap;
+							text-overflow: ellipsis;
 						}
 					}
 				}
 			}
 			
-			.upload{
-				width: 100%;
-				height: 100rpx;
-				line-height: 100rpx;
-				position: fixed;
-				bottom: 0;
-				left: 0;
-				background-color: #3F5DE3;
-				color: white;
-				border-radius: 0;
+			.list{
+				width: 94%;
+				height: 208rpx;
+				margin: 40rpx auto;
+				border-radius: 8rpx;
+				box-shadow: #b3b3b3 0 0 6rpx 0;
+				.tit{
+					width: 100%;
+					height: 50%;
+					display: flex;
+					border-bottom: 1px solid #EDEDED;
+					justify-content: space-between;
+					align-items: center;
+					&>div{
+						&:nth-of-type(1){
+							display: flex;
+							align-items: center;
+							font-weight: bold;
+							font-size: 33rpx;
+							image{
+								width: 40rpx;
+								height: 40rpx;
+								margin-left: 30rpx;
+								margin-right: 12rpx;
+							}
+						}
+						&:nth-of-type(2){
+							display: flex;
+							align-items: center;
+							image{
+								width: 30rpx;
+								height: 30rpx;
+								margin-right: 20rpx;
+							}
+						}
+					}
+				}
+				p{
+					width: 100%;
+					height: 50%;
+					line-height: 104rpx;
+					text-indent: 40rpx;
+					font-size: 36rpx;
+				}
 			}
-		
 		}
 	}
 </style>

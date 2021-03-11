@@ -1,5 +1,6 @@
 <template> <!-- 修改项目信息 -->
 	<view class="hello">
+		<div class="status"></div>
 		<div class="title">
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click="goBack"></image>
 			<p>修改项目信息</p>
@@ -10,30 +11,38 @@
 				<input type="text" placeholder="项目名称" v-model="pname"/>
 			</p>
 			<p class='options'>
-				企业名称
-				<input type="text" placeholder="企业名称" v-model="enterprie_name"/>
+				负 责 人 
+				<input type="text" placeholder="负责人" v-model="fzr"/>
+				<!-- <picker @change="fzrMethod" class='fzr' :value="fzr_index" :range="fzr_list" :range-key="'username'">
+					<label class='' v-if='bol3'>{{ fzr }}</label>
+					<label class="" v-if="bol_3">{{ fzr_list[fzr_index].username }}</label>
+				</picker> -->
+			</p>
+			<p class='options'>
+				联系方式
+				<input type="text" placeholder='联系方式' v-model="number">
 			</p>
 			
 			<div class='city'>
 				<text>项目地址</text>
 				<div class="city_tab">
 					<picker @change="bindPickerChange" :value="index" :range="province"  :range-key="'shortname'">
-						<label class='' v-if='bol' style='color:#86888E'>{{ msg.province }}</label>
+						<label class='' v-if='bol' style='color:#86888E'>{{ msg.provinceNmae }}</label>
 						<label class="" v-if='bol_'>{{province[index].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>	
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange1" :value="index1" :range="city" :range-key="'shortname'">
-						<label class='' v-if='bol1' style='color:#86888E'>{{ msg.city }}</label>
-						<label class="" v-if='bol_1'>{{city[index1].shortname}}</label>
+						<label v-if='bol1' :class="city_size == true? 'size' : '' " style='color:#86888E'>{{ msg.cityeNmae }}</label>
+						<label v-if='bol_1' :class="city[index1].shortname.length >= 5? 'size' : ''">{{city[index1].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
 				<div class="city_tab">
 					<picker @change="bindPickerChange2" :value="index2" :range="area" :range-key="'shortname'">
-						<label class='' v-if='bol2' style='color:#86888E'>{{ msg.area }}</label>
-						<label class="" v-if='bol_2'>{{area[index2].shortname}}</label>
+						<label v-if='bol2' :class="area_size == true? 'size' : '' " style='color:#86888E'>{{ msg.areaNmae }}</label>
+						<label v-if='bol_2' :class="area[index2].shortname.length >= 5? 'size' : ''">{{area[index2].shortname}}</label>
 						<image :src="require('../../static/xuanze.svg')" mode=""></image>
 					</picker>
 				</div>
@@ -52,30 +61,21 @@
 					<image :src="require('../../static/xuanze.svg')" mode=""></image>
 				</picker>
 			</div>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm" :startDate="'1900-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目竣工时间 dtime -->
 				<text>竣工时间</text>
 				<div class='time'>{{ dtime }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
+			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm2" :startDate="'1900-01-01'" :endDate="endTime()" :defaultValue="getTime()">
 				<!-- 项目交付时间 time -->
 				<text>交付时间</text>
 				<div class='time'>{{ time }}</div>
 			</gpp-date-picker>
-			<gpp-date-picker class='options' @onCancel="onCancel" @onConfirm="onConfirm3" :startDate="'1990-01-01'" :endDate="endTime()" :defaultValue="getTime()">
-				<!-- 项目进场时间 ctime -->
-				<text>进场时间</text>
-				<div class='time'>{{ ctime }}</div>
-			</gpp-date-picker>
-			<p class='options'>
-				负 责 人 
-				<input type="text" placeholder='负责人' v-model="user_name" style="margin-right: -6rpx;">
-			</p>
 			<p class='options_'>
 				项目平面图:
 			</p>
 			<div class='baba'>
-				<image :src="src == null? '../../static/zanwu.png': src" mode="" class="image"></image>
+				<image :src="src == null? '../../static/zanwu.png': src" mode="" class="image" @click="preview(src)"></image>
 				<div class='img'>
 					<image :src="src_" mode="" @click='upload'></image>
 					<text v-if="bol4" @click='upload'>+</text>
@@ -83,6 +83,7 @@
 			</div>
 		</div>
 		<button type="default" class="save" @click="save">保存</button>
+		<u-toast ref="uToast" />
 	</view>
 </template>
 
@@ -94,6 +95,12 @@
 		},
 		data() {
 			return {
+				id: '',
+				fzr: ' ',//项目负责人
+				bol3: true,
+				bol_3: false,
+				fzr_list: [],
+				fzr_index: 0,
 				index: 0,
 				index1: 0,
 				index2: 0,
@@ -105,19 +112,8 @@
 				bol_2:false, // 控制省市区数据的 索引 和 默认值:'请选择'字样的显示隐藏
 				
 				index3: 0, // 绿化面积单位数组索引
-				bol3: true,
-				bol_3:false,
 				text: '亩', // 默认单位
-				list: [ // 绿化面积单位数组
-				  {
-				    label: '亩',
-				    value: '0'
-				  },
-				  {
-				    label: '㎡',
-				    value: '1'
-				  },
-				],
+				list: [{label: '亩',value: '0'},{label: '㎡',value: '1'},],
 				province: [], 
 				city: '',
 				area: '',
@@ -127,14 +123,11 @@
 				pid2: '',
 				
 				pname: '', // 项目名称
-				enterprie_name: '', // 企业名称
 				area_: '',// 区\县
 				address: '', // 详细地址
 				acreage: '',// 绿化面积（数字）
 				dtime: '', // 竣工时间
 				time: '', // 交付时间
-				ctime: '', // 进场时间
-				user_name: '', // 项目负责人
 				uid: '', // app用户id
 				src: '', // 平面图
 				src_: '', // 用户修改项目信息时上传的平面图
@@ -145,79 +138,49 @@
 				msg: '',
 				zanding_pro: '',
 				zanding_city: '',
-				zanding_area: ''
+				zanding_area: '',
+				number: '',
+				city_size: false,
+				area_size: false
 			}
 		},
 		onLoad(option) {
 			this.project_id = option.project_id // 项目id
-			this.$request('/api/index/project_edit', {
+			this.id = option.id
+			this.$request('/api/project/Project_info', {
 				project_id: this.project_id
 			}).then(res => {
 				// console.log(res)
 				this.msg = res.data.data
-				// console.log(this.msg)
-				this.zanding_pro = this.msg.province
+				this.zanding_pro = this.msg.province // 存储修改前的省市区标识
 				this.zanding_city = this.msg.city
 				this.zanding_area = this.msg.area
-				if(this.msg.company == 0) {
-					this.text = '亩'
-				} else {
-					this.text = '㎡'
-				}
-				this.$request('/api/index/selectCity', {
-					pid: 0
-				}).then(res => {
-					// console.log(res)
-					this.province = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.province) {
-							this.msg.province = res.data.data[i].shortname
-							// console.log(this.msg.province) // 省
-						}
-					}
-				})
-				this.$request('/api/index/selectCity', {
-					pid: this.msg.province
-				}).then(res => {
-					// console.log(res)
-					this.city = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.city) {
-							this.msg.city = res.data.data[i].shortname
-							// console.log(this.msg.city) // 市
-						}
-					}
-				})
-				this.$request('/api/index/selectCity', {
-					pid: this.msg.city
-				}).then(res => {
-					// console.log(res)
-					this.area = res.data.data
-					for(var i = 0; i <= res.data.data.length; i++) {
-						if (res.data.data[i].id == this.msg.area) {
-							this.msg.area = res.data.data[i].shortname
-							// console.log(this.msg.area) // 区
-						}
-					}
-				})
-				this.pname = this.msg.pname
-				this.enterprie_name = this.msg.enterprie_name
+				
+				this.pname = this.msg.pname // 渲染页面里的各项数据
+				this.fzr = this.msg.name
+				this.number = this.msg.mobile
 				this.address = this.msg.address
-				this.acreage = this.msg.measure // 绿化面积数字
-				this.index3 = this.msg.company // 单位 0代表亩   1代表平方米
+				this.acreage = this.msg.measure
+				this.text = this.msg.unit == '平方米'? '㎡' : this.msg.unit
 				this.dtime = this.msg.dtime
 				this.time = this.msg.time
-				this.ctime = this.msg.ctime
-				this.user_name = this.msg.user_name
 				this.src = this.msg.plan_url
-			})
-			var that = this
-			uni.getStorage({ // 从缓存中拿到用户的id
-				key: 'userinfo',
-				success: (res) => {
-					// console.log(res.data)
-					that.uid = res.data.data.user_id
-				}
+				
+				this.$request('/api/index/selectCity', { // 请求修改前的省市区数据
+					pid: 0, 
+				}).then(res => {
+					this.province = res.data.data
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.zanding_pro, 
+				}).then(res => {
+					this.city = res.data.data
+				})
+				this.$request('/api/index/selectCity', {
+					pid: this.zanding_city
+				}).then(res => {
+					this.area = res.data.data
+				})
 			})
 		},
 		methods: {
@@ -230,9 +193,6 @@
 			onConfirm2(e){
 				this.time = e.dateValue;
 			},
-			onConfirm3(e){
-				this.ctime = e.dateValue;
-			},
 			getTime() {
 				var data = new Date() // 日期对象
 				var year = data.getFullYear() // 年份
@@ -242,42 +202,64 @@
 			},
 			endTime() {
 				var data = new Date() // 日期对象
-				var year = data.getFullYear() + 30 // 年份
+				var year = data.getFullYear() + 50 // 年份
 				var month = data.getMonth() + 1 // 月份
 				var day = data.getDate() // 当天
 				return year + '-' + month + '-' + day // 拼接格式：2020-02-02
 			},
-			
+			fzrMethod(e) { // 负责人
+				this.fzr_index = e.target.value
+				this.fzr = this.fzr_list[this.fzr_index].username
+				this.bol1 = false,
+				this.bol_1 = true
+			},
+			preview(src) {
+				uni.previewImage({
+					urls: [ src ]
+				})
+			},
 			// 省市区
 			bindPickerChange: function(e) { // 请求市级
-				this.index = e.target.value,
-				this.pid = this.province[this.index].id,
-				this.bol = false,
-				this.bol_ = true,
+				this.index = e.target.value
+				this.index1 = 0
+				this.index2 = 0
+				this.pid = this.province[this.index].id
+				this.bol = false
+				this.bol_ = true
+				this.bol1 = false
+				this.bol_1 = true
+				this.bol2 = false
+				this.bol_2 = true
 				this.$request('/api/index/selectCity', {
-					pid: this.pid, // 省级数据请求过来之后，将id传入参数再次请求 市级
+					pid: this.pid,
 				}).then(res => {
 					this.city = res.data.data
+					this.$request('/api/index/selectCity', {
+						pid: this.city[0].id,
+					}).then(res => {
+						this.area = res.data.data
+					})
 				})
 			},
 			bindPickerChange1: function(e) { // 请求区级
 				this.index1 = e.target.value
+				this.bol1 = false
+				this.bol_1 = true
 				this.pid1 = this.city[this.index1].id
-				this.bol1 = false,
-				this.bol_1 = true,
 				this.$request('/api/index/selectCity', {
-					pid: this.pid1, // 省级数据请求过来之后，将id传入参数再次请求 区级
+					pid: this.pid1,
 				}).then(res => {
 					this.area = res.data.data
 				})
 			},
 			bindPickerChange2: function(e) {
 				this.index2 = e.target.value
-				this.area_ = this.area[this.index2].shortname
-				this.bol2 = false,
+				this.bol2 = false
 				this.bol_2 = true
+				this.pid2 = this.area[this.index2].id
+				this.area_ = this.area[this.index2].shortname
 			},
-			wenzi(e) {
+			wenzi(e) { // 面积
 				this.index3 = e.target.value
 				this.bol3 = false,
 				this.bol_3 = true
@@ -288,45 +270,20 @@
 				})
 			},
 			upload() {
-				uni.chooseImage({
-					count: 1, // 限制选取的数量，最多可选9张
-				    success: (chooseImageRes) => {
-				        const tempFilePaths = chooseImageRes.tempFilePaths;
-				        uni.uploadFile({
-				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
-				            filePath: tempFilePaths[0],
-							name: 'file',
-				            formData: {
-				                'file': 'test'
-				            },
-				            success: (uploadFileRes) => {
-								this.bol4 = false
-								this.src_ = uploadFileRes.data // 上传的图片路径
-				            }
-				        });
-				    }
-				});
+				this.$upload('/api/index/upload').then(res => {
+					this.bol4 = false
+					this.src_ = res
+					this.plan_url = this.src_
+					uni.hideLoading()
+				})
 			},
 			save() {
-				if (this.src_ == '') {
-					this.plan_url = this.src
-				} else {
-					this.plan_url = this.src_
-				}
-				if (this.pid == '') {
-					this.pid = this.zanding_pro
-				}
-				if (this.pid1 == '') {
-					this.pid1 = this.zanding_city
-				}
-				if (this.area_ == '') {
-					this.pid2 = this.zanding_area
-				} else {
-					this.pid2 = this.area[this.index2].id
-				}
-				this.$request('/api/index/Project_edit_submit', {
+				if (this.src_ == '') { this.plan_url = this.src }
+				if (this.pid == '') { this.pid = this.zanding_pro }
+				if (this.pid1 == '') { this.pid1 = this.zanding_city }
+				if (this.area_ == '') { this.pid2 = this.zanding_area }
+				this.$request('/api/project/Project_edit_submit', {
 					pname: this.pname,
-					enterprie_name: this.enterprie_name,
 					province: this.pid,
 					city: this.pid1,
 					area: this.pid2,
@@ -334,19 +291,21 @@
 					ctime: this.ctime,
 					dtime: this.dtime,
 					measure: this.acreage,
-					company: this.index3,
+					company: this.list[this.index3].label == '亩'? 0 : 1,
 					time: this.time,
-					user_name: this.user_name,
 					project_id: this.project_id,
+					plan_url: this.plan_url,
 					uid: this.uid,
-					plan_url: this.plan_url
 				}).then(res => {
 					// console.log(res)
 					if(res.data.code == 1) {
-						uni.showModal({
-							content: res.data.msg
+						this.$refs.uToast.show({
+							title: res.data.msg,
+							type: 'success',
+							duration: 1000,
+							position: 'bottom',
+							back: true
 						})
-						this.goBack()
 					} else {
 						if(res.data.msg == '错误！请重试') {
 							uni.showModal({
@@ -373,37 +332,36 @@
 
 <style lang="less" scoped>
 	.hello{
-		width: 100%;
-		height: 1529rpx;
-		background: url(../../static/9-17icon/bg2.jpg) no-repeat;
-		background-size: 100%;
 		.title{
 			width: 100%;
-			height: 260rpx;
-			position: relative;
+			height: 96rpx;
+			background: #5E79F2;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
 			image{
 				width: 50rpx;
 				height: 50rpx;
-				position: absolute;
-				left: 8%;
-				top: 30%;
+				margin-left: 40rpx;
 			}
 			p{
+				flex-grow: 1;
+				text-align: center;
+				margin-left: -90rpx;
 				font-weight: 700;
-				position: absolute;
-				left: 8%;
-				bottom: 10%;
+				font-size: 36rpx;
 				color: white;
 			}
 		}
 		.main{
 			width: 100%;
-			height: 1500rpx;
-			border-radius: 30rpx;
-			border-bottom-right-radius: 0;
-			border-bottom-left-radius: 0;
+			height: auto;
 			background: white;
 			padding-top: 20rpx;
+			padding-bottom: 20rpx;
+			.size{ // 所选市、区，如果字数超过4，那么就要修改它的字体大小，省级不存在这个问题
+				font-size: 24rpx;
+			}
 			.options{
 				width: 90%;
 				height: 80rpx;
@@ -422,6 +380,11 @@
 					border: 1px solid #D5D5D5;
 					text-indent: 20rpx;
 				}
+				.fzr{
+					width: 60%;
+					border: 1px solid #D5D5D5;
+					text-indent: 20rpx;
+				}
 			}
 			.options_{
 				width: 80%;
@@ -431,7 +394,7 @@
 			}
 			.baba{
 				width: 86%;
-				height: 300rpx;
+				height: auto;
 				margin: 40rpx auto;
 				display: flex;
 				justify-content: space-around;

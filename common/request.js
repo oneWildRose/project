@@ -1,6 +1,7 @@
-const baseUrl = 'http://lvz.maike-docker.com/index.php'   
-const request = (url = '', date = {}, type = 'POST', header = {
-}) => {
+const baseUrl = 'http://jl.jingyunlv.com/index.php'// 原来的域名http://lvz.maike-docker.com/index.php
+const request = (url = '', date = {}, header = {
+	'Content-Type': 'application/x-www-form-urlencoded'
+}, type = 'POST') => {
     return new Promise((resolve, reject) => {
         uni.request({
             method: type,

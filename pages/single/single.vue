@@ -1,10 +1,9 @@
 <template> <!-- 添加点位信息 -->
-	<view class="hello">.
+	<view class="hello">
+		<div class="status"></div>
 		<div class='goback'>
 			<image :src="require('../../static/fanhui(1).png')" mode="" @click='goBack'></image>
-			<div>
-				<text>添加点位信息</text>
-			</div>
+			<text>添加点位信息</text>
 		</div>
 		<div class='main'>
 			<div>
@@ -30,8 +29,10 @@
 					<text v-if="bol" @click='upload'>+</text>
 				</div>
 			</div>
-			<button class="btn" @click="sub">提交</button>
+			<button class="btn" @click="sub" v-if='isFocus'>提交</button>
 		</div>
+		<u-modal v-model="show" cancel-text="返回" confirm-text="继续添加" :show-cancel-button='true' :content="content" @cancel='close' @confirm='contin' ></u-modal>
+		<u-modal v-model="show2" :content="content2"></u-modal>
 	</view>
 </template>
 
@@ -43,6 +44,10 @@
 		},
 		data() {
 			return {
+				show: false,
+				show2: false,
+				content: '添加成功',
+				content2: '请将信息填写完整',
 				bol: true,
 				index: 0,
 				bol_1: false,
@@ -66,17 +71,25 @@
 				name: '', // 点位名称
 				levellevel: '', // 点位级别
 				src: '', // 点位图片
-				
+				isFocus: true
 			}
 		},
 		onLoad(option) {
-			// console.log(option)
 			this.project_id = option.project_id
-			this.$request('/api/index/Project_info', {
+			this.$request('/api/project/Project_info', {
 				project_id: this.project_id
 			}).then(res => {
 				// console.log(res)
 				this.pname = res.data.data.pname
+			})
+		},
+		mounted(){
+			uni.onKeyboardHeightChange(res => {
+				if(res.height > 0) {
+					this.isFocus = false
+				} else {
+					this.isFocus = true
+				}
 			})
 		},
 		methods: {
@@ -85,66 +98,40 @@
 					delta: 1
 				})
 			},
+			close() {
+				this.goBack()
+			},
+			contin() {// 继续添加
+				this.name = '' // 清空点位名称
+				this.level = '' // 清空点位级别
+				this.bol_1 = false 
+				this.src = '' // 清空点位图片
+				this.bol = true
+			},
 			sex(e) {
 				this.index = e.target.value
 				this.level = this.list[this.index].value // 点位级别  1代表一级，2代表二级，3代表三级
 				this.bol_1 = true
 			},
 			upload() {
-				uni.chooseImage({
-					count: 1, //最多选取一张图片
-				    success: (chooseImageRes) => {
-				        const tempFilePaths = chooseImageRes.tempFilePaths;
-				        uni.uploadFile({
-				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
-				            filePath: tempFilePaths[0],
-							name: 'file',
-				            formData: {
-				                'file': 'test'
-				            },
-				            success: (uploadFileRes) => {
-								this.src = uploadFileRes.data // 上传的图片路径
-								this.bol = false
-				            }
-				        })
-				    }
-				});
+				this.$upload('/api/index/upload').then(res => {
+					this.src = res
+					this.bol = false
+					uni.hideLoading()
+				})
 			},
 			sub() {
-				// console.log(this.name, this.project_id, this.level, this.src)
 				if(this.name == '' || this.project_id == '' || this.level == '' || this.src == '') {
-					this.$showModal({
-						title: '提示',
-						concent: '请将信息填写完整',
-						cancelVal: '返回',
-						confirmVal: '确定',
-						cancelColor: '#A09D9D'
-					})
+					this.show2 = true
 				} else {
-					this.$request('/api/index/addFile', {
+					this.$request('/api/file/addFile', {
 						project_id: this.project_id, // 项目id
 						name: this.name, // 点位名称
 						level: this.level, // 点位级别
 						url: this.src, // 点位图片
 					}).then(res => {
 						// console.log(res)
-						this.$showModal({
-							title: '提示',
-							concent: res.data.msg,
-							cancelVal: '返回',
-							confirmVal: '继续添加',
-							cancelColor: '#A09D9D'
-						}).then(res=>{
-							// 继续添加
-							this.name = '' // 清空点位名称
-							this.level = '' // 清空点位级别
-							this.bol_1 = false 
-							this.src = '' // 清空点位图片
-							this.bol = true
-						}).catch(cancel=>{
-							// 返回
-							this.goBack()
-						})
+						this.show = true
 					})
 				}
 			}
@@ -156,57 +143,33 @@
 	
 	.hello{
 		width: 100%;
-		height: 100%;
-		background: url(../../static/brg.jpg) no-repeat;
-		background-size: 100%;
-		position: absolute;
+		position: fixed;
 		top: 0;
 		bottom: 0;
-		left: 0;
-		right: 0;
 		.goback{
-			padding-left: 40rpx;
-			padding-right: 40rpx;
-			background: transparent;
-			width: 90%;
-			height: 320rpx;
-			line-height: 120rpx;
-			margin: 0px auto;
-			text-align: center;
-			position: relative;
-			color: white;
-			font-size: 36rpx;
-			&>image{
-				width: 52rpx;
-				height: 52rpx;
-				position: absolute;
-				left: 40rpx;
-				top: 50%;
-				margin-top: -120rpx;
+			width: 100%;
+			height: 92rpx;
+			background: #5C7CF4;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			image{
+				width: 50rpx;
+				height: 50rpx;
+				margin-left: 40rpx;
 			}
-			div{
-				width: 400rpx;
-				height: 80rpx;
-				line-height: 80rpx;
-				position: absolute;
-				left: 40rpx;
-				top: 42%;
+			text{
+				flex-grow: 1;
+				text-align: center;
+				margin-left: -80rpx;
 				font-weight: 800;
 				font-size: 40rpx;
-				display: flex;
-				align-items: center;
+				color: white;
 			}
 		}
 	}
 	.main{
 		width: 100%;
-		height: 81.8%;
-		background: white;
-		border-radius: 40rpx;
-		border-bottom-left-radius: 0;
-		border-bottom-right-radius: 0;
-		position: absolute;
-		top: 280rpx;
 		div{
 			width: 90%;
 			height: 76rpx;
@@ -248,7 +211,7 @@
 				.image{
 					width: 100%;
 					margin-right: 60rpx;
-					position: relative;					
+					position: relative;	
 					image{
 						width: 44%;
 						height: 200rpx;
@@ -268,16 +231,15 @@
 			}
 		}
 		.btn{
-			width: 600rpx;
+			width: 100%;
 			height: 100rpx;
 			line-height: 100rpx;
 			background: #5C7CF4;
 			color: white;
-			border-radius: 60rpx;
-			position: fixed;
-			bottom: 300rpx;
-			left: 50%;
-			margin-left: -300rpx;
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			border-radius: 0;
 		}
 	}
 </style>

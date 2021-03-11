@@ -119,24 +119,11 @@
 				this.explain = e.target.value // 文本域中的内容
 			},
 			upload() {
-				uni.chooseImage({
-					count: 1, //最多选取一张图片
-				    success: (chooseImageRes) => {
-				        const tempFilePaths = chooseImageRes.tempFilePaths;
-				        uni.uploadFile({
-				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
-				            filePath: tempFilePaths[0],
-							name: 'file',
-				            formData: {
-				                'file': 'test'
-				            },
-				            success: (uploadFileRes) => {
-								this.src = uploadFileRes.data // 上传的图片路径
-								this.bol = false
-				            }
-				        })
-				    }
-				});
+				this.$upload('/api/index/upload').then(res => {
+					this.src = res
+					this.bol = false
+					uni.hideLoading()
+				})
 			},
 			sub() {
 				console.log(this.type, this.point, this.worker, this.time, this.explain)

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>画室</title>
+        <style type="text/css">
+            body{
+                margin: 0px;
+                padding: 0px;
+            }
+            .page-head{
+                padding: 10px;
+            }
+            .segmented-control{
+                border:1px solid #0076FF;
+                border-radius: 5px;
+                display: flex;
+                justify-content: center;
+                width: 75%;
+                font-size: 13px;
+                border-radius: 4px;
+                box-sizing: border-box;
+                margin: 0 auto;
+                overflow: hidden;
+            }
+            .segmented-control .control-item{
+                flex: 1;
+                text-align: center;
+                line-height: 28px;
+                border-right: 1px solid #0076FF;
+            }
+            .segmented-control .bottom{
+                background: #007AFF;
+                color: #fff;
+            }
+            .colors-area{
+                padding-bottom: 10px;
+                white-space:nowrap;
+                overflow-x:auto;
+                overflow-y:hidden;
+            }
+            .colors-area .color-item{
+                display: inline-block;
+                margin: 0px 5px;
+                border-radius: 25px;
+                width: 25px;
+                height: 25px;
+                border: 1px solid #999;
+            }
+            .imgs-area{
+                padding-bottom: 10px;
+                white-space:nowrap;
+                overflow-x:auto;
+                overflow-y:hidden;
+                display: flex;
+                flex-direction: row;
+            }
+            .img-item{
+                margin: 5px;
+                padding: 5px 10px;
+                background: #FE390E;
+                text-align: center;
+                color:#fff;
+                font-weight: 400;
+                font-size: 14px;
+                border-radius: 5px;
+            }
+            #myCanvas{
+                /* width: 300px; */
+                border-top: 1px solid #eee;
+                border-bottom: 1px solid #eee;
+            }
+            .btn-area{
+                margin: 5px auto;
+                margin-top: 10px;
+                display: flex;
+                flex-direction: row;
+            }
+            .btn-item{
+                color: #fff;
+                text-align: center;
+                width: 50%;
+            }
+            .btn-item span{
+                padding: 5px 0px;
+                border-radius: 30px;
+                font-size: 16px;
+                width: 100px;
+            }
+            .m-btn{
+                display: inline-block;
+                background: #FFCD00;
+                box-shadow: 0px 2px 5px #999;
+            }
+            /* .btn-submit{
+                display: inline-block;
+                background: #FFCD00;
+            }
+            .btn-cancel{
+                display: inline-block;
+                background: #FFCD00;
+            } */
+            /* 弹窗 */
+            .dialog-area{
+                display: none;
+            }
+            .dialog-area .uni-mask {
+                position: fixed;
+                z-index: 999;
+                top: 0;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                background: rgba(0,0,0,.6);
+            }
+            .dialog-area .uni-modal {
+                position: fixed;
+                z-index: 999;
+                width: 80%;
+                max-width: 300px;
+                top: 50%;
+                left: 50%;
+                -webkit-transform: translate(-50%,-50%);
+                transform: translate(-50%,-50%);
+                background-color: #fff;
+                text-align: center;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            .dialog-area .uni-modal__title {
+                font-weight: 400;
+                font-size: 18px;
+                word-wrap: break-word;
+                word-break: break-all;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            .dialog-area .uni-modal__bd {
+                padding: 1.3em 1.6em 1.3em;
+                min-height: 40px;
+                font-size: 15px;
+                line-height: 1.4;
+                word-wrap: break-word;
+                word-break: break-all;
+                color: #999;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .dialog-area .uni-modal__hd {
+                padding: 1em 1.6em .3em;
+            }
+            .dialog-area .uni-modal__ft {
+                position: relative;
+                line-height: 48px;
+                font-size: 18px;
+                display: -webkit-box;
+                display: -webkit-flex;
+                display: flex;
+                border-top: 1px solid #eee;
+            }
+            .dialog-area .uni-modal__btn {
+                display: block;
+                -webkit-box-flex: 1;
+                -webkit-flex: 1;
+                flex: 1;
+                text-decoration: none;
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
+                position: relative;
+            }
+            .dialog-area .uni-modal__ft {
+                position: relative;
+                line-height: 48px;
+                font-size: 18px;
+            }
+            .dialog-area .uni-modal__btn_default {
+                border-right: 1px solid #eee;
+            }
+        </style>
+        <!-- uni 的 SDK -->
+        <script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.0.js"></script>
+        <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+    <body>
+        <div class="page-head">
+            <div class="segmented-control">
+                <div class="control-item bottom">涂鸦</div>
+                <div class="control-item">素描</div>
+                <div class="control-item" style="border-right: 0px;">填色</div>
+            </div>
+        </div>
+        <!-- 选色 -->
+        <div class="colors-area">
+             
+        </div>
+        <!-- 选图 -->
+        <div class="imgs-area">
+             
+        </div>
+        <!-- 画图 -->
+        <div class="canvas-area">
+            <canvas id="myCanvas" height="300"></canvas>
+        </div>
+        <!-- 操作 -->
+        <div class="btn-area">
+            <div class="btn-item"><span class="m-btn btn-cancel" onclick="cancel()">撤销</span></div>
+            <div class="btn-item"><span class="m-btn btn-submit" id="submitDo" >发布作品</span></div>
+        </div>
+        <div class="dialog-area" id="dialog_area">
+            <div class="uni-mask"></div>
+            <div class="uni-modal">
+                <div class="uni-modal__hd">
+                    <strong class="uni-modal__title">提示</strong>
+                </div>
+                <div class="uni-modal__bd">确认发布吗？</div>
+                <div class="uni-modal__ft">
+                    <div class="uni-modal__btn uni-modal__btn_default" style="color: rgb(0, 0, 0);" onclick="submitCancel()">取消</div>
+                    <div class="uni-modal__btn uni-modal__btn_primary" style="color: rgb(0, 122, 255);" onclick="submitDo()">确定</div>
+                </div>
+            </div>
+        </div>
+    </body>
+<script type="text/javascript">
+    $('.control-item').on("tap click",function(){
+        $('.control-item').siblings().removeClass('bottom');
+        $(this).addClass('bottom');
+    });
+    //颜色-start
+    var colors = [
+        '#ffffff','#000000','#FF4081',
+        '#FF9800','#3F51B5','#3FFB6F',
+        '#EA20D8','#F5C965','#1131E4',
+        '#FFFAE8','#76D6E8','#41A863',
+        '#F029C4','#F05229','#B4F029',
+        ];
+    var html = '';
+    for(var k in colors){
+        html += '<div class="color-item" onclick="setColor(\''+colors[k]+'\')" style="background: '+colors[k]+';"></div>';
+    }
+    $('.colors-area').html(html);
+    //颜色-end
+    //图片 -start
+    var imgs = [
+        {name:'老虎',url:'http://img.jam00.com/FrtvnogQn4qFIl3dWkLtBZeftZ2N'},
+        {name:'皮卡丘',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'鳄鱼',url:'http://img.jam00.com/Flfbw9juhNuqvlBGMzlf2-ORaKaL'},
+        {name:'古典建筑',url:'http://img.jam00.com/FoMQ4QOY7mraQkXEGrdqdKB2MKuN'},
+        {name:'猴子',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'狮子',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'斑马',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'犀牛',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'大象',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'火烈鸟',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'高达',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'机器猫',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'哈士奇',url:'http://img.jam00.com/FoMQ4QOY7mraQkXEGrdqdKB2MKuN'},
+        {name:'天使',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'藏羚羊',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        {name:'熊猫',url:'http://img.jam00.com/20150410H0059_kKVyt.jpeg'},
+        ];
+    var html = '';
+    for(var k in imgs){
+        html += '<div class="img-item" onclick="setImg(\''+imgs[k]['url']+'\')" >'+imgs[k]['name']+'</div>';
+    }
+    $('.imgs-area').html(html);
+    //图片 -end
+     
+    //绘图
+    var lastX, lastY;
+    var mousePressed = false;//是否点击了鼠标
+    var canvas = document.getElementById('myCanvas');
+    canvas.setAttribute("width",document.body.clientWidth);//设置样式不起作用
+    var ctx = canvas.getContext("2d");
+    //设置白色背景
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    //默认画笔颜色
+    ctx.strokeStyle = '#000';
+    //默认画笔宽度
+    ctx.lineWidth = '1';
+    //线条圆润 ,结束线帽
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+ 
+    $('#myCanvas').on('touchstart',function (e) {
+        saveCanvasData();
+        mousePressed = true;
+        Draw(e.originalEvent.touches[0].clientX,e.originalEvent.touches[0].clientY,false);
+    });
+    $('#myCanvas').on('touchmove',function (e) {
+        if (mousePressed) {
+            Draw(e.originalEvent.touches[0].clientX,e.originalEvent.touches[0].clientY,true);
+        }
+    });
+    $('#myCanvas').on('touchend',function (e) {
+         
+    });
+    $('#myCanvas').on('mouseup',function (e) {
+        mousePressed = false;
+    });
+    $('#myCanvas').on('mouseleave',function (e) {
+        mousePressed = false;
+    });
+    //绘图
+    function Draw(x, y, isDown) {
+        y = y - 142;
+        if (isDown) {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+        lastX = x; lastY = y;
+    }
+    //设置颜色
+    function setColor(color){
+        ctx.strokeStyle = color;
+    }
+     
+    //载入图像
+    function setImg(url){
+        saveCanvasData();
+        var img = new Image();
+        img.src = url;
+        img.crossOrigin = "Anonymous";
+        //防止图片未加载完成,而没有操作
+        img.onload = function(){
+            ctx.drawImage(img,0,0,ctx.canvas.clientWidth,ctx.canvas.clientHeight);
+        }
+    }
+    var imgData = [];//每步图像数据,用于撤销
+    function saveCanvasData(){
+        imgData.push(ctx.getImageData(0,0,ctx.canvas.clientWidth,ctx.canvas.clientHeight));
+    }
+    function getCanvasData(){
+        if(imgData.length == 0){
+            return false
+        }
+        tmpImgData = imgData.pop();
+        ctx.putImageData(tmpImgData,0,0)
+    }
+    //撤销功能
+    function cancel(){
+        getCanvasData();
+    }
+     
+    //绘图结束
+    function showConfirm(){
+        $('#dialog_area').show();
+    }
+    function submitCancel(){
+        $('#dialog_area').hide();
+    }
+    function submitDo(){
+        var base64Data = canvas.toDataURL('image/jpeg', 1);
+		alert(base64Data)
+        $('#dialog_area').hide();
+        var sid = getQueryString('id');
+        //向 app 发送消息
+        uni.postMessage({  
+            data: {  
+                imgData: base64Data ,
+                id:sid
+            }
+        });
+        uni.redirectTo({
+            url: '/pages/index/studio?type=share'
+        });
+    }
+    document.addEventListener('UniAppJSBridgeReady', function() {
+        //发布作品
+        document.getElementById('submitDo').addEventListener('click',function(e){
+            showConfirm();
+        })
+        
+    });
+    var title = unescape(getQueryString('title'));
+    $(document).attr('title',title);
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); 
+        var r = window.location.search.substr(1).match(reg); 
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+</script>
+</html>

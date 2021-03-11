@@ -112,7 +112,6 @@
 			input{
 				width: 100%;
 				height: 100%;
-				color: #C3C3C3;
 				background-color: white;
 				border-radius: 12rpx;
 				font-size: 14px;

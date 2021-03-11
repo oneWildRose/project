@@ -1,4 +1,4 @@
-<template>  <!-- 乙方首页 -->
+<template>  <!-- 乙方项目主管首页（旧版） -->
 	<view class='hello'>
 		<div class="status"></div>
 		<div class='top'>

@@ -7,9 +7,10 @@
 			<p @click='save'>保存</p>
 		</div>
 		<div class='xg'>
-			<input type="text" value="" placeholder="请输入新的昵称" v-model="name"/>
-			<text>支持汉字、数字、英文字母、下划线</text>
+			<input type="text" value="" placeholder="请输入新的昵称" maxlength='8' v-model="name"/>
+			<text>支持汉字、数字、英文字母、下划线，不超过8个字符</text>
 		</div>
+		<u-toast ref="uToast" />
 	</view>
 </template>
 
@@ -17,8 +18,14 @@
 	export default({
 		data() {
 			return {
-				name: ''
+				isClick: true,
+				name: '',
+				auid: ''
 			}
+		},
+		onLoad(option) {
+			this.name = option.username
+			this.auid = option.id
 		},
 		methods: {
 			goBack() {
@@ -27,34 +34,53 @@
 				})
 			},
 			save() {
+				if(this.isClick == false) {return}
+				this.isClick = false
 				var that = this
-				if(that.name == '') {
-					uni.showModal({
-						content: '昵称不能为空'
+				if(this.name == '') {
+					this.$refs.uToast.show({
+						title: '昵称不能为空',
+						duration: 1000,
+						position: 'bottom',
+						callback: function() {
+							that.isClick = true
+						}
 					})
-				} else {
-					uni.getStorage({
-						key: "userinfo",
-						success(res) {
-							console.log(res)
-							that.$request('/api/index/infoEdit', {
-								username: that.name,
-								uid: res.data.data.user_id
-							}).then(res => {
-								console.log(res)
-								if(res.data.code == 1 ) {
-									uni.redirectTo({
-										url: '../information/information',
-										success(res) {
-											// console.log(res)
-										}
-									})
-								} else {
-									uni.showModal({
-										content: res.data.msg
-									})
+				} else if(/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(this.name)) {
+					this.$request('/api/index/infoEdit', {
+						name: this.name,
+						nick: this.name,
+						uid: this.auid
+					}).then(res => {
+						// console.log(res)
+						if(res.data.code == 1 ) {
+							this.$refs.uToast.show({
+								title: res.data.msg,
+								duration: 1000,
+								position: 'bottom',
+								type: 'success',
+								back: true
+							})
+						} else {
+							this.$refs.uToast.show({
+								title: res.data.msg,
+								duration: 1000,
+								position: 'bottom',
+								type: 'error',
+								callback: function() {
+									that.isClick = true
 								}
 							})
+						}
+					})
+				} else {
+					this.$refs.uToast.show({
+						title: '昵称不符合规范',
+						duration: 1000,
+						position: 'bottom',
+						type: 'error',
+						callback: function() {
+							that.isClick = true
 						}
 					})
 				}

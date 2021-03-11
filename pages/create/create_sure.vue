@@ -27,7 +27,7 @@
 		<div class="message">
 			<p>项目平面图</p>
 			<div class='image'>
-				<image :src="this.src" mode="" @click='upload'></image>
+				<image :src="src" mode="" @click='upload'></image>
 				<button @click='upload'>上传</button>
 			</div>
 		</div>
@@ -61,25 +61,9 @@
 				})
 			},
 			upload() { // 上传项目平面图
-				uni.chooseImage({
-					count: 1, //最多选取一张图片
-				    success: (chooseImageRes) => {
-				        const tempFilePaths = chooseImageRes.tempFilePaths;
-				        uni.uploadFile({
-				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
-				            filePath: tempFilePaths[0],
-							name: 'file',
-							formData: {
-								'user': 'test'
-							},
-				            success: (uploadFileRes) => {
-				                // console.log(uploadFileRes.data);
-								this.src = uploadFileRes.data
-								
-				            }
-				        });
-				    }
-				});
+				this.$upload('/api/index/upload').then(res => {
+					this.src = res
+				})
 			},
 			sub() {
 				// console.log(this.src, this.project_id)

@@ -86,23 +86,8 @@
 				})
 			},
 			uploadImg() { // 上传图片
-				uni.chooseImage({
-					count: 1, //最多选取一张图片
-				    success: (chooseImageRes) => {
-				        const tempFilePaths = chooseImageRes.tempFilePaths;
-				        uni.uploadFile({
-				            url: 'http://lvz.maike-docker.com/index.php/api/index/upload',
-				            filePath: tempFilePaths[0],
-							name: 'file',
-							formData: {
-								'user': 'test'
-							},
-				            success: (uploadFileRes) => {
-				                // console.log(uploadFileRes.data);
-								this.src = uploadFileRes.data
-				            }
-				        });
-				    }
+				this.$upload('/api/index/upload').then(res => {
+					this.src = res
 				})
 			},
 			sub() {

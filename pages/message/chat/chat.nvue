@@ -1,0 +1,712 @@
+<template>
+    <view class='hello'>
+		<view :style="{height: keyHeight}"></view>
+        <!-- list组件必须显示的指定宽高，或者使用定位方式 -->
+        <list class="msg-list" @scroll="scroll" :style="{ width: clientWidth }">
+            <refresh 
+				:show-scrollbar='false'
+                :display="refreshing ? 'show' : 'hide'" 
+                @refresh="onrefresh" 
+                @pullingdown="onpullingdown"
+                @click="reFresh">
+                <view class="loading-more">
+                    <loading-indicator style="margin-right:15px;"></loading-indicator>
+                    <text class="loading-more-text">{{refreshText}}</text>
+                </view>
+            </refresh>
+            <cell v-for="(item,index) in msgList" :key="index" @touchstart="clickWhite" :ref="`cell${item.id}`">
+				<!-- 自己发出的消息 -->
+				<view class="my" v-if="item.uid == id" :style="{ width: clientWidth }">
+					<!-- 左-消息 -->
+					<view class="my_left">
+						<view class="my_username" :style="{ width: clientWidth }">
+							<text class="time">{{item.time}}</text>
+							<text class="my_name">{{item.userinfo.name}}</text> 
+						</view>
+						<!-- 文字消息 -->
+						<view v-if="item.type == 2" class="bubble my_bubble">
+							<text class='my_content' @touchstart="handletouchstart(item.content)">{{item.content}}</text>
+						</view>
+						<!-- 图片消息 -->
+						<view v-if="item.type == 3" class="bubble my_bubble img" @tap="showPic(item.content)">
+							<image :src="item.content" class='imgnew'></image>
+						</view>
+					</view>
+					<!-- 右-头像 -->
+					<view class="my_right" :style="{ width: clientWidth }">
+						<image class='touxiang' :src="item.userinfo.file == null? src : item.userinfo.file"></image>
+					</view>
+				</view>
+				<!-- 别人发出的消息 -->
+				<view class="other" v-if="item.uid != id" :style="{ width: clientWidth }">
+					<!-- 左-头像 -->
+					<view class="other_left">
+						<image class='touxiang' :src="item.userinfo.file == null? src:item.userinfo.file"></image>
+					</view>
+					<!-- 右-用户名称-时间-消息 -->
+					<view class="other_right">
+						<view class="other_username" :style="{ width: clientWidth }">
+							<text class="other_name">{{item.userinfo.name}}</text> 
+							<text class="time">{{item.time}}</text>
+						</view>
+						<!-- 文字消息 -->
+						<view v-if="item.type == 2" class="bubble other_bubble">
+							<text class='other_content' @touchstart="handletouchstart(item.content)">{{ item.content }}</text>
+						</view>
+						<!-- 图片消息 -->
+						<view v-if="item.type == 3" class="bubble other_bubble img" @tap="showPic(item.content)">
+							<image :src="item.content" class='imgnew'></image>
+						</view>
+					</view>
+				</view>
+            </cell>
+        </list>
+		<!-- 底部输入栏,抽屉栏 -->
+		<view class="input-box" :style="{ width: clientWidth }" :class="[popupLayerClass]" @touchmove.stop.prevent="discard">
+			<view class='inp'>
+				<view class="textbox">
+					<textarea class="textarea" ref='textarea' style="padding: 7px 0;" cursor-spacing="10" auto-height maxlength='-1' v-model="textMsg"/>
+				</view>
+				<view class="more" @tap="showMore">
+					<image class='more_add' src="../../../static/jiahao.png" mode=""></image>
+				</view>
+				<view class="send" @touchend.prevent="sendText">
+					<text class="btn">发送</text>
+				</view>
+			</view>
+			<view class="popup-layer" @touchmove.stop.prevent="discard">
+				<!-- 更多功能 相册-拍照 -->
+				<view class="more-layer" :class="[{hidden:hideMore}]">
+					<view class="more-layer_list">
+						<view class="box" @tap="getImage">
+							<image class='more_photos' src="../../../static/xiangce.png" mode=""></image>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+    </view>
+</template>
+
+<script>
+    // 引入dom模块（nvue）
+    const dom = weex.requireModule('dom')
+	// 添加日期方法
+	Date.prototype.Format = function (fmt) {
+		var o = {
+			"M+": this.getMonth() + 1, //月份
+			"d+": this.getDate(), //日
+			"H+": this.getHours(), //小时
+			"m+": this.getMinutes(), //分
+			"s+": this.getSeconds(), //秒
+			"q+": Math.floor((this.getMonth() + 3) / 3), //季度
+			"S": this.getMilliseconds() //毫秒
+		};
+		if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+		for (var k in o)
+		if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+		return fmt;
+	}
+    export default {
+        data() {
+            return {
+				src: '../../../static/touxiang.png',// 默认头像
+				id: '', // 用户id
+				clientid: '', // 设备唯一标识
+				clientWidth: '', // 设备宽度
+				jid: 4, // 聊天对象的id
+				jname: '',
+				jface: '',
+				zid: '', // 这则聊天记录的主键id
+				textMsg:'', //文字消息
+				msgList:[],//消息列表
+				msgImgList:[],
+				page: 0,
+				selfinfo: [],
+				indexNumber: 0,
+				// 抽屉参数
+				popupLayerClass:'',
+				// more参数
+				hideMore: true,
+				isSocketOpen: false,
+				pingpangTimes: '',
+				ishave: true, // 还有无历史记录
+				scrollTop: 0,
+				isKeyboard: false, // 当前是否存在键盘
+				viewID: 0,
+				keyHeight: 0,
+				
+				timeOutEvent: '',
+                refreshText:'',
+                loading:false,
+                refreshing:false,
+            }
+        },
+		onLoad(option) {
+			var that = this
+			uni.getSystemInfo({
+				success(res) {
+					this.clientWidth = res.screenWidth + 'px' // 设备宽度
+				}
+			})
+			uni.getStorage({
+				kay: 'clientid',
+				success:(res) => {
+					// console.log(res.data)
+					that.clientid = res.data
+				}
+			})
+			uni.getStorage({
+				key: 'userinfo',
+				success: (res) => {
+					if(res.data.id) {
+						that.id = res.data.id
+					} else if(res.data.uid) {
+						that.id = res.data.uid
+					} else if(res.data.data.id) {
+						that.id = res.data.data.id
+					}
+					uni.request({
+					    url: 'http://jl.jingyunlv.com/index.php/api/index/infoIndex',
+					    data: {
+					        uid: that.id
+					    },
+					    success: (res) => {
+							that.selfinfo = res.data.data
+					    }
+					});
+				}
+			})
+			if(option.zid) { this.zid = option.zid }
+			if(option.id) {
+				this.jid = option.id
+				uni.request({
+				    url: 'http://jl.jingyunlv.com/index.php/api/index/infoIndex',
+				    data: {
+				        uid: this.jid
+				    },
+				    success: (res) => {
+						// console.log(res)
+						this.jname = res.data.data.name == null? '':res.data.data.name
+						this.jface = res.data.data.file
+						uni.setNavigationBarTitle({ // 设置导航栏标题
+							title: this.jname
+						})
+				    }
+				});
+			}
+			this.getMsgList(0) // 加载初始页面消息
+		},
+		mounted() {
+			let that = this
+			this.createSocket()
+			uni.onSocketOpen(function (res) {
+				console.log('WebSocket连接已打开！');
+				that.isSocketOpen = true;
+			});
+			uni.onSocketMessage(function (res) { // 监听WebSocket接受到服务器的消息
+				// console.log(res)
+				if(res.data == "heartBeat") {return}
+				let info = JSON.parse(JSON.parse(res.data).tt)
+				// console.log(info)
+				let msg = {
+					id: that.indexNumber,
+					uid: 0,
+					content: info.content,
+					type: info.type,
+					time: new Date().Format("yyyy-MM-dd HH:mm:ss"),
+					userinfo:{
+						name: that.jname,
+						file: that.jface,
+					}
+				}
+				if(info.type == 3) { that.msgImgList.push(info.content) }
+				that.msgList.push(msg);
+				setTimeout(() => {
+					that.$nextTick(() => {
+						that.viewID = that.msgList[that.msgList.length - 1].id
+						that.scrollElement(that.viewID)
+					})
+				},120)
+			});
+			
+			uni.onSocketClose(()=>{
+				that.isSocketOpen = false
+				console.log('WebSocket连接已关闭！');
+			})
+			uni.onSocketError(function (res) {
+				that.isSocketOpen = false
+				console.log('WebSocket连接打开失败，请检查！');
+			});
+			
+			//先确保清除了之前的心跳定时器
+			clearInterval(that.pingpangTimes)
+			//每过一段时间发送一次心跳，这样操作以保持socket一直是连接状态，防止断开连接，心跳停止
+			that.pingpangTimes = setInterval(()=>{
+				uni.sendSocketMessage({
+					data: "heartBeat",
+					success:()=>{},
+					fail:()=>{
+						that.isSocketOpen = false
+						that.createSocket()
+					}
+				});
+			},10000)
+			
+			uni.onKeyboardHeightChange(res => { // 监听键盘高度
+				if(res.height > 0) {
+					this.isKeyboard = true
+					this.keyHeight = res.height
+				} else {
+					this.isKeyboard = false
+					this.keyHeight = 0
+				}
+			})
+		},
+		onBackPress() { // 监听页面返回
+			uni.closeSocket() // 关闭WebSocket连接
+		},
+		onUnload() { // 监听页面卸载
+			uni.closeSocket()
+		},
+        methods: {
+			createSocket() {
+				let that = this
+				uni.closeSocket() // 先确保关闭之前的连接
+				uni.connectSocket({ // 创建WebSocket连接
+					url: 'ws://139.9.132.34:9504?uid=' + that.id + '&clientid=' + that.clientid + '&jid=' + that.jid
+				});
+			},
+			// 接受消息(筛选处理)
+			screenMsg(msg){
+				var that = this
+				if(msg){
+					switch (msg.type){
+						case 2:
+							this.addTextMsg(msg);
+							break;
+						case 3:
+							this.addImgMsg(msg);
+							break;
+					}
+					this.sendSocketMessage(msg)
+				}
+				setTimeout(() => {
+					that.$nextTick(() => {
+						that.viewID = that.msgList[that.msgList.length - 1].id
+						that.scrollElement(that.viewID)
+					})
+				},120)
+			},
+			sendSocketMessage(msg) {
+				// console.log(msg)
+				let data = {
+					msg: msg.content,
+					type: msg.type,
+					uid: this.id,
+					clientid: this.clientid,
+					jid: this.jid
+				}
+				if (this.isSocketOpen) {
+					uni.sendSocketMessage({
+						data: JSON.stringify(data)
+					});
+				} else {
+					this.msgList.push(data.msg);
+				}
+			},
+			scroll(e) { //监听list组件滚动
+				if(e.contentOffset.y >= -1678) {
+					// console.log(123)
+				}
+			},
+			handletouchstart(content) {
+				// clearTimeout(this.timeOutEvent);
+				// this.timeOutEvent = setTimeout(() => {
+				// 	this.onLongPress(content)
+				// },1200);//设置定时器，规定长按多长时间执行复制操作
+			},
+			onLongPress(content) {// 文本消息复制粘贴
+				uni.setClipboardData({
+				    data: content
+				});
+			},
+			// 点击空白区域
+			clickWhite() { 
+				this.hideDrawer() // 隐藏抽屉
+				uni.hideKeyboard(); // 关闭键盘
+				this.$refs.textarea.blur() //去除文本域焦点
+			},
+			//触发滑动到顶部(加载历史信息记录)
+			loadHistory(){
+				this.getMsgList(this.page)
+			},
+			// 打开抽屉
+			openDrawer(){
+				this.popupLayerClass = 'height';
+				this.hideMore = false;
+				uni.hideKeyboard(); // 关闭键盘
+				this.$refs.textarea.blur()//去除文本域焦点
+			},
+			// 隐藏抽屉
+			hideDrawer(){
+				this.popupLayerClass = '';
+				this.hideMore = true;
+			},
+			//更多功能(点击+弹出)
+			showMore(){
+				if(this.hideMore){ // 现在抽屉是隐藏的,不论键盘是否存在
+					this.openDrawer(); // 打开抽屉
+				} else if(!this.hideMore && !this.isKeyboard) { // 现在抽屉是打开的，并且不存在键盘
+					this.hideDrawer(); // 隐藏抽屉
+				} else if(!this.hideMore && this.isKeyboard) { // 现在抽屉是打开的，但是存在键盘
+					uni.hideKeyboard(); // 关闭键盘
+				}
+			},
+			//选照片 or 拍照
+			getImage(){
+				this.hideDrawer();
+				let that = this
+				uni.chooseImage({
+					count: 1, //数量限制
+				    success: (chooseImageRes) => {
+				        const tempFilePaths = chooseImageRes.tempFilePaths;
+						uni.showLoading({
+							mask: true // 透明蒙层，防止触摸穿透
+						})
+						uni.uploadFile({
+							url: 'http://jl.jingyunlv.com/index.php/api/index/upload',
+							filePath: tempFilePaths[0],
+							name: 'file',
+							success: (uploadFileRes) => {
+								let url = JSON.parse(uploadFileRes.data).data.file
+								uni.hideLoading()
+								uni.getImageInfo({
+									src: url,
+									success: (image)=>{
+										// console.log(image.width);
+										// console.log(image.height);
+										// let msg = {
+										// 	url: url,
+										// 	w: image.width,
+										// 	h: image.height,
+										// }
+										that.sendMsg(url, 'img');
+									}
+								});
+							}
+						})
+				    }
+				})
+			},
+			
+			// 发送文字消息
+			sendText(){
+				// this.hideDrawer();//隐藏抽屉
+				if(!this.textMsg){
+					return;
+				}
+				this.sendMsg(this.textMsg,'text');
+				this.textMsg = '';//清空输入框
+			},
+			// 发送消息
+			sendMsg(content,type){
+				let msg = {
+					id: this.indexNumber,
+					uid: this.id,
+					content: content,
+					type: type == 'text'? 2 : 3,
+					time: new Date().Format("yyyy-MM-dd HH:mm:ss"),
+					userinfo:{
+						name: this.selfinfo.name,
+						file: this.selfinfo.file,
+					}
+				}
+				this.indexNumber++
+				// 发送消息
+				this.screenMsg(msg);
+			},
+			
+			// 添加文字消息到列表
+			addTextMsg(msg){
+				this.msgList.push(msg);
+			},
+			// 添加图片消息到列表
+			addImgMsg(msg){
+				// msg.content = this.setPicSize(msg.msg.content);
+				this.msgImgList.push(msg.content);
+				this.msgList.push(msg);
+			},
+			discard(){
+				return;
+			},
+			// 预览图片
+			showPic(url){
+				// console.log(url, this.msgImgList)
+				uni.previewImage({
+					current: url,
+					urls: this.msgImgList
+				});
+			},
+            //开始下拉时
+            onpullingdown(e){
+                //当正在刷新的时候直接返回
+                if(this.refreshing){
+                    return;
+                }
+				if(!this.ishave) {
+					this.refreshText = "没有了，亲";
+					return;
+				}
+                if (Math.abs(e.pullingDistance) > Math.abs(e.viewHeight)) {
+                    //当下拉的距离大于fresh组件的高度
+                    this.refreshText = "释放加载";
+                } else {
+                    this.refreshText = "下拉加载记录";
+                }
+            },
+            onrefresh(){
+                if(this.loading){//当正在调用接口获取数据时，此时的下拉不做任何操作
+                    return;
+                }
+				if(!this.ishave){ this.refreshText = "没有了，亲" } 
+				else { this.refreshText = "正在刷新..." }
+                // 刷新数据,模拟接口延迟
+                this.loading = true;
+                this.refreshing = true;
+                //刷新成功
+                setTimeout(()=>{
+                    this.getMsgList(this.page)
+                    this.loading = false;
+                    this.refreshing = false;
+                    this.loadErr = false;
+                },500);
+            },
+            reFresh(){
+                if(!this.loadErr){
+                    return;
+                }
+                this.refreshText="正在刷新...";
+                setTimeout(()=>{
+                    this.list.unshift(1)
+                    this.loading = false;
+                    this.refreshing = false;
+                    this.loadErr = false;
+                },300);
+            },
+            //滚动到某一个元素
+            scrollElement(index){
+				if (this.$refs['cell'+index]) {
+					dom.scrollToElement(this.$refs['cell'+index][0], {
+						animated: false //滚动的动画
+					});
+				}
+            },
+			getMsgList(page){
+				var that = this
+				if(!this.ishave) { return }
+				page++
+				uni.request({
+				    url: 'http://jl.jingyunlv.com/index.php/api/fdchatcontent/content',
+				    data: {
+				        id: this.zid,
+				        uid: this.id,
+				        page: page,
+				        limit: 20
+				    },
+				    success: (res) => {
+						// console.log(res)
+						if(res.data.code != 1 || res.data.data == "") { return }
+						if(res.data.data.length < 20) { this.ishave = false }
+						switch (page) {
+							case 1:
+								this.msgList = res.data.data
+								for(let j = 0; j < res.data.data.length; j++) {
+									if(res.data.data[j].type == 3) { this.msgImgList.push(res.data.data[j].content) }
+								}
+								this.viewID = this.msgList[this.msgList.length - 1].id
+								break;
+							default:
+								res.data.data.reverse()
+								this.viewID = this.msgList[0].id // 保存第一条数据的id（历史记录加载前）
+								for(let i = 0; i < res.data.data.length; i++) {
+									this.msgList.unshift(res.data.data[i])
+									if(res.data.data[i].type == 3) { this.msgImgList.unshift(res.data.data[i].content) }
+								}
+						}
+						setTimeout(() => {
+							that.$nextTick(() => {
+								that.scrollElement(this.viewID)
+							})
+						},120)
+						this.page = page
+						// console.log(this.msgList)
+				    }
+				});
+			},
+        }
+    }
+</script>
+
+<style>
+	.hello{
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: #e5e5e5;
+		flex-direction: column;
+	}
+	.msg-list{
+		
+	}
+	.my{
+		flex-direction: row;
+		justify-content: flex-end;
+		margin-bottom: 50rpx;
+		margin-top: 20rpx;
+	}
+	.imgnew{
+		width: 350rpx;
+		height: 350rpx;
+	}
+	.touxiang{
+		width: 90rpx;
+		height: 90rpx;
+		border-radius: 10rpx;
+		margin-right: 10rpx;
+		margin-left: 10rpx;
+	}
+	.my_username{
+		flex-direction: row;
+	}
+	.time{
+		font-size: 28rpx;
+		color: #999;
+		margin-right: 20rpx;
+	}
+	.my_name{
+		font-size: 32rpx;
+		color: #999;
+		margin-right: 10rpx;
+	}
+	.my_bubble{
+		align-items: flex-end;
+		font-size: 32upx;
+	}
+	.my_content{
+		color: #fff;
+		font-size: 34rpx;
+		border-radius: 14rpx;
+		padding: 15rpx 20rpx;
+		background-color: #f06c7a;
+		margin-top: 10rpx;
+		max-width: 280rpx;
+	}
+	
+	.other{
+		flex-direction: row;
+		margin-bottom: 50rpx;
+		margin-top: 20rpx;
+	}
+	.other_username{
+		flex-direction: row;
+	}
+	.other_name{
+		font-size: 32rpx;
+		color: #999;
+		margin-left: 10rpx;
+		margin-right: 20rpx;
+	}
+	.other_bubble{
+		align-items: flex-start;
+		font-size: 32upx;
+	}
+	.other_content{
+		color: #fff;
+		font-size: 34rpx;
+		border-radius: 14rpx;
+		padding: 15rpx 20rpx;
+		background-color: #f06c7a;
+		margin-top: 10rpx;
+		max-width: 280rpx;
+	}
+	
+	
+
+	.height{
+		height: 420rpx !important;
+	}
+	.input-box{
+		height: 120rpx;
+		background-color: #f2f2f2;
+		transition: height .15s linear;
+	}
+	.inp{
+		height: 120rpx;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-around;
+		border-bottom: 1px solid #ddd;
+	}
+	.textbox{
+		width: 500rpx;
+		border-radius: 10rpx;
+		background-color: #fff;
+	}
+	.textarea{
+		width: 500rpx;
+		font-size: 32rpx;
+		margin-top: 14rpx;
+		padding-left: 10rpx;
+	}
+	.more{
+		width: 70rpx;
+		height: 70rpx;
+	}
+	.more_add{
+		width: 70rpx;
+		height: 70rpx;
+	}
+	.send{
+		width: 90rpx;
+		height: 56rpx;
+	}
+	.btn{
+		width: 90rpx;
+		height: 56rpx;
+		text-align: center;
+		line-height: 56rpx;
+		background: linear-gradient(to right,#f09b37,#eb632c);
+		color: #fff;
+		border-radius: 6rpx;
+		font-size: 30rpx;
+	}
+	
+	.popup-layer{
+		height: 300rpx;
+		padding: 20rpx 10rpx;
+		background-color: #f3f3f3;
+		z-index: 20;
+	}
+	.more_photos{
+		width: 120rpx;
+		height: 120rpx;
+		background-color: white;
+		border-radius: 20rpx;
+	}
+	.loading-more {
+		align-items: center;
+		justify-content: center;
+		padding-top: 60rpx;
+		padding-bottom: 40rpx;
+		text-align: center;
+		flex-direction: row;
+	}
+	.loading-more-text {
+		font-size: 28upx;
+		color: #999;
+	}
+	
+</style>

@@ -1,4 +1,4 @@
-<template>
+<template><!-- 首页（废弃中） -->
 	<view class="">
 		<ind :background="background" :height="height" :bol="bol">
 			<template>

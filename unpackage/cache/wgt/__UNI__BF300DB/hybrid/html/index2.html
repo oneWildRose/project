@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        
+    </head>
+	<style type="text/css">
+		#input{
+			position: absolute;
+			left: 50%;
+			width: 90%;
+			margin-left: -45%;
+			height: 15%;
+			background: #EAEEFF;
+			border: 1px solid rgba(0,0,0,.2);
+			color: #4D4D4D;
+			border-radius: 10px;
+			font-size: 46px;
+		}
+	</style>
+    <body>
+			<input type="file" name='file' id="input">
+    </body>
+</html>
+<!-- uni的 SDK -->
+<script type="text/javascript" src="https://js.cdn.aliyun.dcloud.net.cn/dev/uni-app/uni.webview.1.5.2.js"></script>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">	
+	$('#input').change(e => {
+		// e.target.files
+		if (window.UniAppJSBridge) {
+			console.log(e.target.files[0])
+			uni.postMessage({
+				data: {
+					file: e.target.files[0]
+				}
+			})
+		} else {
+			document.addEventListener('UniAppJSBridgeReady', function () {
+				uni.postMessage({
+					data: {
+						file: e.target.files[0]
+					}
+				})
+			});
+		}
+	});
+</script>

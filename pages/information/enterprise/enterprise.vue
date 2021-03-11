@@ -13,9 +13,10 @@
 		</div>
 		<ul>
 			<li>公司名称：{{ list.enterprisename }}</li>
-			<li>成立时间：{{ list.established }}</li>
+			<li>统一社会信用代码</li>
+			<li>企业法人</li>
+			<li>成立日期：{{ list.established }}</li>
 			<li>公司地址：{{ list.province + list.city + list.area }}</li>
-			<li>项目数：{{ list.projectnum }}</li>
 		</ul>
 		<div class="change" @click='goEnterpriseChange'>
 			<image :src="require('../../../static/xiugai.svg')" mode=""></image>
@@ -38,7 +39,11 @@
 				key: 'userinfo',
 				success(res) {
 					// console.log(res)
-					that.uid = res.data.data.user_id
+					if(res.data.uid) {
+						that.uid = res.data.uid
+					} else if(res.data.data.user_id) {
+						that.uid = res.data.data.user_id
+					}
 					that.$request('/api/index/infoIndex', {
 						uid: that.uid
 					}).then(res => {

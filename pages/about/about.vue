@@ -1,11 +1,12 @@
 <template> <!-- 关于我们 -->
-	<view>
+	<view class="hello">
+		<div class="status" style='background-color: #F8F8F8;'></div>
 		<div class='title'>
 			<image :src="require('../../static/fanhui(3).png')" mode="" @click="goBack"></image>
 			<text>关于我们</text>
 		</div>
 		<div class="main">
-			<p>轩然</p>
+			<p>境云</p>
 			<text>软件简介说明文字介绍软件简介说明文字介绍软件简介说明文字介绍软件简介说明文字介绍软件简介说明文字介绍</text>
 		</div>
 		<ul>
@@ -13,11 +14,12 @@
 				<p>客服电话</p>
 				<text>022-99999999</text>
 			</li>
-			<li>
+			<u-button class='version' :ripple="true" hover-start-time='0' @click="examine">
 				<p>检查更新</p>
-				<text>1.0</text>
-			</li>
+				<text>{{ version }}</text>
+			</u-button>
 		</ul>
+		<u-toast ref="uToast" />
 	</view>
 </template>
 
@@ -25,35 +27,57 @@
 	export default {
 		data() {
 			return {
-				
+				version: '1.0'
 			}
+		},
+		onLoad() {
+			// #ifdef APP-PLUS
+			let that = this
+				plus.runtime.getProperty(plus.runtime.appid, function(widgetInfo) {
+					that.version = widgetInfo.version
+				})
+			// #endif
 		},
 		methods: {
 			goBack(){
 				uni.navigateBack({
 					delta: 1
 				})
+			},
+			examine() {
+				this.$refs.uToast.show({
+					title: '已是最新版本',
+					position: 'bottom',
+					duration: 1000
+				})
 			}
 		}
 	}
 </script>
 
-<style lang='less' scoped>
+<style lang="less" scoped>
+	.hello{
+		width: 100%;
+		position: fixed;
+		top: 0;
+		bottom: 0;
+	}
 	.title{
 		width: 90%;
-		margin: 50rpx auto;
+		margin: 0rpx auto;
 		height: 100rpx;
 		display: flex;
 		align-items: center;
 		image{
-			width: 40rpx;
-			height: 40rpx;
+			width: 46rpx;
+			height: 46rpx;
 		}
 		text{
 			display: inline-block;
 			width: 100%;
+			font-size: 32rpx;
 			text-align: center;
-			text-indent: -40rpx;
+			margin-left: -40rpx;
 		}
 	}
 	.main{
@@ -61,13 +85,13 @@
 		height: auto;
 		margin: 40rpx auto;
 		p{
-			font-size: 40rpx;
+			font-size: 44rpx;
 			font-weight: bold;
 			margin-bottom: 40rpx;
 			text-align: center;
 		}
 		text{
-			font-size: 32rpx;
+			font-size: 30rpx;
 		}
 	}
 	ul{
@@ -77,14 +101,28 @@
 		li{
 			width: 90%;
 			height: 112rpx;
-			line-height: 112rpx;
 			padding: 0 40rpx;
 			display: flex;
+			align-items: center;
 			justify-content: space-between;
-			border-top: 1px solid #939593;
-			border-bottom: 1px solid #939593;
-			&:nth-of-type(2) {
-				border-top: none;
+			border-top: 1px solid #F0F0F0;
+			border-bottom: 1px solid #F0F0F0;
+			text{
+				color: #939593;
+			}
+		}
+		.version{
+			height: 112rpx;
+			border: none;
+			outline: none;
+			border-top: none;
+			border-bottom: 1px solid #F0F0F0;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			color: black;
+			&::after{
+				border: none;
 			}
 			text{
 				color: #939593;

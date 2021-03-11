@@ -1,88 +1,48 @@
 <template> <!-- 专家首页 -->
 	<view class="hello">
-		<div class="status"></div>
-		<div class="top">
-			<div class='welcome'>
-				<text>xxx专家，您好</text>
-				<image :src="require('../../static/remind.png')" mode=""></image>
-			</div>
-			<div class="loading">
-				<div>
-					<p class='cir'></p>
-					<text>方案进行中</text>
-					<text>2</text>
+		<div>
+			<div class="status"></div>
+			<div class='welcome'>欢迎使用境云管理平台 (专家版)</div>
+			<div class="main">
+				<div class="deal">		<!-- 交易公告 -->
+					<div>
+						<image :src="require('../../static/deal.svg')" mode=""></image>
+						<text>交易公告</text>
+					</div>
+					<swiper class="swiper" :autoplay="true" :interval='3000' vertical>
+						<swiper-item>
+							<view>恭喜张三圆满完成任务</view>
+						</swiper-item>
+						<swiper-item>
+							<view>恭喜李四圆满完成任务</view>
+						</swiper-item>
+						<swiper-item>
+							<view>恭喜王五圆满完成任务</view>
+						</swiper-item>
+					</swiper>
 				</div>
-				<div>
-					<p class='cir'></p>
-					<text>总订单量</text>
-					<text>15</text>
+				<div class="task">
+					<div class="tit">任务推荐</div>
+					<scroll-view scroll-y lower-threshold='50' @scrolltolower='btm'>
+						<li v-for='(item, index) in list' :key='index' @click='goTaskMsg(item.id)'>
+							<div class="tit">
+								<p>{{ item.pname }}</p>
+								<text class="blue">征集中</text>
+								<!-- <text :class="item.status == 0? 'gray' : item.status == 1? 'blue' : 'orange'">
+									{{ item.status == 0? '已完成' : item.status == 1? '征集中' : '沟通中' }}
+								</text> -->
+							</div>
+							<p class='need'>{{ item.cliam }}</p>
+							<p class='time'>发布时间：{{ item.fabutime }}</p>
+						</li>
+						<li>
+							<u-loadmore :status="status" :load-text="loadText" @loadmore="btm"/>
+						</li>
+					</scroll-view>
 				</div>
 			</div>
 		</div>
-		<div class="main">
-			<div class='new'>
-				<div class="tit">
-					<div class="blue"></div>
-					<text class="title">最近更新方案</text>
-					<div class='more' @click='all'>
-						全部
-						<image :src="require('../../static/jinru.svg')" mode=""></image>
-					</div>
-				</div>
-				<ul>
-					<li @click='goCont'>
-						<div>
-							<div class='pname'>
-								<text>项目名称：融创项目一期</text>
-								<div class='status'>进行中</div>
-							</div>
-							<div class="time">2020-10-01 16:56</div>
-						</div>
-						<p>查看</p>
-					</li>
-					<li @click='goCont'>
-						<div>
-							<div class='pname'>
-								<text>项目名称：融创项目二期</text>
-								<div class='status'>进行中</div>
-							</div>
-							<div class="time">2020-10-01 20:30</div>
-						</div>
-						<p>查看</p>
-					</li>
-				</ul>
-			</div>
-			<div class='new'>
-				<div class="tit">
-					<div class="orange"></div>
-					<text class="title">受邀项目</text>
-					<div class='more' @click='more'>
-						更多
-						<image :src="require('../../static/jinru.svg')" mode=""></image>
-					</div>
-				</div>
-				<ul>
-					<li @click='goInvite(1)'>
-						<div>
-							<div class='pname'>
-								<text>项目名称：融创项目一期</text>
-							</div>
-							<div class="time">2020-10-01 16:56</div>
-						</div>
-						<p>查看</p>
-					</li>
-					<li>
-						<div>
-							<div class='pname'>
-								<text>项目名称：融创项目二期</text>
-							</div>
-							<div class="time">2020-10-01 20:30</div>
-						</div>
-						<p>查看</p>
-					</li>
-				</ul>
-			</div>
-		</div>
+		<u-tabbar v-model="current" :list="lists" active-color='#5E79F2'></u-tabbar>
 	</view>
 </template>
 
@@ -93,10 +53,85 @@
 		},
 		data() {
 			return {
-				
+				lists: [
+					{
+						iconPath: "../../static/shouye(2).png",
+						selectedIconPath: "../../static/shouye.png",
+						text: '首页',
+						isDot: true,
+						customIcon: false,
+						pagePath: '/pages/ind_specialist/ind_specialist',
+					},
+					{
+						iconPath: "../../static/new.png",
+						selectedIconPath: "../../static/new(2).png",
+						text: '消息',
+						isDot: true,
+						customIcon: false,
+						pagePath: '/pages/message/message',
+					},
+					{
+						iconPath: "../../static/wode.png",
+						selectedIconPath: "../../static/wode(2).png",
+						text: '个人中心',
+						isDot: true,
+						customIcon: false,
+						pagePath: '/pages/personal/personal',
+					}
+				],
+				current: 0, // 当前tabbar激活项的索引
+				list: [],
+				status: 'loadmore',
+				page: 0,
+				loadText: {
+					loadmore: '点击或上拉加载更多',
+					loading: '努力加载中',
+					nomore: '已经没有更多了'
+				},
 			}
 		},
+		onShow() {
+			this.loadmore(0)
+		},
 		methods: {
+			goTaskMsg(id) {
+				uni.navigateTo({
+					url: './task_msg/task_msg?project_id=' + id
+				})
+			},
+			btm() {
+				if(this.status == 'nomore') { return }
+				this.loadmore(this.page)
+			},
+			loadmore(page) {
+				this.status = 'loading'
+				page++
+				this.$request('/api/Highseasapi/highseaslist', {
+					page: page,
+					limit: 10
+				}).then(res => {
+					// console.log(res)
+					if(res.data.code == 1) {
+						switch (page) {
+							case 1:
+								for(var i = 0; i < res.data.data.length; i++) {
+									res.data.data[i].plan_url += this.$store.state.imgFix // 在图片后加上参数
+								}
+								this.list = res.data.data
+								break;
+							default:
+								for(var i = 0; i < res.data.data.length; i++) {
+									res.data.data[i].plan_url += this.$store.state.imgFix // 在图片后加上参数
+									this.list.push(res.data.data[i])
+								}
+						}
+						this.page = page
+						this.status = res.data.data.length < 10? 'nomore' : 'loadmore'
+					} else {
+						this.status = 'nomore'
+					}
+				})
+			},
 			goCont() {
 				uni.navigateTo({
 					url: '../point/point'
@@ -120,53 +155,10 @@
 </script>
 
 <style lang="less" scoped>
-	uni-scroll-view, uni-swiper-item, uni-view {
-	        flex-direction: unset;
-	    }
-	    uni-swiper-item, uni-view {
-	        flex-direction: unset;
-	    }
-	    .uni-tabbar {
-	        position: fixed;
-	        bottom: 0;
-	        z-index: 999;
-	        width: 100%;
-	        display: flex;
-	        justify-content: space-around;
-	        height: 98upx;
-	        padding: 16upx 0;
-	        box-sizing: border-box;
-	        border-top: solid 1upx #ccc;
-	        background-color: #fff;
-	        box-shadow: 0px 0px 17upx 1upx rgba(206, 206, 206, 0.32);
-	        .uni-tabbar__item {
-	            display: block;
-	            line-height: 24upx;
-	            font-size: 20upx;
-	            text-align: center;
-				image{
-					width: 40rpx;
-					height: 40rpx;
-				}
-	        }
-	        .uni-tabbar__icon {
-	            height: 42upx;
-	            line-height: 42upx;
-	            text-align: center;
-	        }
-	        .icon {
-	            display: inline-block;
-	        }
-	        .uni-tabbar__label {
-	            line-height: 24upx;
-	            font-size: 24upx;
-	            color: #000000;
-	            &.active {
-	                color: #3F5DE3;
-	            }
-	        }
-	    }
-		
+	.status{
+		background: #5D6CFF;
+		height: var(--status-bar-height);
+	}
 	.hello{
 		width: 100%;
 		height: 100%; 
@@ -176,158 +168,127 @@
 		bottom: 0;
 		right: 0;
 		background: #F5F6F9;
+		&>div{
+			height: 100%;
+		}
 	}
-	.status{
-		background: #5E79F2;
-		height: var(--status-bar-height);
-	}
-	.top{
-		background: #5E79F2;
-		padding-top: 40rpx;
+	.welcome{
 		width: 100%;
-		height: 184rpx;
-		.welcome{
-			width: 90%;
-			height: 60rpx;
-			font-size: 34rpx;
-			margin: 0rpx auto;
-			display: flex;
-			justify-content: space-between;
-			text{
-				color: white;
-			}
-			image{
-				width: 40rpx;
-				height: 40rpx;
-			}
-		}
-		.loading{
-			width: 90%;	
-			height: 60rpx;
-			margin: 40rpx auto;
-			display: flex;
-			align-items: center;
-			&>div{
-				width: 200rpx;
-				margin-right: 50rpx;
-				color: white;
-				display: flex;
-				align-items: baseline;
-				justify-content: space-between;
-				.cir{
-					width: 12rpx;
-					height: 12rpx;
-					background: #FFAC27;
-					margin-right: 14rpx;
-				}
-				text:nth-of-type(1){
-					font-size: 30rpx;
-					flex-grow: 1;
-				}
-				text:nth-of-type(2){
-					font-weight: bold;
-				}
-			}
-		}
+		height: 164rpx;
+		background: #5D6CFF;
+		line-height: 164rpx;
+		text-align: center;
+		font-size: 38rpx;
+		font-weight: bold;
+		z-index: 999;
+		color: white;
+		background: #5D6CFF url(../../static/pt.svg) no-repeat 90%;
+		background-size: 232rpx 180rpx;
 	}
 	.main{
-		width: 100%;
-		height: 1000rpx;
-		// border: 1px solid red;
-		.new{
+		width: 90%;
+		height: 72%;
+		margin: 20rpx auto;
+		.deal{
 			width: 100%;
-			height: auto;
+			height: 132rpx;
 			background: white;
-			box-shadow: #c8c8c8 0px 0px 2px 0px;
-			margin-top: 30rpx;
-			.tit{
-				width: 100%;
-				height: 88rpx;
-				border-bottom: 1px solid #F4F4F4;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			border-radius: 10rpx;
+			div{
+				width: 240rpx;
+				height: 64rpx;
+				line-height: 64rpx;
+				border-right: 1px solid #FFE0A5;
 				display: flex;
 				align-items: center;
-				justify-content: space-between;
-				.blue{
-					width: 14rpx;
-					height: 60rpx;
-					background: #768FFF;
-					margin-right: 20rpx;
-				}
-				.orange{
-					width: 14rpx;
-					height: 60rpx;
-					margin-right: 20rpx;
-					background: #FFAC27;
-				}
-				.title{
-					font-weight: bold;
-					flex-grow: 1;
-					font-size: 34rpx;
-				}
-				.more{
-					color: #8A8886;
-					font-size: 26rpx;
-					display: flex;
-					align-items: center;
-					margin-right: 40rpx;
-					image{
-						width: 30rpx;
-						height: 30rpx;
-					}
+				font-size: 33rpx;
+				image{
+					width: 50rpx;
+					height: 50rpx;
+					margin-left: 20rpx;
+					margin-right: 12rpx;
 				}
 			}
-			ul{
-				width: 92%;
-				margin: 0 auto;
+			.swiper{
+				width: 400rpx;
+				height: 64rpx; 
+				font-size: 33rpx;
+				view{
+					height: 64rpx;
+					line-height: 64rpx;
+				}
+			}
+		}
+		.task{
+			width: 100%;
+			padding-bottom: 10rpx;
+			height: 83%;
+			margin: 20rpx auto;
+			background: white;
+			border-radius: 10rpx;
+			&>.tit{
+				width: 100%;
+				height: 108rpx;
+				line-height: 108rpx;
+				font-weight: bold;
+				border-bottom: 1px solid #E1E1E1;
+				font-size: 34rpx;
+				text-align: left;
+				text-indent: 40rpx;
+			}
+			
+			scroll-view{
+				width: 90%;
+				margin: 20rpx auto;
+				max-height: 82%;
+				overflow-y: scroll;
 				li{
 					width: 100%;
-					height: 136rpx;
-					border-bottom: 1px solid #F4F4F4;
-					display: flex;
-					justify-content: space-between;
-					align-items: center;
-					&:nth-last-of-type(1) {
-						border-bottom: none;
-					}
-					&>div{
-						height: 112rpx;
-						font-size: 28rpx;
-						margin-left: 20rpx;
-						.pname{
-							width: 100%;
-							height: 60rpx;
-							font-size: 30rpx;
-							display: flex;
-							align-items: center;
-							justify-content: space-between;
-							text{
-								margin-right: 20rpx;
-							}
-							.status{
-								width: 100rpx;
-								height: 48rpx;
-								line-height: 48rpx;
-								text-align: center;
-								border-radius: 40rpx;
-								background: #768FFF;
-								color: white;
-								font-size: 24rpx;
-								font-weight: bold;
-							}
+					height: auto;
+					list-style: none;
+					padding-bottom: 10rpx;
+					border-radius: 8rpx;
+					background: #F5F5F9;
+					margin-bottom: 20rpx;
+					.tit{
+						width: 90%;
+						height: 70rpx;
+						margin: 0 auto;
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						font-size: 30rpx;
+						text{
+							font-weight: bold;
 						}
-						.time{
-							color: #9FA19C;
-							font-size: 26rpx;
+						.blue{
+							color: #5D6CFF;
+						}
+						.orange{
+							color: #F8A700;
+						}
+						.gray{
+							color: #B7B7BD;
 						}
 					}
-					p{
+					&>p{
+						width: 90%;
+						margin: 0 auto;
 						font-size: 28rpx;
-						color: #768FFF;
-						margin-right: 20rpx;
+						color: #8E908F;
+						margin-bottom: 10rpx;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+					&:nth-last-of-type(1){
+						background: none;
 					}
 				}
 			}
 		}
-		
 	}
 </style>
