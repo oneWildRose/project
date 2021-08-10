@@ -43,7 +43,7 @@
 						</div>
 					</div> -->
 				</div>
-				<div class='jia' style='height: 0;' v-if='isshenfen == 1 || isshenfen == 3'>  <!-- isshenfen == 1 or 3 甲乙双方顶级负责人显示 -->
+				<div class='jia' style='display: none;' v-if='isshenfen == 1 || isshenfen == 3'>  <!-- isshenfen == 1 or 3 甲乙双方顶级负责人显示 -->
 					<div class="tit">
 						<text>我的需求</text>
 						<div @click='goMyneed(0)'>

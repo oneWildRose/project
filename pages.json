@@ -1,13 +1,25 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		
 		{
-		    "path" : "pages/sign/sign",
-		    "style" : {
+		    "path" : "pages/guide/guide",
+		    "style" :                                                                                    
+			{
 				"navigationStyle":"custom", // 去除原生导航栏
+				   "enablePullDownRefresh": false,
 				"app-plus": {
 					"bounce": "none" ,// 阻止ios端页面上下拉动
 					"scrollIndicator": "none" // 隐藏页面滚动条
+				}
+			}
+		    
+		},
+		{
+		    "path" : "pages/sign/sign",
+		    "style" : {
+				"navigationStyle":"custom",
+				"app-plus": {
+					"bounce": "none" ,
+					"scrollIndicator": "none"
 				}
 			}
 		},

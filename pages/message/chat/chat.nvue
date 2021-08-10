@@ -146,7 +146,7 @@
 			var that = this
 			uni.getSystemInfo({
 				success(res) {
-					this.clientWidth = res.screenWidth + 'px' // 设备宽度
+					that.clientWidth = res.screenWidth + 'px' // 设备宽度
 				}
 			})
 			uni.getStorage({
